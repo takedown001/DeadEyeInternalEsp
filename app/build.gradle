@@ -1,0 +1,66 @@
+plugins {
+    id 'com.android.application'
+    id 'com.chrisney.enigma'
+//    id 'com.onesignal.androidsdk.onesignal-gradle-plugin'
+}
+// Set Enigma options:
+enigma.enabled = false
+enigma.injectFakeKeys = true
+enigma.classes  = ["com.memory.xploiter.ESPView.java","com.memory.xploiter.FService.java"]
+android {
+    compileSdkVersion 30
+    buildToolsVersion "30.0.3"
+
+    defaultConfig {
+        applicationId "com.memory.xploiter"
+        minSdkVersion 24
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+        multiDexEnabled false
+//        manifestPlaceholders = [
+//                onesignal_app_id: 'a0823f31-dac3-4eb0-b513-fbebde4e3eb5',
+//                // Project number pulled from dashboard, local value is ignored.
+//                 onesignal_google_project_number: '848138391916'
+//        ]
+        ndk {
+            abiFilters "armeabi-v7a"
+        }
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            multiDexEnabled true
+            shrinkResources true
+        }
+    }
+    externalNativeBuild {
+        ndkBuild {
+            path "src/main/cpp/Android.mk"
+            version "3.10.2"
+        }
+    }
+    ndkVersion '21.1.6352462'
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+task wrapper(type: Wrapper) {
+    gradleVersion = '6.7.1'
+}
+
+android {
+    packagingOptions {
+        pickFirst 'lib/armeabi-v7a/libBugly.so'
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+//    implementation 'com.onesignal:OneSignal:3.15.4'
+
+}

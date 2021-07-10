@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "848138391916",
+    "project_id": "pubg-32824",
+    "storage_bucket": "pubg-32824.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:848138391916:android:4acf92e3e9447a893ae349",
+        "android_client_info": {
+          "package_name": "com.memory.xploiter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "848138391916-ae58slilui4b0euvo57rnndt0iqdkstb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9Dyv1F4-GOv06nLfosEA7iMuX2rdqH_U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "848138391916-ae58slilui4b0euvo57rnndt0iqdkstb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
