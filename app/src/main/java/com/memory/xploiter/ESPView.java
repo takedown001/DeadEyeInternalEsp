@@ -91,7 +91,7 @@ public class ESPView extends View implements Runnable {
             float f = (height - 20);
             time.setTime(System.currentTimeMillis());
             //DrawText(canvas, 255, 128, 0, 0,1.1f, formatter2.format(time) + "  " + formatter.format(time), (canvas.getWidth()/2), 45, 28);
-            DrawText(canvas, 255, 0, 255, 0, 0.5f, Deadeye() + "ESP Alpha FPS : " + mFPS, 200, 100, 20);
+            DrawText(canvas, 255, 0, 255, 0, 0.5f, Deadeye() + "ESP Beta FPS : " + mFPS, 200, 100, 20);
             DrawText(canvas,255, 0, 255, 0,0.5f ,"@"+DeadEye() + "_TG",canvas.getWidth() - 130, canvas.getHeight() - 30, 20);
             Loader.DrawOn(this, canvas);
         }

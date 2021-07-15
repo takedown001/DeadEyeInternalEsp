@@ -119,12 +119,12 @@ public class FService extends Service {
         adddescription("Show The Health Box On Player",mMenuBody);
         String [] health = {"OFF","Horizontal"};
         addRadioGroup(health,mMenuBody);
-        addSubtitle("ESP Generic Adjustment",mMenuBody);
         item.setOrientation(LinearLayout.VERTICAL);
         item.setLayoutParams(new LinearLayout.LayoutParams( LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
         LinearLayout horiz = new LinearLayout(getBaseContext());
         horiz.setOrientation(LinearLayout.HORIZONTAL);
         horiz.setPadding(50,0,0,0);
+        addSubtitle("ESP Generic Adjustment",item);
         additem("Distance", new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -156,41 +156,42 @@ public class FService extends Service {
             }
         },horiz1,4);
         item.addView(horiz1);
-//        addSubtitle("Items Generic Adjustment",mMenuBody);
-//        LinearLayout horiz2 = new LinearLayout(getBaseContext());
-//        horiz2.setLayoutParams(new LinearLayout.LayoutParams( LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
-//        horiz2.setOrientation(LinearLayout.HORIZONTAL);
-//        aditem("AKM", new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//
-//            }
-//        },horiz2);
-//        aditem("M416", new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//
-//            }
-//        },horiz2);
-//        item.addView(horiz2);
-//        LinearLayout horiz3 = new LinearLayout(getBaseContext());
-//        horiz3.setLayoutParams(new LinearLayout.LayoutParams( LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
-//        horiz3.setOrientation(LinearLayout.HORIZONTAL);
-//        aditem("7.62mm", new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//
-//            }
-//        },horiz3);
-//        aditem("5.56m", new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//
-//            }
-//        },horiz3);
-//        item.addView(horiz3);
-
-        mMenuBody.addView(item);
+        addSubtitle("Items Generic Adjustment",item);
+       LinearLayout horiz2 = new LinearLayout(getBaseContext());
+        horiz2.setLayoutParams(new LinearLayout.LayoutParams( LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
+        horiz2.setOrientation(LinearLayout.HORIZONTAL);
+        horiz2.setPadding(50,0,0,0);
+       additem("AKM", new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                loader.Switch(11,isChecked);
+            }
+        },horiz2,5);
+        additem("M416", new CompoundButton.OnCheckedChangeListener() {
+           @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                loader.Switch(10,isChecked);
+            }
+        },horiz2,6);
+        item.addView(horiz2);
+       LinearLayout horiz3 = new LinearLayout(getBaseContext());
+        horiz3.setLayoutParams(new LinearLayout.LayoutParams( LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
+        horiz3.setOrientation(LinearLayout.HORIZONTAL);
+        horiz3.setPadding(50,0,0,0);
+       additem("7.62mm", new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                loader.Switch(12,isChecked);
+            }
+        },horiz3,7);
+        additem("5.56m", new CompoundButton.OnCheckedChangeListener() {
+           @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+               loader.Switch(13,isChecked);
+            }
+        },horiz3,8);
+       item.addView(horiz3);
+       mMenuBody.addView(item);
         addSwitch("Memory Features", new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -204,6 +205,8 @@ public class FService extends Service {
         Memorylayout();
         mMenuBody.addView(memorytab);
     }
+
+
     @TargetApi(Build.VERSION_CODES.O)
     private void additem(String name, CompoundButton.OnCheckedChangeListener on, LinearLayout parent,int id ){
         CheckBox checkBox = new CheckBox(getBaseContext());
@@ -252,6 +255,17 @@ public class FService extends Service {
         addSubtitle("Custom Crosshair",memorytab);
         adddescription("Reduces Bullet Spread On Hip Fire And Improves Raw Aim",memorytab);
         String [] crosshair = {"OFF","Graphical Crosshair","Memory Crosshair"};
+//        addSwitch("Medium Speed", new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                if(isChecked){
+//                    loader.SwitchMemory(9);
+//                }
+//                else{
+//                    loader.SwitchMemory(10);
+//                }
+//            }
+//        },memorytab);
         addRadioGroup(crosshair,memorytab);
 
     }
@@ -488,6 +502,7 @@ public class FService extends Service {
                         }
                         if(txt[1].equals("Graphical Crosshair")){
                             loader. Switch(148, true);
+                            loader.SwitchMemory(4);
                         }
                         if(txt[1].equals("Horizontal")){
                             loader.Switch(4, true);

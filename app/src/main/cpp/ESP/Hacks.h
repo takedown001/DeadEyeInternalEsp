@@ -73,15 +73,14 @@ char* getNameByte(kaddr address)
     return lj;
 }
 
-PlayerBone getPlayerBone(uintptr_t pBase, struct D3DMatrix viewMatrix)
-{
+PlayerBone getPlayerBone(uintptr_t pBase, struct D3DMatrix viewMatrix) {
     PlayerBone b;
     b.isBone = true;
     struct D3DMatrix oMatrix;
-    kaddr boneAddr = getPtr(pBase + 0x310);
-    struct D3DMatrix baseMatrix = getOMatrix(boneAddr + 0x140);
-    int bones[] = { 4, 4, 1, 11, 32, 12, 33, 63, 62, 52, 56, 53, 57, 54, 58 };
-    boneAddr = getPtr(boneAddr + 0x5a0) + 0x30;
+    kaddr boneAddr = getPtr(pBase + 0x320);
+    struct D3DMatrix baseMatrix = getOMatrix(boneAddr + 0x150);
+    int bones[] = { 6, 5, 2, 12, 33, 13, 34, 64, 63, 53, 57, 54, 58, 55, 59 };
+    boneAddr = getPtr(boneAddr + 0x5b0);
     oMatrix = getOMatrix(boneAddr + (bones[0]) * 48);
     b.neck = World2ScreenMain(viewMatrix, mat2Cord(oMatrix, baseMatrix));
     oMatrix = getOMatrix(boneAddr + (bones[1]) * 48);
@@ -113,7 +112,6 @@ PlayerBone getPlayerBone(uintptr_t pBase, struct D3DMatrix viewMatrix)
     oMatrix = getOMatrix(boneAddr + (bones[14]) * 48);
     b.rAn = World2ScreenMain(viewMatrix, mat2Cord(oMatrix, baseMatrix));
     return b;
-
 }
 
 char* getText(kaddr addr) {
@@ -160,27 +158,27 @@ void DrawESP(ESP esp, int screenWidth, int screenHeight) {
     target_pid = find_pid("com.pubg.imobile");
     if (target_pid == 0) { return; }
     libbase = getbsaddr(target_pid);
-    vworld = getPtr(libbase + 0x728E890);
+    vworld = getPtr(libbase + 0x753b110);
     CM = getPtr(vworld + 32);
     JZDZ = CM + 512;
     struct Vec3 exyz;
     struct D3DMatrix vMat;
     int type = 69;
-    float textsize = screenHeight / 45;
+    float textsize = screenHeight / 42;
     height = screenHeight;
     width = screenWidth;
     response.Success = false;
     response.PlayerCount = 0;
     response.GrenadeCount = 0;
     pvm(JZDZ, &vMat, sizeof(vMat));
-    kaddr uWorlds = getPtr(libbase + 0x6E2192C);
-    kaddr uLevel = getPtr(uWorlds + 32);
-    kaddr gameInstance = getPtr(uWorlds + 36);
-    kaddr playerController = getPtr(gameInstance + 96);
+    kaddr uWorlds = getPtr(libbase + 0x70ab2bc);
+    kaddr uLevel = getPtr(uWorlds + 0x20);
+    kaddr gameInstance = getPtr(uWorlds + 0x24);
+    kaddr playerController = getPtr(gameInstance + 0x60);
     kaddr playerCarry = getPtr(playerController + 0x20);
-    kaddr uMyObject = getPtr(playerCarry + 0x320);
-    kaddr entityEntry = getPtr(uLevel + 112);
-    kaddr entityCount = getPtr(uLevel + 116);
+    kaddr uMyObject = getPtr(playerCarry + 0x330);
+    kaddr entityEntry = getPtr(uLevel + 0x70);
+    kaddr entityCount = getPtr(uLevel + 0x74);
     if (gameInstance == 0)
         return;
     if (entityCount < 0) {
@@ -192,7 +190,7 @@ void DrawESP(ESP esp, int screenWidth, int screenHeight) {
     for (int i = 0; i < entityCount; i++) {
         pBase = getPtr(entityEntry + i * 4);
         kaddr gname_buff[30];
-        kaddr gname = getPtr(libbase + 0x70D3994);
+        kaddr gname = getPtr(libbase + 0x70a19f0);
         pvm(gname, &gname_buff, sizeof(gname_buff));
         char name[100];
         int ids = Read<int>(pBase + 8 + 2 * SIZE);
@@ -204,7 +202,7 @@ void DrawESP(ESP esp, int screenWidth, int screenHeight) {
             gname_buff[page] = getPtr(gname + page * 4);
         strcpy(name, getText(getPtr(gname_buff[page] + index * 4)));
         if (strstr(name, "BP_Grenade_Shoulei_C") || strstr(name, "BP_Grenade_Burn_C")) {
-            pvm(getPtr(pBase + 0x140) + 0x150, &exyz, sizeof(exyz));
+            pvm(getPtr(pBase + 0x14C) + 0x160, &exyz, sizeof(exyz));
             Location = World2Screen(vMat, exyz);
             float screenW =
                     (vMat._14 * exyz.X) + (vMat._24 * exyz.Y) + (vMat._34 * exyz.Z + vMat._44);
@@ -214,12 +212,12 @@ void DrawESP(ESP esp, int screenWidth, int screenHeight) {
             if (strstr(name, "Shoulei")) {
                 type = 1;
             }
-                else if (strstr(name, "Burn")) {
+            else if (strstr(name, "Burn")) {
                 type = 2;
             }
             if (isGrenadeWarning) {
                 esp.DrawTText(Color::Red(), "Warning Throwable Nearby :",
-                             Vec22(screenWidth / 5, screenHeight / 15), textsize);
+                              Vec22(screenWidth / 5, screenHeight / 15), textsize);
                 if (Location.Z != 2.0f) {
                     if (type == 1)
                         esp.DrawText(Color::Red(), "Grenade", Vec22(Location.X, Location.Y),
@@ -230,13 +228,86 @@ void DrawESP(ESP esp, int screenWidth, int screenHeight) {
                 }
             }
         }
+        if (strstr(name, "BP_Rifle_M416_Wrapper_C")) {//Items
+            char ItemName[50];
+            pvm(getPtr(pBase + 0x14C) + 0x160, &exyz, sizeof(exyz));
+            Location = World2Screen(vMat, exyz);
+            if (Location.Z == 1.0f || Location.X > width + 200 || Location.X < -200)
+                continue;
+            float screenW = (vMat._14 * exyz.X) + (vMat._24 * exyz.Y) + (vMat._34 * exyz.Z + vMat._44);
+            Distance= (screenW / 100);
+            strcpy(ItemName, name);
+            if(isM416)
+                if(Location.Z!=1.0f) {
+                    esp.DrawText(Color(108,31,146),"M416",Vec22(Location.X,Location.Y),textsize);
+                }
+        }
+        if (strstr(name, "BP_Rifle_AKM_Wrapper_C")) {
+            char ItemName[50];
+            pvm(getPtr(pBase + 0x14C) + 0x160, &exyz, sizeof(exyz));
+            Location = World2Screen(vMat, exyz);
+            if (Location.Z == 1.0f || Location.X > width + 200 || Location.X < -200)
+                continue;
+            float screenW = (vMat._14 * exyz.X) + (vMat._24 * exyz.Y) + (vMat._34 * exyz.Z + vMat._44);
+            Distance= (screenW / 100);
+            strcpy(ItemName, name);
+            if(isAkm)
+                if(Location.Z!=1.0f) {
+                    esp.DrawText(Color(108,31,146),"AKM",Vec22(Location.X,Location.Y),textsize);
+                }
+        }
+        if (strstr(name, "BP_Rifle_AKM_Wrapper_C")) {
+            char ItemName[50];
+            pvm(getPtr(pBase + 0x14C) + 0x160, &exyz, sizeof(exyz));
+            Location = World2Screen(vMat, exyz);
+            if (Location.Z == 1.0f || Location.X > width + 200 || Location.X < -200)
+                continue;
+            float screenW = (vMat._14 * exyz.X) + (vMat._24 * exyz.Y) + (vMat._34 * exyz.Z + vMat._44);
+            Distance= (screenW / 100);
+            strcpy(ItemName, name);
+            if(isAkm)
+                if(Location.Z!=1.0f) {
+                    esp.DrawText(Color(108,31,146),"M416",Vec22(Location.X,Location.Y),textsize);
+                }
+        }
+        if (strstr(name, "BP_Ammo_762mm_Pickup_C")) {//Items
+            char ItemName[50];
+            pvm(getPtr(pBase + 0x14C) + 0x160, &exyz, sizeof(exyz));
+            Location = World2Screen(vMat, exyz);
+            if (Location.Z == 1.0f || Location.X > width + 200 || Location.X < -200)
+                continue;
+            float screenW = (vMat._14 * exyz.X) + (vMat._24 * exyz.Y) + (vMat._34 * exyz.Z + vMat._44);
+            Distance= (screenW / 100);
+            strcpy(ItemName, name);
+            if(isssm)
+                if(Location.Z!=1.0f) {
+                    esp.DrawText(Color::Gold(),"7.62 mm",Vec22(Location.X,Location.Y),textsize);
+                }
+        }
+
+        if (strstr(name, "BP_Ammo_556mm_Pickup_C")){//Items
+            char ItemName[50];
+            pvm(getPtr(pBase + 0x14C) + 0x160, &exyz, sizeof(exyz));
+            Location = World2Screen(vMat, exyz);
+            if (Location.Z == 1.0f || Location.X > width + 200 || Location.X < -200)
+                continue;
+            float screenW = (vMat._14 * exyz.X) + (vMat._24 * exyz.Y) + (vMat._34 * exyz.Z + vMat._44);
+            Distance= (screenW / 100);
+            strcpy(ItemName, name);
+            if(isffm)
+                if(Location.Z!=1.0f) {
+                    esp.DrawText(Color::Gold(),"5.56 mm",Vec22(Location.X,Location.Y),textsize);
+                }
+        }
+
+
         if (strstr(name, "BP_PlayerPawn_") && !strstr(name, "BP_PlayerPawn_Statue_")) {
-            pvm(pBase + 0x918, healthbuff, sizeof(healthbuff));
+            pvm(pBase + 0x928, healthbuff, sizeof(healthbuff));
             if (healthbuff[1] > 200.0f || healthbuff[1] < 50.0f || healthbuff[0] > healthbuff[1] ||
                 healthbuff[0] < 0.0f)
                 continue;
             Health = healthbuff[0] / healthbuff[1] * 100;
-            int TeamID = Read<int>(pBase + 0x660);
+            int TeamID = Read<int>(pBase + 0x670);
             if (pBase == uMyObject) {
                 myTeamID = TeamID;
                 myplayeradd = pBase;
@@ -246,19 +317,20 @@ void DrawESP(ESP esp, int screenWidth, int screenHeight) {
                 myplayeradd = pBase;
                 continue;
             }
-            pvm(getPtr(pBase + 0x2804) + 0xfc, &exyz, sizeof(exyz));
+
+            pvm(getPtr(pBase + 0x287C) + 0x104, &exyz, sizeof(exyz));
             HeadLocation = World2Screen(vMat, exyz);
             float screenW =
                     (vMat._14 * exyz.X) + (vMat._24 * exyz.Y) + (vMat._34 * exyz.Z + vMat._44);
             Distance = (screenW / 100);
             if (Distance > 600)
                 continue;
-            pvm(pBase + 0x6D8, &isBot, sizeof(isBot));
+            pvm(pBase + 0x6E8, &isBot, sizeof(isBot));
             strcpy(PlayerNameByte, "66:111:116:");
-            strcpy(PlayerNameByte, getNameByte(getPtr(pBase + 0x638)));
+            strcpy(PlayerNameByte, getNameByte(getPtr(pBase + 0x648)));
             if (strlen(PlayerNameByte) < 4)
                 continue;
-            float wzzb = Read<float>(pBase + 0x1764);
+            float wzzb = Read<float>(pBase + 0x17AC);
             if (wzzb != 479.5) {
                 continue;
             }
@@ -269,7 +341,7 @@ void DrawESP(ESP esp, int screenWidth, int screenHeight) {
             float my = (screenWidth / 1.38) / magic_number;
             float top = y - my + (screenWidth / 1.7) / magic_number;
             float bottom = y + my + screenHeight / 4 / magic_number;
-            long int object = getPtr(pBase + 0x140);
+            long int object = getPtr(pBase + 0x150);
             float d_x = Read<float>(object + 0xFC);
             float d_y = Read<float>(object + 0x100);
             float d_z = Read<float>(object + 0x104);
@@ -300,23 +372,19 @@ void DrawESP(ESP esp, int screenWidth, int screenHeight) {
                 clr.b = 0;
                 clr.a = 255;
             } else {
-                if (isBot) {
-                    clr.r = 255;
-                    clr.g = 255;
-                    clr.b = 255;
-                    clr.a = 255;
-                } else {
+                if (!isBot) {
                     clr.r = 255;
                     clr.g = 0;
                     clr.b = 0;
                     clr.a = 255;
+                } else {
+                    clr.r = 255;
+                    clr.g = 255;
+                    clr.b = 255;
+                    clr.a = 255;
                 }
             }
-            if (isBot) {
-                botCount++;
-            } else {
-                playerCount++;
-            }
+            isBot ? botCount++ : playerCount++;
             if (HeadLocation.Z != 1) {
                 if (x > -50 && x < screenWidth + 50) {
                     if (isSkelton1) {
@@ -391,19 +459,17 @@ void DrawESP(ESP esp, int screenWidth, int screenHeight) {
                             esp.DrawLine(skclr, 2, Vec22(Bone.rKn.X, Bone.rKn.Y),
                                          Vec22(Bone.rAn.X, Bone.rAn.Y));
                         }
-
                     }
 
                     if (isPlayerBox) {
-                        if (isBot) {
-                            esp.DrawRRect(Color::Cyan(), screenHeight / 500, Vec22(x - mx, top),
-                                          Vec22(x + mx, bottom));
-                        } else {
-                            esp.DrawRRect(Color::Red(), screenHeight / 500, Vec22(x - mx, top),
-                                          Vec22(x + mx, bottom));
-                        }
+                        esp.DrawRRect(isBot ? Color::Cyan() : Color::Red(), screenHeight / 500,
+                                      Vec22(x - mx, top),
+                                      Vec22(x + mx, bottom));
                     }
-
+                    if(iscross) {
+                        esp.DrawCrosshair(Color(0, 0, 0, 255),
+                                          Vec22(screenWidth / 2, screenHeight / 2), 42);
+                    }
                     if (isPlayerHealth) {
                         float healthLength = screenWidth / 50;
                         if (healthLength < mx)

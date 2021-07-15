@@ -20,11 +20,10 @@ public class StaticActivity{
 
 
     public static void Start(final Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(context)) {
+        if (!Settings.canDrawOverlays(context)) {
             Intent intent = new Intent("android.settings.action.MANAGE_OVERLAY_PERMISSION",
                     Uri.parse("package:" + context.getPackageName()));
             context.startActivity(intent);
-
         }
         else {
             Handler handler = new Handler();
@@ -34,7 +33,6 @@ public class StaticActivity{
                           context.startService(new Intent(context, FService.class));
                     }
                 }, 1000);
-
         }
     }
 

@@ -16,7 +16,7 @@ android {
         minSdkVersion 24
         targetSdkVersion 30
         versionCode 1
-        versionName "1.0"
+        versionName "1.2"
         multiDexEnabled false
 //        manifestPlaceholders = [
 //                onesignal_app_id: 'a0823f31-dac3-4eb0-b513-fbebde4e3eb5',
@@ -37,12 +37,7 @@ android {
             shrinkResources true
         }
     }
-    externalNativeBuild {
-        ndkBuild {
-            path "src/main/cpp/Android.mk"
-            version "3.10.2"
-        }
-    }
+
     ndkVersion '21.1.6352462'
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -55,7 +50,12 @@ task wrapper(type: Wrapper) {
 
 android {
     packagingOptions {
-        pickFirst 'lib/armeabi-v7a/libBugly.so'
+        pickFirst 'lib/armeabi-v7a/libtersafe2.so'
+    }
+    externalNativeBuild {
+        ndkBuild {
+            path file('src/main/cpp/Android.mk')
+        }
     }
 }
 

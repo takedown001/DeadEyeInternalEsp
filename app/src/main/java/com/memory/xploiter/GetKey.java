@@ -40,7 +40,7 @@ public class GetKey extends AsyncTask<String, Void, String> {
     public static final String TAG_MSG = "8";
     public static final String TAG_TIME = "999";
     Date time = new Date();
-Handler handler = new Handler();
+    Handler handler = new Handler();
     long reqtime;
 
 
@@ -123,10 +123,6 @@ Handler handler = new Handler();
         params.put(TAG_DEVICEID, AESUtils.DarKnight.getEncrypted(getUniqueId(getActivity())));
         params.put(TAG_KEY, AESUtils.DarKnight.getEncrypted("9166253127"));
         params.put(TAG_TIME, AESUtils.DarKnight.getEncrypted(String.valueOf(reqtime)));
-//              Log.d("test",AESUtils.DarKnight.getEncrypted(deviceid));
-//                Log.d("test",AESUtils.DarKnight.getEncrypted(Phome));
-//                Log.d("test",AESUtils.DarKnight.getEncrypted(String.valueOf(reqtime)));
-        //             Log.d("test",AESUtils.DarKnight.getEncrypted(String.valueOf(TimeMilli)));
         String rq = null;
         try {
             rq = jsonParserString.makeHttpRequest(Here(), params);

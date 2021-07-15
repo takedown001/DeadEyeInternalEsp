@@ -125,6 +125,12 @@ public:
         }
     }
 
+    void DrawCrosshair(Color clr, Vec22 center, float size = 20) {
+        float x = center.x - (size / 2.0f);
+        float y = center.y - (size / 2.0f);
+        DrawLine(clr, 3, Vec22(x, center.y), Vec22(x + size, center.y));
+        DrawLine(clr, 3, Vec22(center.x, y), Vec22(center.x, y + size));
+    }
     void DrawName(Color color, const char *txt,int teamid, Vec22 pos, float size) {
         if (isValid()) {
             jclass canvasView = _env->GetObjectClass(_cvsView);

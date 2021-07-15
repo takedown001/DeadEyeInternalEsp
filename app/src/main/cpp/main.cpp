@@ -18,16 +18,7 @@ ESP espOverlay;
 
 
 struct Patch {
-    MemoryPatch WideView; //4
-    MemoryPatch WideView_1; //4
-    MemoryPatch WideView_2; //7
-    MemoryPatch WideView_3; //7
-    MemoryPatch WideView_4; //7
-    MemoryPatch WideView_5; //7
-    MemoryPatch WideView_6; //7
-    MemoryPatch WideView_7; //7
-    MemoryPatch WideView_8; //7
-    MemoryPatch WideView_9; //4
+    MemoryPatch Flash;
     MemoryPatch LessRecoil; //4
     MemoryPatch SmallCrosshair; //7
     MemoryPatch Aimbot; //7
@@ -68,6 +59,21 @@ Java_com_memory_xploiter_Loader_Switch(JNIEnv *, jclass clazz,jint code,jboolean
             break;
         case 147:
             isdown = jboolean1;
+            break;
+        case 148:
+           iscross =jboolean1;
+            break;
+        case 10:
+            isM416 = jboolean1;
+            break;
+        case 11:
+            isAkm = jboolean1;
+            break;
+        case 12:
+            isssm =jboolean1;
+            break;
+        case 13:
+           isffm =jboolean1;
             break;
 
     }
@@ -111,34 +117,39 @@ JNIEXPORT void JNICALL
 Java_com_memory_xploiter_Loader_SwitchMemory(JNIEnv *env, jclass clazz, jint num) {
     switch (num){
         case 1:
-            xcode.LessRecoil = MemoryPatch("libUE4.so", 0x1428AD8, "\x00\x00\x00\x00", 4);
+            xcode.LessRecoil = MemoryPatch("libUE4.so", 0x14C98F0, "\x00\x00\x00\x00", 4);
             xcode.LessRecoil.Modify();
             break;
         case 2:
             xcode.LessRecoil.Restore();
             break;
         case 3:
-            xcode.SmallCrosshair = MemoryPatch("libUE4.so", 0x142908C, "\x00\x00\xA0\x40", 4);
+            xcode.SmallCrosshair = MemoryPatch("libUE4.so", 0x14CBD30, "\x00\x00\xA0\x40", 4);
             xcode.SmallCrosshair.Modify();
             break;
         case 4:
             xcode.SmallCrosshair.Restore();
             break;
         case 5:
-            xcode.Aimbot = MemoryPatch("libUE4.so", 0x272541C, "\x00\x00\x00\x00", 4);
+            xcode.Aimbot = MemoryPatch("libUE4.so", 0x287D21C, "\x00\x00\x00\x00", 4);
             xcode.Aimbot.Modify();
             break;
         case 6:
             xcode.Aimbot.Restore();
             break;
         case 7:
-            xcode.Bullet_Track = MemoryPatch("libUE4.so", 0x3ADBA2C, "\x42\x30\x00\x00", 4);
-            xcode.Bullet_Track = MemoryPatch("libUE4.so", 0x3E3D488, "\x42\x30\x00\x00", 4);
+            xcode.Bullet_Track = MemoryPatch("libUE4.so", 0x3FEAB98, "\x42\x30\x00\x00", 4);
             xcode.Bullet_Track.Modify();
             break;
         case 8:
             xcode.Bullet_Track.Restore();
             break;
+        case 9:
+            xcode.Flash =  MemoryPatch("libUE4.so", 0x422A554, "-\xD0\xE5\x60\x3B\x74\x76\x55\x36", 32);
+            xcode.Flash.Modify();
+            break;
+        case 10:
+            xcode.Flash.Restore();
     }
 }
 void *hack_thread(void *) {
