@@ -94,8 +94,7 @@ public class Login extends AsyncTask<String, Void, String> {
             JSONObject token = new JSONObject();
             JSONObject data = new JSONObject();
             data.put("uname", strings[0]);
-         //   data.put("pass", "TAKEDOWN");
-            data.put("load", "1");
+            data.put("load",getActivity().getPackageName());
             data.put("cs", getUniqueId(getActivity()));
             token.put("Data", encrypt(data.toString(), puk));
             token.put("Hash", Utils.SHA256(data.toString()));
@@ -129,7 +128,6 @@ public class Login extends AsyncTask<String, Void, String> {
         return null;
     }
 
-
     @Override
     protected void onPostExecute(String s) {
         final Anima activity = getActivity();
@@ -162,15 +160,16 @@ public class Login extends AsyncTask<String, Void, String> {
                 Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + activity.getPackageName()));
                 activity.startActivityForResult(intent, 123);
             }
-         //   Log.d("test", String.valueOf(data));
+         // Log.d("test", String.valueOf(data));
             isforce = data.getBoolean("force");
             url = data.getString("updateurl");
-       //     Log.d("test", String.valueOf(isforce));
+       //   Log.d("test", String.valueOf(isforce));
+
+
             if (!data.get("CurrVersion").equals("v" + BuildConfig.VERSION_NAME)) {
                 AlertDialog.Builder ab = new AlertDialog.Builder(activity);
-
                 ab.setTitle("New Update Found!");
-                ab.setMessage("New Version DeadEyE Internal Esp " + data.get("CurrVersion") + " Available To Download ");
+                ab.setMessage("New Version DeadEyE Internal Esp" + data.get("CurrVersion") + " Available To Download");
                 ab.setPositiveButton("Download", (dialog, which) -> {
                     Intent i = new Intent(Intent.ACTION_VIEW);
                     i.setData(Uri.parse(url));
@@ -185,7 +184,6 @@ public class Login extends AsyncTask<String, Void, String> {
                         }
                     });
                 }else{
-
                     ab.setNegativeButton("Later", (dialog, which) -> {
                         try {
                             if (data.get("Status").toString().equals("Success")) {
@@ -203,7 +201,6 @@ public class Login extends AsyncTask<String, Void, String> {
                                         } catch (ClassNotFoundException e) {
                                             e.printStackTrace();
                                             Toast.makeText(activity, "Something Went Wrong", Toast.LENGTH_SHORT).show();
-
                                         }
 
                                     }

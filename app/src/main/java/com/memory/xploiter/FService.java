@@ -2,7 +2,9 @@ package com.memory.xploiter;
 
 import android.annotation.TargetApi;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.content.res.ColorStateList;
 import android.graphics.BitmapFactory;
@@ -12,10 +14,13 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.Base64;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.CheckBox;
@@ -27,25 +32,34 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
+import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.Arrays;
 
 public class FService extends Service {
 
     private WindowManager mWindowManager;
     private FrameLayout rootFrame;
-    //    private TextView mMenuHeadImageView;
     private ImageView mMenuHeadImageView;
     private LinearLayout mRootContainer;
     private RelativeLayout mCollapsed;
     private LinearLayout mExpanded;
     private LinearLayout mMenuBody;
     Loader loader = new Loader();
-    private  RadioGroup radioGroup;
+    private LinearLayout Seprateitem;
     private  LinearLayout memorytab;
-    private RadioButton radioButton;
     private LinearLayout item;
+    private LinearLayout itemlayout;
+    private LinearLayout mainlayout;
+    private LinearLayout itemtab;
+    private LinearLayout PlayerBody;
+    private LinearLayout aimbot;
+    static Context ctx;
+    private ImageView playerimg,itemimg,vehicalimg;
+    private LinearLayout weapon,ammo, armors,health,scope,vehical,special;
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -55,15 +69,19 @@ public class FService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        initFloatingView();
+        ctx = getBaseContext();
         System.loadLibrary("tersafe2");
+        initFloatingView();
         loader.Init(this, this);
     }
 
 
+
     native String Title();
     native String Icon();
-
+    native String PlayerEsp();
+    native String ItemEsp();
+    native String VehicalEsp();
 
 
     @Override
@@ -97,28 +115,165 @@ public class FService extends Service {
         heading.setPadding(0, 20, 30, 20);
         mExpanded.addView(heading);
         createMenuBody();
+        Features();
         ScrollView scroll = new ScrollView(getBaseContext());
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(mExpanded.getLayoutParams());
+        scroll.setPadding(0,0,0,20);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         params.weight = 5.0f;
-        mMenuBody.setLayoutParams(params);
-        scroll.addView(mMenuBody);
-        mExpanded.addView(scroll);
+        PlayerBody.setLayoutParams(params);
+        PlayerBody.addView(mMenuBody);
+        PlayerBody.addView(itemtab);
+        PlayerBody.addView(aimbot);
+        scroll.addView(PlayerBody);
+        mainlayout.addView(scroll);
+        mExpanded.addView(mainlayout);
 
+    }
+    static boolean getConfig(String key){
+        SharedPreferences sp= ctx.getSharedPreferences("espValue",Context.MODE_PRIVATE);
+        return  sp.getBoolean(key,false);
+    }
+
+    private void Features(){
+        mainlayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT));
+        mainlayout.setOrientation(LinearLayout.HORIZONTAL);
+        itemlayout.setLayoutParams(new LinearLayout.LayoutParams(100, LinearLayout.LayoutParams.WRAP_CONTENT));
+        itemlayout.setOrientation(LinearLayout.VERTICAL);
+        byte[] decode = Base64.decode(PlayerEsp(), 0);
+        playerimg.setLayoutParams(new LinearLayout.LayoutParams(100,100));
+        playerimg.setImageBitmap(BitmapFactory.decodeByteArray(decode, 0, decode.length));
+        playerimg.setPadding(5,5,0,5);
+        playerimg.setImageAlpha(255);
+        playerimg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mMenuBody.setVisibility(View.VISIBLE);
+                itemtab.setVisibility(View.GONE);
+                aimbot.setVisibility(View.GONE);
+            }
+        });
+        byte[] iecode = Base64.decode(ItemEsp(), 0);
+        itemimg.setLayoutParams(new LinearLayout.LayoutParams(100,100));
+        itemimg.setImageBitmap(BitmapFactory.decodeByteArray(iecode, 0, decode.length));
+        itemimg.setImageAlpha(255);
+        itemimg.setPadding(5,5,0,5);
+        itemimg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mMenuBody.setVisibility(View.GONE);
+                itemtab.setVisibility(View.VISIBLE);
+                aimbot.setVisibility(View.GONE);
+            }
+        });
+        vehicalimg.setLayoutParams(new LinearLayout.LayoutParams(100 ,100));
+        byte[] vecode = Base64.decode(VehicalEsp(), 0);
+        vehicalimg.setImageBitmap(BitmapFactory.decodeByteArray(vecode, 0, decode.length));
+        vehicalimg.setImageAlpha(255);
+        vehicalimg.setPadding(5,5,0,5);
+        vehicalimg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mMenuBody.setVisibility(View.GONE);
+                itemtab.setVisibility(View.GONE);
+                aimbot.setVisibility(View.VISIBLE);
+            }
+        });
+        itemlayout.addView(playerimg);
+        itemlayout.addView(itemimg);
+        itemlayout.addView(vehicalimg);
+        mainlayout.addView(itemlayout);
     }
 
     private void createMenuBody() {
+        addSubtitle("Render FrameRate",mMenuBody);
+        String [] FPS = {"30 FPS","45 FPS", "60 FPS", "90 FPS", "120 FPS"};
+        addRadioGroup(FPS, 0, new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId){
+                    case 0 :
+                        Toast.makeText(getBaseContext(),"30 FrameRate Activated",Toast.LENGTH_SHORT).show();
+                        ESPView.ChangeFps(30);
+                        break;
+                    case 1:
+                        Toast.makeText(getBaseContext(),"45 FrameRate Activated",Toast.LENGTH_SHORT).show();
+                        ESPView.ChangeFps(45);
+                        break;
+                    case 2:
+                        Toast.makeText(getBaseContext(),"60 FrameRate Activated",Toast.LENGTH_SHORT).show();
+                        ESPView.ChangeFps(60);
+                        break;
+                    case 3:
+                        Toast.makeText(getBaseContext(),"90 FrameRate Activated",Toast.LENGTH_SHORT).show();
+                        ESPView.ChangeFps(90);
+                        break;
+                    case 4 :
+                        Toast.makeText(getBaseContext(),"120 FrameRate Activated",Toast.LENGTH_SHORT).show();
+                        ESPView.ChangeFps(120);
+                        break;
+                }
+            }
+        },mMenuBody);
         addSubtitle("Bounding Box Display",mMenuBody);
         adddescription("Show The Bounding Box On Player",mMenuBody);
         String [] box = {"OFF","2-D Box"};
-        addRadioGroup(box,mMenuBody);
+        addRadioGroup(box, 0, new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId){
+                    case 0 :
+                        loader.Switch(1, false);
+                        Toast.makeText(getBaseContext(),"OFF",Toast.LENGTH_SHORT).show();
+                        break;
+                    case 1:
+                        loader.Switch(1, true);
+                        Toast.makeText(getBaseContext(),"2-D Box Activated",Toast.LENGTH_SHORT).show();
+                        break;
+                }
+            }
+        }, mMenuBody);
         addSubtitle("Line Display",mMenuBody);
         adddescription("Show The Line On Player",mMenuBody);
         String [] Line = {"OFF","Upwards","Centered"};
-        addRadioGroup(Line,mMenuBody);
+        addRadioGroup(Line, 0, new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId){
+                    case 0 :
+                        loader. Switch(2, false);
+                        loader.Switch(146, false);
+                        Toast.makeText(getBaseContext(),"OFF",Toast.LENGTH_SHORT).show();
+                        break;
+                    case 1:
+                        loader.Switch(2, true);
+                        loader.Switch(146, false);
+                        Toast.makeText(getBaseContext(),"Upwards Line Activated",Toast.LENGTH_SHORT).show();
+                        break;
+                    case 2:
+                        loader. Switch(146, true);
+                        loader. Switch(2, false);
+                        Toast.makeText(getBaseContext(),"Centered Line Activated",Toast.LENGTH_SHORT).show();
+                }
+            }
+        }, mMenuBody);
         addSubtitle("Health Display",mMenuBody);
         adddescription("Show The Health Box On Player",mMenuBody);
         String [] health = {"OFF","Horizontal"};
-        addRadioGroup(health,mMenuBody);
+        addRadioGroup(health, 0, new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId){
+                    case 0 :
+                        loader.Switch(4,false);
+                        Toast.makeText(getBaseContext(),"OFF",Toast.LENGTH_SHORT).show();
+                        break;
+                    case 1:
+                        loader.Switch(4,true);
+                        Toast.makeText(getBaseContext(),"Horizontal Health Activated",Toast.LENGTH_SHORT).show();
+                        break;
+                }
+            }
+        }, mMenuBody);
         item.setOrientation(LinearLayout.VERTICAL);
         item.setLayoutParams(new LinearLayout.LayoutParams( LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
         LinearLayout horiz = new LinearLayout(getBaseContext());
@@ -155,43 +310,29 @@ public class FService extends Service {
                 loader.Switch(9, isChecked);
             }
         },horiz1,4);
+
         item.addView(horiz1);
         addSubtitle("Items Generic Adjustment",item);
-       LinearLayout horiz2 = new LinearLayout(getBaseContext());
-        horiz2.setLayoutParams(new LinearLayout.LayoutParams( LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
-        horiz2.setOrientation(LinearLayout.HORIZONTAL);
-        horiz2.setPadding(50,0,0,0);
-       additem("AKM", new CompoundButton.OnCheckedChangeListener() {
+
+        AddSeekbarng(" Size Adjustment",10,25,15,"","",new SeekBar.OnSeekBarChangeListener(){
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                loader.Switch(11,isChecked);
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                loader.Size(1,seekBar.getProgress());
+                loader.Size(3,seekBar.getProgress());
             }
-        },horiz2,5);
-        additem("M416", new CompoundButton.OnCheckedChangeListener() {
-           @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                loader.Switch(10,isChecked);
-            }
-        },horiz2,6);
-        item.addView(horiz2);
-       LinearLayout horiz3 = new LinearLayout(getBaseContext());
-        horiz3.setLayoutParams(new LinearLayout.LayoutParams( LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
-        horiz3.setOrientation(LinearLayout.HORIZONTAL);
-        horiz3.setPadding(50,0,0,0);
-       additem("7.62mm", new CompoundButton.OnCheckedChangeListener() {
+
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                loader.Switch(12,isChecked);
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
             }
-        },horiz3,7);
-        additem("5.56m", new CompoundButton.OnCheckedChangeListener() {
-           @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-               loader.Switch(13,isChecked);
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
             }
-        },horiz3,8);
-       item.addView(horiz3);
-       mMenuBody.addView(item);
+        },item);
+
+        mMenuBody.addView(item);
         addSwitch("Memory Features", new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -202,11 +343,606 @@ public class FService extends Service {
                 }
             }
         },mMenuBody);
+
         Memorylayout();
         mMenuBody.addView(memorytab);
+        setSeprateitem();
+        items();
+        aimbot();;
+    }
+    private void aimbot(){
+        aimbot.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        aimbot.setOrientation(LinearLayout.VERTICAL);
+        addSubtitle("Aimbot Mode",aimbot);
+        addRadioGroup(new String[]{"Disable", "Enabled"}, 0, new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+               switch (checkedId){
+                   case 0: loader.Switch(14,false);break;
+                   case 1: loader.Switch(14,true); break;
+               }
+            }
+        },aimbot);
+
+        addSubtitle("Aim at the Body Part",aimbot);
+        addRadioGroup(new String[]{"Head","Stomach","Legacy"}, 0, new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId){
+                    case 0:  loader.SetAim(2,1); break;
+                    case 1: loader.SetAim(2,2); break;
+                    case 2 : loader.SetAim(2,3); break;
+                }
+            }
+        },aimbot);
+        addSubtitle("Target Selection Mode",aimbot);
+        addRadioGroup(new String[]{"CrossHair Priority", "Distance Priority"}, 0, new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                    switch (checkedId){
+                        case 0:loader.SetAim(3,1); break;
+                        case 1:  loader.SetAim(3,0); break;
+                    }
+            }
+        },aimbot);
+        addSubtitle("Aimbot Toggle Mode",aimbot);
+        addRadioGroup(new String[]{"Firing & Aiming down Sight", "Aiming Down Sight", "Firing"}, 0, new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+               switch (checkedId){
+                   case 0:  loader.SetAim(4,3); break;
+                   case 1:  loader.SetAim(4,2); break;
+                   case 2:  loader.SetAim(4,1); break;
+
+               }
+            }
+        },aimbot);
+        addSwitch("Ignore Knocked Out Player", new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                loader.Switch(16,isChecked);
+
+            }
+        },aimbot);
+        addSubtitle("AimBot FOV",aimbot);
+        int range =100;
+        AddSeekbarng( "Only aim with in the range", 0, 1000, range, "", "", new SeekBar.OnSeekBarChangeListener(){
+            public void onProgressChanged(SeekBar seekBar, int range, boolean isChecked) {
+                loader.Range(seekBar.getProgress());
+            }
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        },aimbot);
+        LinearLayout tv = new LinearLayout(getBaseContext());
+        tv.setOrientation(LinearLayout.VERTICAL);
+        tv.setVisibility(View.GONE);
+        addSwitch("Aim Prediction", new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked){
+                    tv.setVisibility(View.VISIBLE);
+                }else {
+                    tv.setVisibility(View.GONE);
+                }
+            }
+        }, aimbot);
+        adddescription("Based on the Speed & Direction Of The Enenmy",aimbot);
+        tv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        addsubheading("Bullet Speed",tv);
+        int BSpeed =8100;
+        AddSeekbarng( "Adjust the bullet speed ", 8000, 10000, BSpeed, "", "", new SeekBar.OnSeekBarChangeListener(){
+            public void onProgressChanged(SeekBar seekBar, int BSpeed, boolean isChecked) {
+                loader.BSpeed(seekBar.getProgress());
+            }
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        },tv);
+        aimbot.addView(tv);
+
     }
 
+    private void items(){
+        weapon.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        weapon.setOrientation(LinearLayout.VERTICAL);
+        //weapon start
+        addi(new String[]{"AKM", "M416"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String) buttonView.getText(),isChecked);
 
+
+            }
+        },weapon);
+        addi(new String[]{"AUG", "M762"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    setValue((String) buttonView.getText(),isChecked);
+
+
+            }
+        },weapon);
+        addi(new String[]{"SCAR", "Groza"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String) buttonView.getText(),isChecked);
+
+            }
+        },weapon);
+        addi(new String[]{"Mk14", "SKS"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String) buttonView.getText(),isChecked);
+
+            }
+        },weapon);
+        addi(new String[]{"Kar98k", "Win94"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String) buttonView.getText(),isChecked);
+            }
+        },weapon);
+        addi(new String[]{"M16A4", "G36C"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String) buttonView.getText(),isChecked);
+            }
+        },weapon);
+        addi(new String[]{"QBZ", "Uzi"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String) buttonView.getText(),isChecked);
+
+            }
+        },weapon);
+        addi(new String[]{"Mp5K", "Ump9"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },weapon);
+        addi(new String[]{"M249", "Tommy Gun"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },weapon);
+        addi(new String[]{"Vector", "Dp-28"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },weapon);
+
+        addi(new String[]{"Awm", "QBU"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },weapon);
+        addi(new String[]{"SLR", "Mini-14"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },weapon);
+        addi(new String[]{"M24", "Mosin Nagant"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },weapon);
+        addi(new String[]{"Famas", "Vss"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },weapon);
+        itemtab.addView(weapon);
+        //wepon end
+        ammo.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        ammo.setOrientation(LinearLayout.VERTICAL);
+
+        addi(new String[]{"7.62mm", "5.56mm"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },ammo);
+        addi(new String[]{"9mm", "300 Magnum"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+            }
+        },ammo);
+        addi(new String[]{"Arrow", "12 Gauge"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },ammo);
+        itemtab.addView(ammo);
+        armors.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        armors.setOrientation(LinearLayout.VERTICAL);
+        //armor
+        addi(new String[]{"Bag(1)", "Bag(2)"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },armors);
+        addi(new String[]{"Bag(3)", "Helmet(1)"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },armors);
+        addi(new String[]{"Helmet(2)", "Helmet(3)"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },armors);
+        addi(new String[]{"Armors(1)", "Armors(2)"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },armors);
+        addi(new String[]{"Armors(3)"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },armors);
+        itemtab.addView(armors);
+        health.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        health.setOrientation(LinearLayout.VERTICAL);
+        //armor
+        addi(new String[]{"PainKiller", "Adrenaline"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },health);
+        addi(new String[]{"FirstAid", "Medkit"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },health);
+        addi(new String[]{"Drink", "Bandage"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },health);
+        itemtab.addView(health);
+
+        scope.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        scope.setOrientation(LinearLayout.VERTICAL);
+        //armor
+        addi(new String[]{"Hollow", "Canted"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },scope);
+        addi(new String[]{"Red-Dot", "8x","4x"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },scope);
+        addi(new String[]{"3x","2x","6x"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },scope);
+        itemtab.addView(scope);
+        vehical.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        vehical.setOrientation(LinearLayout.VERTICAL);
+        addi(new String[]{"Buggy", "UAZ","Trike"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },vehical);
+        addi(new String[]{"Bike", "Darcia","Jet"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },vehical);
+        addi(new String[]{"Boat", "Bus","Truck"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },vehical);
+        addi(new String[]{"Scooter", "Rony","BRDM"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },vehical);
+        addi(new String[]{"SnowBike", "Tempo"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },vehical);
+        addi(new String[]{"LadaNiva", "Mirado"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },vehical);
+        addi(new String[]{"Motar-Glider", "CoupleRB"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },vehical);
+        addi(new String[]{"Monster Truck"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },vehical);
+
+        itemtab.addView(vehical);
+        special.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        special.setOrientation(LinearLayout.VERTICAL);
+        //armor
+        addi(new String[]{"FlareGun", "Gilli-Suit"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },special);
+        addi(new String[]{"Air-Drop", "Airplane"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },special);
+        addi(new String[]{"Death-Crate","GasCan"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },special);
+        itemtab.addView(special);
+    }
+    private void setSeprateitem(){
+        itemtab.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        Seprateitem.setLayoutParams(new LinearLayout.LayoutParams(130, LinearLayout.LayoutParams.MATCH_PARENT));
+        Seprateitem.setOrientation(LinearLayout.VERTICAL);
+        TextView Weapon = new TextView(getBaseContext());
+        TextView Armors = new TextView(getBaseContext());
+        TextView Health = new TextView(getBaseContext());
+        TextView Special = new TextView(getBaseContext());
+        TextView Ammo = new TextView(getBaseContext());
+        TextView Vehical = new TextView(getBaseContext());
+        TextView Scope = new TextView(getBaseContext());
+        Weapon.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,100));
+        Weapon.setPadding(2,5,0,2);
+        Weapon.setText("Weapon");
+        Weapon.setTypeface(Typeface.DEFAULT_BOLD);
+        Weapon.setBackgroundColor(Color.BLACK);
+        Weapon.setTextColor(Color.WHITE);
+        Weapon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Weapon.setBackgroundColor(Color.BLACK);
+                Ammo.setBackgroundColor(Color.GRAY);
+                Health.setBackgroundColor(Color.GRAY);
+                Armors.setBackgroundColor(Color.GRAY);
+                Special.setBackgroundColor(Color.GRAY);
+                Vehical.setBackgroundColor(Color.GRAY);
+                Scope.setBackgroundColor(Color.GRAY);
+                weapon.setVisibility(View.VISIBLE);
+                ammo.setVisibility(View.GONE);
+                health.setVisibility(View.GONE);
+                armors.setVisibility(View.GONE);
+                special.setVisibility(View.GONE);
+                vehical.setVisibility(View.GONE);
+                scope.setVisibility(View.GONE);
+            }
+        });
+        Seprateitem.addView(Weapon);
+
+        Ammo.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,100));
+        Ammo.setPadding(2,5,0,2);
+        Ammo.setText("Ammo");
+        Ammo.setTypeface(Typeface.DEFAULT_BOLD);
+        Ammo.setBackgroundColor(Color.GRAY);
+        Ammo.setTextColor(Color.WHITE);
+        Ammo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Ammo.setBackgroundColor(Color.BLACK);
+                Weapon.setBackgroundColor(Color.GRAY);
+                Health.setBackgroundColor(Color.GRAY);
+                Armors.setBackgroundColor(Color.GRAY);
+                Special.setBackgroundColor(Color.GRAY);
+                Vehical.setBackgroundColor(Color.GRAY);
+                Scope.setBackgroundColor(Color.GRAY);
+                weapon.setVisibility(View.GONE);
+                ammo.setVisibility(View.VISIBLE);
+                health.setVisibility(View.GONE);
+                armors.setVisibility(View.GONE);
+                special.setVisibility(View.GONE);
+                vehical.setVisibility(View.GONE);
+                scope.setVisibility(View.GONE);
+            }
+        });
+        Seprateitem.addView(Ammo);
+
+        Armors.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,100));
+        Armors.setPadding(2,5,0,2);
+        Armors.setText("Armors");
+        Armors.setTypeface(Typeface.DEFAULT_BOLD);
+        Armors.setBackgroundColor(Color.GRAY);
+        Armors.setTextColor(Color.WHITE);
+        Armors.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Armors.setBackgroundColor(Color.BLACK);
+                Weapon.setBackgroundColor(Color.GRAY);
+                Ammo.setBackgroundColor(Color.GRAY);
+                Health.setBackgroundColor(Color.GRAY);
+                Special.setBackgroundColor(Color.GRAY);
+                Vehical.setBackgroundColor(Color.GRAY);
+                Scope.setBackgroundColor(Color.GRAY);
+                weapon.setVisibility(View.GONE);
+                ammo.setVisibility(View.GONE);
+                health.setVisibility(View.GONE);
+                armors.setVisibility(View.VISIBLE);
+                special.setVisibility(View.GONE);
+                vehical.setVisibility(View.GONE);
+                scope.setVisibility(View.GONE);
+            }
+        });
+        Seprateitem.addView(Armors);
+
+        Health.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,100));
+        Health.setPadding(2,5,0,2);
+        Health.setText("Health");
+        Health.setTypeface(Typeface.DEFAULT_BOLD);
+        Health.setBackgroundColor(Color.GRAY);
+        Health.setTextColor(Color.WHITE);
+        Health.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Health.setBackgroundColor(Color.BLACK);
+                Weapon.setBackgroundColor(Color.GRAY);
+                Ammo.setBackgroundColor(Color.GRAY);
+                Armors.setBackgroundColor(Color.GRAY);
+                Scope.setTextColor(Color.GRAY);
+                Special.setBackgroundColor(Color.GRAY);
+                Vehical.setBackgroundColor(Color.GRAY);
+                weapon.setVisibility(View.GONE);
+                ammo.setVisibility(View.GONE);
+                health.setVisibility(View.VISIBLE);
+                vehical.setVisibility(View.GONE);
+                armors.setVisibility(View.GONE);
+                special.setVisibility(View.GONE);
+                scope.setVisibility(View.GONE);
+            }
+        });
+        Seprateitem.addView(Health);
+
+        Scope.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,100));
+        Scope.setPadding(2,5,0,2);
+        Scope.setText("Scope");
+        Scope.setTypeface(Typeface.DEFAULT_BOLD);
+        Scope.setBackgroundColor(Color.GRAY);
+        Scope.setTextColor(Color.WHITE);
+        Scope.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Special.setBackgroundColor(Color.GRAY);
+                Weapon.setBackgroundColor(Color.GRAY);
+                Ammo.setBackgroundColor(Color.GRAY);
+                Health.setBackgroundColor(Color.GRAY);
+                Armors.setBackgroundColor(Color.GRAY);
+                Scope.setBackgroundColor(Color.BLACK);
+                Vehical.setBackgroundColor(Color.GRAY);
+                weapon.setVisibility(View.GONE);
+                ammo.setVisibility(View.GONE);
+                health.setVisibility(View.GONE);
+                armors.setVisibility(View.GONE);
+                scope.setVisibility(View.VISIBLE);
+                vehical.setVisibility(View.GONE);
+                special.setVisibility(View.GONE);
+            }
+        });
+        Seprateitem.addView(Scope);
+
+        Vehical.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,100));
+        Vehical.setPadding(2,5,0,2);
+        Vehical.setText("Vehical");
+        Vehical.setTypeface(Typeface.DEFAULT_BOLD);
+        Vehical.setBackgroundColor(Color.GRAY);
+        Vehical.setTextColor(Color.WHITE);
+        Vehical.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Special.setBackgroundColor(Color.GRAY);
+                Weapon.setBackgroundColor(Color.GRAY);
+                Ammo.setBackgroundColor(Color.GRAY);
+                Health.setBackgroundColor(Color.GRAY);
+                Armors.setBackgroundColor(Color.GRAY);
+                Scope.setBackgroundColor(Color.GRAY);
+                Vehical.setBackgroundColor(Color.BLACK);
+                weapon.setVisibility(View.GONE);
+                ammo.setVisibility(View.GONE);
+                health.setVisibility(View.GONE);
+                armors.setVisibility(View.GONE);
+                scope.setVisibility(View.GONE);
+                vehical.setVisibility(View.VISIBLE);
+                special.setVisibility(View.GONE);
+
+            }
+        });
+        Seprateitem.addView(Vehical);
+
+        Special.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,100));
+        Special.setPadding(2,5,0,2);
+        Special.setText("Special");
+        Special.setTypeface(Typeface.DEFAULT_BOLD);
+        Special.setBackgroundColor(Color.GRAY);
+        Special.setTextColor(Color.WHITE);
+        Special.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Special.setBackgroundColor(Color.BLACK);
+                Weapon.setBackgroundColor(Color.GRAY);
+                Ammo.setBackgroundColor(Color.GRAY);
+                Health.setBackgroundColor(Color.GRAY);
+                Armors.setBackgroundColor(Color.GRAY);
+                Scope.setBackgroundColor(Color.GRAY);
+                Vehical.setBackgroundColor(Color.GRAY);
+                weapon.setVisibility(View.GONE);
+                ammo.setVisibility(View.GONE);
+                scope.setVisibility(View.GONE);
+                health.setVisibility(View.GONE);
+                armors.setVisibility(View.GONE);
+                vehical.setVisibility(View.GONE);
+                special.setVisibility(View.VISIBLE);
+            }
+        });
+
+        Seprateitem.addView(Special);
+        itemtab.addView(Seprateitem);
+
+    }
+
+    private void addi(String [] name, CompoundButton.OnCheckedChangeListener on, LinearLayout parent){
+        LinearLayout hori = new LinearLayout(getBaseContext());
+        hori.setOrientation(LinearLayout.HORIZONTAL);
+        CheckBox[] checkBox = new CheckBox[name.length];
+        for (int i = 0 ; i<name.length;i++) {
+            checkBox[i] = new CheckBox(getBaseContext());
+            checkBox[i].setTextSize(14);
+            checkBox[i].setId(i);
+            checkBox[i].setTextColor(Color.WHITE);
+            checkBox[i].setText(name[i]);
+            checkBox[i].setButtonTintList(ColorStateList.valueOf(Color.WHITE));
+            checkBox[i].setOnCheckedChangeListener(on);
+            hori.addView(checkBox[i]);
+        }
+        parent.addView(hori);
+    }
     @TargetApi(Build.VERSION_CODES.O)
     private void additem(String name, CompoundButton.OnCheckedChangeListener on, LinearLayout parent,int id ){
         CheckBox checkBox = new CheckBox(getBaseContext());
@@ -225,7 +961,24 @@ public class FService extends Service {
         addSubtitle("Aimbot",memorytab);
         adddescription("Increases Aim Assist",memorytab);
         String [] aim = {"OFF","Head","Body"};
-        addRadioGroup(aim,memorytab);
+        addRadioGroup(aim, 0, new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId){
+                    case 0 :
+                        loader.SwitchMemory(6);
+                        Toast.makeText(getBaseContext(),"OFF",Toast.LENGTH_SHORT).show();
+                        break;
+                    case 1:
+                        loader.SwitchMemory(5);
+                        Toast.makeText(getBaseContext(),"Head Aim Activated",Toast.LENGTH_SHORT).show();
+                        break;
+                    case 2:
+                        loader.SwitchMemory(5);
+                        Toast.makeText(getBaseContext(),"Body Aim Activated",Toast.LENGTH_SHORT).show();
+                }
+            }
+        }, memorytab);
         addSubtitle("Magic Bullet",memorytab);
         adddescription("Forces Scattered Bullets On Enemies",memorytab);
         addSwitch("Activate Magic Bullet", new CompoundButton.OnCheckedChangeListener() {
@@ -266,14 +1019,33 @@ public class FService extends Service {
 //                }
 //            }
 //        },memorytab);
-        addRadioGroup(crosshair,memorytab);
+        addRadioGroup(crosshair, 0, new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId){
+                    case 0 :
+                        loader.SwitchMemory(4);
+                        loader.Switch(148, false);
+                        Toast.makeText(getBaseContext(),"OFF",Toast.LENGTH_SHORT).show();
+                        break;
+                    case 1:
+                        loader.Switch(148, true);
+                        loader.SwitchMemory(4);
+                        Toast.makeText(getBaseContext(),"Graphical CrossHair Activated",Toast.LENGTH_SHORT).show();
+                        break;
+                    case 2:
+                        loader.SwitchMemory(3);
+                        loader.Switch(148, false);
+                        Toast.makeText(getBaseContext(),"Memory Crosshair Activated",Toast.LENGTH_SHORT).show();
+                }
+            }
+        }, memorytab);
 
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void initFloatingView() {
         AssetManager assetManager = getBaseContext().getAssets();
-
         rootFrame = new FrameLayout(getBaseContext());
         mRootContainer = new LinearLayout(getBaseContext());
         mCollapsed = new RelativeLayout(getBaseContext());
@@ -281,6 +1053,26 @@ public class FService extends Service {
         mMenuBody = new LinearLayout(getBaseContext());
         memorytab =  new LinearLayout(getBaseContext());
         item = new LinearLayout(getBaseContext());
+        itemlayout = new LinearLayout(getBaseContext());
+        mainlayout = new LinearLayout(getBaseContext());
+        playerimg = new ImageView(getBaseContext());
+        itemimg = new ImageView(getBaseContext());
+        vehicalimg = new ImageView(getBaseContext());
+        Seprateitem = new LinearLayout(getBaseContext());
+        scope = new LinearLayout(getBaseContext());
+        vehical = new LinearLayout(getBaseContext());
+        itemtab = new LinearLayout(getBaseContext());
+        aimbot = new LinearLayout(getBaseContext());
+        // items
+        weapon = new LinearLayout(getBaseContext());
+        ammo = new LinearLayout(getBaseContext());
+        health = new LinearLayout(getBaseContext());
+        armors = new LinearLayout(getBaseContext());
+        special = new LinearLayout(getBaseContext());
+        PlayerBody = new LinearLayout(getBaseContext());
+        itemtab.setOrientation(LinearLayout.HORIZONTAL);
+        itemtab.setVisibility(View.GONE);
+        aimbot.setVisibility(View.GONE);
         memorytab.setVisibility(View.GONE);
         /*
             When -1 or -2 is applied, the view fills the screen
@@ -293,26 +1085,28 @@ public class FService extends Service {
         mRootContainer.setLayoutParams(new RelativeLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         mRootContainer.setOrientation(LinearLayout.HORIZONTAL);
         mCollapsed.setLayoutParams(new RelativeLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-
         mMenuHeadImageView = new ImageView(getBaseContext());
         mMenuHeadImageView.setLayoutParams(new LinearLayout.LayoutParams(150, 130));
 
         byte[] decode = Base64.decode(Icon(), 0);
         mMenuHeadImageView.setImageBitmap(BitmapFactory.decodeByteArray(decode, 0, decode.length));
         mMenuHeadImageView.setImageAlpha(255);
+
         ((ViewGroup.MarginLayoutParams) mMenuHeadImageView.getLayoutParams()).topMargin = convertDipToPixels(10);
         mCollapsed.addView(mMenuHeadImageView);
-        mExpanded.setLayoutParams(new LinearLayout.LayoutParams(700, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        mExpanded.setLayoutParams(new LinearLayout.LayoutParams(750, ViewGroup.LayoutParams.WRAP_CONTENT));
         mExpanded.setOrientation(LinearLayout.VERTICAL);
-        mExpanded.setPadding(50, 0, 10, 0);
         mExpanded.setBackgroundColor(Color.parseColor("#FF102030"));
-        mMenuBody.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        PlayerBody.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        PlayerBody.setOrientation(LinearLayout.VERTICAL);
+        PlayerBody.setBackgroundColor(Color.parseColor("#FF102030"));
+        mMenuBody.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         mMenuBody.setOrientation(LinearLayout.VERTICAL);
         mMenuBody.setBackgroundColor(Color.parseColor("#FF102030"));
         //mMenuBody.setBackgroundColor(Color.parseColor("#171E24"));
         //children of layout2 LinearLayout
         createMenu();
-
         // set visibility
         mMenuHeadImageView.setVisibility(View.VISIBLE);
         mCollapsed.setVisibility(View.VISIBLE);
@@ -443,6 +1237,7 @@ public class FService extends Service {
         label.setBackgroundColor(Color.parseColor("#FF102030"));
         label.setPadding(47, 0, 0, 5);
         label.setText(text);
+        label.setTextColor(Color.WHITE);
         if(label.getParent() != null) {
             ((LinearLayout)label.getParent()).removeView(label); // <- fix
         }
@@ -464,119 +1259,138 @@ public class FService extends Service {
         }
     }
 
-
-    private void addRadioGroup(final String[] txt,LinearLayout parent){
-        radioGroup = new RadioGroup(getBaseContext());
-        radioGroup.clearCheck();
-        radioGroup.setPadding(47,0,0,5);
-        for(int i =0;i<txt.length;i++) {
-            addRadioButton(txt[i], i);
+    @TargetApi(Build.VERSION_CODES.O)
+    private void addRadioGroup(String [] text, int n, RadioGroup.OnCheckedChangeListener on,LinearLayout parent) {
+        RadioGroup radioGroup = new RadioGroup(getBaseContext());
+        radioGroup.setPadding(47,0,0,0);
+        RadioButton radioButton[] = new RadioButton[text.length];
+        for (int i = 0 ; i< text.length; i++) {
+            radioButton[i] = new RadioButton(getBaseContext());
+            if(i ==n){
+                radioButton[i].setChecked(true);
+            }
+            radioButton[i].setText(text[i]);
+            radioButton[i].setId(i);
+            radioButton[i].setTextColor(Color.WHITE);
+            radioButton[i].setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            radioButton[i].setButtonTintList(ColorStateList.valueOf(Color.WHITE));
+            radioButton[i].setTextSize(14);
+            radioButton[i].setBackgroundColor(Color.parseColor("#FF102030"));
+            radioGroup.addView(radioButton[i]);
         }
-        radioGroup.setLayoutParams( new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+        radioGroup.setOnCheckedChangeListener(on);
+        radioGroup.setLayoutParams((ViewGroup.LayoutParams) new RelativeLayout.LayoutParams(-1,-2));
 
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                //    Log.d("ceckid", String.valueOf(checkedId));
-                switch (checkedId){
-                    case 0:
-                        loader.Switch(1,false);
-                        loader.Switch(2, false);
-                        loader.Switch(146, false);
-                        loader.Switch(147, false);
-                        loader.Switch(148, false);
-                        loader.Switch(149, false);
-                        loader.Switch(4,false);
-                        loader.SwitchMemory(4);
-                        loader.SwitchMemory(6);
-                        Toast.makeText(getBaseContext(),txt[0],Toast.LENGTH_SHORT).show();
-                        break;
-                    case 1:
-                        if(txt[1].equals("2-D Box")) {
-                            loader.Switch(1, true);
-                            loader.Switch(149, false);
-                        }
-                        if(txt[1].equals("Upwards")){
-                            loader.Switch(2, true);
-                            loader.Switch(146, false);
-                        }
-                        if(txt[1].equals("Graphical Crosshair")){
-                            loader. Switch(148, true);
-                            loader.SwitchMemory(4);
-                        }
-                        if(txt[1].equals("Horizontal")){
-                            loader.Switch(4, true);
-                            loader.Switch(148, false);
-                        }if(txt[1].equals("Head")){
-                        loader.SwitchMemory(5);
-                    }
-                        Toast.makeText(getBaseContext(),txt[1]+" Activated",Toast.LENGTH_SHORT).show();
-                        break;
-                    case 2:
-                        if(txt[1].equals("Body")){
-                            loader.SwitchMemory(5);
-                        }
-                        if(txt[2].equals("Centered")){
-                            loader. Switch(146, true);
-                            loader. Switch(2, false);
-                        }
-                        if (txt[2].equals("Vertical"))
-                        {
-                            loader. Switch(148, true);
-                            loader. Switch(4, false);
-                        }else if (txt[2].equals("3-D Box")){
-                            loader.Switch(149,true);
-                            loader.Switch(1, false);
-                        }else if(txt[2].contains("Memory Crosshair")){
-                            loader.SwitchMemory(3);
-                        }
-                        Toast.makeText(getBaseContext(),txt[2]+" Activated",Toast.LENGTH_SHORT).show();
-                        break;
-                    case 3:
-                        if(txt[2].equals("Downwards")){
-                            loader. Switch(147, true);
-                        }
-                        Toast.makeText(getBaseContext(),txt[3]+" Activated",Toast.LENGTH_SHORT).show();
-                        break;
-                    case 4:
-                        Toast.makeText(getBaseContext(),txt[4]+" Activated",Toast.LENGTH_SHORT).show();
-                        break;
-                    case 5:
-                        Toast.makeText(getBaseContext(),txt[5]+" Activated",Toast.LENGTH_SHORT).show();
-                        break;
-                    case 6:
-                        Toast.makeText(getBaseContext(),txt[6]+" Activated",Toast.LENGTH_SHORT).show();
-                        break;
-                    default:
-                        Toast.makeText(getBaseContext(),txt[0]+" Activated",Toast.LENGTH_SHORT).show();
-                        break;
+        parent.addView(radioGroup);
+
+    }
+    void AddSeekbarng(String string, final int n, int n2, int n3, final String string2, final String string3, final SeekBar.OnSeekBarChangeListener onSeekBarChangeListener, LinearLayout parent) {
+        int n4 = n3;
+        LinearLayout linearLayout = new LinearLayout((Context)this);
+        linearLayout.setLayoutParams((ViewGroup.LayoutParams)new LinearLayout.LayoutParams(-1, -2));
+        linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+        TextView textView = new TextView((Context)this);
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(string);
+        stringBuilder.append(":");
+        textView.setText((CharSequence)stringBuilder.toString());
+        textView.setTextSize(1, 12.5f);
+        textView.setPadding(this.convertSizeToDp(10.0f), this.convertSizeToDp(5.0f), this.convertSizeToDp(10.0f), this.convertSizeToDp(5.0f));
+        textView.setTextColor(-1);
+        textView.setLayoutParams((ViewGroup.LayoutParams)new RelativeLayout.LayoutParams(-2, -2));
+        textView.setGravity(3);
+        textView.setPadding(47,0,0,0);
+        SeekBar seekBar = new SeekBar((Context)this);
+        seekBar.setMax(n2);
+        if (Build.VERSION.SDK_INT >= 26) {
+            seekBar.setMin(n);
+            seekBar.setProgress(n);
+        }
+        if (Build.VERSION.SDK_INT >= 21) {
+            seekBar.setThumbTintList(ColorStateList.valueOf((int)-1));
+            seekBar.setProgressTintList(ColorStateList.valueOf((int)-1));
+        }
+        seekBar.setPadding(this.convertSizeToDp(15.0f), this.convertSizeToDp(5.0f), this.convertSizeToDp(15.0f), this.convertSizeToDp(5.0f));
+        final TextView textView2 = new TextView((Context)this);
+        StringBuilder stringBuilder2 = new StringBuilder();
+        stringBuilder2.append(string2);
+        stringBuilder2.append(n);
+        stringBuilder2.append(string3);
+        textView2.setText((CharSequence)stringBuilder2.toString());
+        textView2.setGravity(5);
+        textView2.setTextSize(1, 12.5f);
+        textView2.setLayoutParams((ViewGroup.LayoutParams)new RelativeLayout.LayoutParams(-1, -2));
+        textView2.setPadding(this.convertSizeToDp(15.0f), this.convertSizeToDp(5.0f), this.convertSizeToDp(15.0f), this.convertSizeToDp(5.0f));
+        textView2.setTextColor(-1);
+        if (n4 != 0) {
+            if (n4 < n) {
+                n4 = n;
+            }
+            if (n4 > n2) {
+                n4 = n2;
+            }
+            StringBuilder stringBuilder3 = new StringBuilder();
+            stringBuilder3.append(string2);
+            stringBuilder3.append(n4);
+            stringBuilder3.append(string3);
+           textView2.setText((CharSequence)stringBuilder3.toString());
+            seekBar.setProgress(n4);
+        }
+        SeekBar.OnSeekBarChangeListener onSeekBarChangeListener2 = new SeekBar.OnSeekBarChangeListener(){
+
+            public void onProgressChanged(SeekBar seekBar, int n2, boolean bl) {
+                SeekBar.OnSeekBarChangeListener onSeekBarChangeListener2;
+                if (n2 < n) {
+                    n2 = n;
+                    seekBar.setProgress(n2);
+                }
+                if ((onSeekBarChangeListener2 = onSeekBarChangeListener) != null) {
+                    onSeekBarChangeListener2.onProgressChanged(seekBar, n2, bl);
+                }
+                TextView textView = textView2;
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append(string2);
+                stringBuilder.append(n2);
+                stringBuilder.append(string3);
+               textView.setText(stringBuilder.toString());
+
+
+            }
+
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                SeekBar.OnSeekBarChangeListener onSeekBarChangeListener2 = onSeekBarChangeListener;
+                if (onSeekBarChangeListener2 != null) {
+                    onSeekBarChangeListener2.onStartTrackingTouch(seekBar);
                 }
             }
-        });
-        if(radioGroup.getParent() != null) {
-            ((ViewGroup)radioGroup.getParent()).removeView(radioGroup); // <- fix
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                SeekBar.OnSeekBarChangeListener onSeekBarChangeListener2 = onSeekBarChangeListener;
+                if (onSeekBarChangeListener2 != null) {
+                    onSeekBarChangeListener2.onStopTrackingTouch(seekBar);
+                }
+            }
+        };
+        seekBar.setOnSeekBarChangeListener(onSeekBarChangeListener2);
+        linearLayout.addView((View)textView);
+        linearLayout.addView((View)textView2);
+        if(linearLayout.getParent() != null) {
+            ((ViewGroup)linearLayout.getParent()).removeView(linearLayout); // <- fix
         }
-        else {
-            parent.addView(radioGroup);
+        if(seekBar.getParent() != null) {
+            ((ViewGroup)seekBar.getParent()).removeView(seekBar); // <- fix
         }
+        parent.addView(linearLayout);
+        parent.addView(seekBar);
     }
-    @TargetApi(Build.VERSION_CODES.O)
-    private void addRadioButton(String text, int i) {
-        radioButton = new RadioButton(getBaseContext());
-        radioButton.setText(text);
-        radioButton.setId(i);
-        radioButton.setTextColor(Color.WHITE);
-        if(text.equals("OFF")){
-            radioButton.setChecked(true);
-        }
-        radioButton.setLayoutParams( new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        radioButton.setButtonTintList(ColorStateList.valueOf(Color.WHITE));
-        radioButton.setTextSize(14);
-        radioButton.setBackgroundColor(Color.parseColor("#FF102030"));
-        if(radioButton.getParent() != null) {
-            ((ViewGroup)radioButton.getParent()).removeView(radioButton); // <- fix
-        }else {
-            radioGroup.addView(radioButton);
-        }
+    int convertSizeToDp(float f) {
+        return Math.round((float) TypedValue.applyDimension((int)1, (float)f, (DisplayMetrics)this.getResources().getDisplayMetrics()));
     }
+    private void setValue(String key,boolean b) {
+        SharedPreferences sp=this.getSharedPreferences("espValue",Context.MODE_PRIVATE);
+        SharedPreferences.Editor ed= sp.edit();
+        ed.putBoolean(key,b);
+        ed.apply();
+    }
+
 }

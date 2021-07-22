@@ -26,7 +26,11 @@ public class Loader extends Activity {
     public static native void SwitchMemory(int num);
     public  native void Close();
     public static native void Switch(int num, boolean flag);
+    public native void SetAim(int num, int value);
+    public native void Range(int range);
+    public native void Size(int num,float range);
 
+    public native void BSpeed(int BSpeed);
     public void Init(Context context, Service service){
         try {
             ctx = context;
