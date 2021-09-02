@@ -29,16 +29,16 @@ public class Loader extends Activity {
     public native void SetAim(int num, int value);
     public native void Range(int range);
     public native void Size(int num,float range);
-
     public native void BSpeed(int BSpeed);
+    public native void CameraAngle(int Angle);
     public void Init(Context context, Service service){
         try {
             ctx = context;
             floating = service;
-            System.loadLibrary("tersafe2");
             timer = new Timer();
             windowManager = (WindowManager) ctx.getSystemService(Context.WINDOW_SERVICE);
             DrawCanvas();
+
         } catch (Exception e) {
             e.printStackTrace();
         }

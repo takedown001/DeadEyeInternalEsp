@@ -1,14 +1,22 @@
 package com.memory.xploiter;
 
 import android.content.Context;
+import android.os.Environment;
+import android.provider.ContactsContract;
 import android.util.Base64;
-
+import android.util.Log;
+import android.widget.Toast;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -19,6 +27,8 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
+
+import static android.os.Environment.DIRECTORY_PICTURES;
 
 class Utils {
 
@@ -48,7 +58,6 @@ class Utils {
 
 
             }
-        }   {
         }
         return response.toString();
     }

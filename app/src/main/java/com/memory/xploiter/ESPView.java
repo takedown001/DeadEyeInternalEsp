@@ -7,6 +7,7 @@ import android.graphics.ColorSpace;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
+import android.os.Process;
 import android.view.View;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -38,7 +39,6 @@ import android.graphics.Matrix;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.os.SystemClock;
-
 import static com.memory.xploiter.FService.getConfig;
 
 public class ESPView extends View implements Runnable {
@@ -65,14 +65,9 @@ public class ESPView extends View implements Runnable {
     static long sleepTime;
     Date time;
     SimpleDateFormat formatter;
-    SimpleDateFormat formatter2;
-
-
     public static void ChangeFps(int fps) {
-        sleepTime = 1000 / (20 + fps);
+        sleepTime = 1000 / (25 + fps);
     }
-
-    Bitmap[] OTHER = new Bitmap[5];
 
     public ESPView(Context context) {
         super(context, null, 0);
@@ -81,13 +76,11 @@ public class ESPView extends View implements Runnable {
         setBackgroundColor(Color.TRANSPARENT);
         time = new Date();
         formatter = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
-        formatter2 = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         sleepTime = 1000 / FPS;
         mThread = new Thread(this);
         mThread.start();
     }
-
-    public native String Deadeye();
+    public native String FPS();
     public native String DeadEye();
 
     @Override
@@ -97,12 +90,16 @@ public class ESPView extends View implements Runnable {
             int height = canvas.getHeight();
             float f = (height - 20);
             time.setTime(System.currentTimeMillis());
-            //DrawText(canvas, 255, 128, 0, 0,1.1f, formatter2.format(time) + "  " + formatter.format(time), (canvas.getWidth()/2), 45, 28);
-            DrawText(canvas, 255, 0, 255, 0, 0.5f, Deadeye() + "ESP FPS : " + mFPS, 200, 100, 20);
-            DrawText(canvas, 255, 0, 255, 0, 0.5f, "@" + DeadEye() + "_TG", canvas.getWidth() - 130, canvas.getHeight() - 30, 20);
+
+       //      DrawText(canvas, 255, 0, 255, 0, 0.5f, DeadEye() + " FPS : " + mFPS, 200, 90, 25); // Deadeye
+            DrawText(canvas, 255, 0, 255, 0, 0.5f, FPS()+ mFPS, 200, 90, 25);
+//           DrawText(canvas, 255, 0, 255, 0, 0.5f, "@" + Deadeye() + " & " +"@" + DeadEye() + "_TG", canvas.getWidth() - 260, canvas.getHeight() - 25, 20);
+           DrawText(canvas, 255, 0, 255, 0, 0.5f,DeadEye(), canvas.getWidth() - 130, canvas.getHeight() - 30, 20);
             Loader.DrawOn(this, canvas);
+           FService.onCanvasDraw(canvas,canvas.getWidth(),canvas.getHeight(),canvas.getDensity());
         }
     }
+
 
     public void DrawText(Canvas cvs, int a, int r, int g, int b, float stroke, String txt, float posX, float posY, float size) {
         mTextPaint.setColor(Color.RED);
@@ -119,15 +116,17 @@ public class ESPView extends View implements Runnable {
 
     @Override
     public void run() {
-        android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+        android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
         while (mThread.isAlive() && !mThread.isInterrupted()) {
             try {
                 long t1 = System.currentTimeMillis();
                 postInvalidate();
                 long td = System.currentTimeMillis() - t1;
                 Thread.sleep(Math.max(Math.min(0, sleepTime - td), sleepTime));
+
+
             } catch (InterruptedException it) {
-                Log.e("OverlayThread", it.getMessage());
+                //   Log.e("OverlayThread", Objects.requireNonNull(it.getMessage()));
             }
         }
     }
@@ -304,6 +303,7 @@ public class ESPView extends View implements Runnable {
         cvs.drawText(txt, posX, posY, mStrokePaint3);
     }
 
+
     public void DrawTextDistance(Canvas cvs, int a, int r, int g, int b, String txt, float posX, float posY, float size) {
         mTextPaint.setARGB(0, 0, 0, 0);
         mTextPaint.setAlpha(180);
@@ -383,7 +383,6 @@ public class ESPView extends View implements Runnable {
     public void DrawItems(Canvas cvs, String itemName, float distance, float posX, float posY, float size) {
         String realItemName = getItemName(itemName);
         mTextStroke.setTextSize((float) (size));
-        mTextStroke.setColor(Color.BLACK);
         if (realItemName != null && !realItemName.equals(""))
             cvs.drawText(realItemName + " (" + Math.round(distance) + "m)", posX, posY, mTextStroke);
         mTextPaint.setTextSize(size);
@@ -397,10 +396,8 @@ public class ESPView extends View implements Runnable {
     public void DrawVehicles(Canvas cvs, String itemName, float distance, float posX, float posY, float size) {
         String realVehicleName = getVehicleName(itemName);
         mTextStroke.setTextSize((float) (size));
-        mTextStroke.setColor(Color.parseColor((String) "#000000"));
         if (realVehicleName != null && !realVehicleName.equals(""))
             cvs.drawText(realVehicleName + ": " + Math.round(distance) + "m", posX, posY, mTextStroke);
-        mTextPaint.setColor(Color.rgb( 155, 0, 255));
         mTextPaint.setTextSize(size);
         if (realVehicleName != null && !realVehicleName.equals(""))
             cvs.drawText(realVehicleName + ": " + Math.round(distance) + "m", posX, posY, mTextPaint);
@@ -457,92 +454,92 @@ public class ESPView extends View implements Runnable {
 
         //AR and smg
         if (s.contains("AUG") && getConfig("AUG")) {
-            mTextPaint.setColor(Color.rgb(108,31,146));
+             mTextPaint.setColor(Color.rgb(255,127,80));
             return "AUG";
         }
 
         if (s.contains("M762") && getConfig("M762")) {
-            mTextPaint.setColor(Color.rgb(108,31,146));
+             mTextPaint.setColor(Color.rgb(255,127,80));
             return "M762";
         }
 
         if (s.contains("SCAR") && getConfig("SCAR-L")) {
-            mTextPaint.setColor(Color.rgb(108,31,146));
+             mTextPaint.setColor(Color.rgb(255,127,80));
             return "SCAR-L";
         }
 
         if (s.contains("M416") && getConfig("M416")) {
-            mTextPaint.setColor(Color.rgb(108,31,146));
+             mTextPaint.setColor(Color.rgb(255,127,80));
             return "M416";
         }
 
         if (s.contains("M16A4") && getConfig("M16A4")) {
-            mTextPaint.setColor(Color.rgb(108,31,146));
+             mTextPaint.setColor(Color.rgb(255,127,80));
             return "M16A-4";
         }
 
         if (s.contains("Mk47") && getConfig("Mk47 Mutant")) {
-            mTextPaint.setColor(Color.rgb(108,31,146));
+             mTextPaint.setColor(Color.rgb(255,127,80));
             return "Mk47 Mutant";
         }
 
         if (s.contains("G36") && getConfig("G36C")) {
-            mTextPaint.setColor(Color.rgb(108,31,146));
+             mTextPaint.setColor(Color.rgb(255,127,80));
             return "G36C";
         }
 
         if (s.contains("QBZ") && getConfig("QBZ")) {
-            mTextPaint.setColor(Color.rgb(108,31,146));
+             mTextPaint.setColor(Color.rgb(255,127,80));
             return "QBZ";
         }
 
         if (s.contains("AKM") && getConfig("AKM")) {
-            mTextPaint.setColor(Color.rgb(108,31,146));
+           mTextPaint.setColor(Color.rgb(255,127,80));
             return "AKM";
         }
 
         if (s.contains("Groza") && getConfig("Groza")) {
-            mTextPaint.setColor(Color.rgb(108,31,146));
+             mTextPaint.setColor(Color.rgb(255,127,80));
             return "Groza";
         }
 
         if (s.contains("PP19") && getConfig("Bizon")) {
-            mTextPaint.setColor(Color.rgb(108,31,146));
+             mTextPaint.setColor(Color.rgb(255,127,80));
             return "Bizon";
         }
 
         if (s.contains("TommyGun") && getConfig("Tommy Gun")) {
-            mTextPaint.setColor(Color.rgb(108,31,146));
+             mTextPaint.setColor(Color.rgb(255,127,80));
             return "Tommy Gun";
         }
 
         if (s.contains("MP5K") && getConfig("Mp5K")) {
-            mTextPaint.setColor(Color.rgb(108,31,146));
+             mTextPaint.setColor(Color.rgb(255,127,80));
             return "Mp5K";
         }
 
         if (s.contains("UMP9") && getConfig("Ump9")) {
-            mTextPaint.setColor(Color.rgb(108,31,146));
+             mTextPaint.setColor(Color.rgb(255,127,80));
             return "Ump-9";
         }
 
         if (s.contains("Vector") && getConfig("Vector")) {
-            mTextPaint.setColor(Color.rgb(108,31,146));
+             mTextPaint.setColor(Color.rgb(255,127,80));
             return "Vector";
         }
 
         if (s.contains("Uzi") && getConfig("Uzi")) {
-            mTextPaint.setColor(Color.rgb(108,31,146));
+             mTextPaint.setColor(Color.rgb(255,127,80));
             return "Uzi";
         }
 
         if (s.contains("DP28") && getConfig("Dp-28")) {
-            mTextPaint.setColor(Color.rgb(108,31,146));
+             mTextPaint.setColor(Color.rgb(255,127,80));
             return "Dp-28";
         }
 
         if (s.contains("M249") && getConfig("M249")) {
-            mTextPaint.setColor(Color.rgb(108,31,146));
+             mTextPaint.setColor(Color.rgb(255,127,80));
 
             return "M249";
         }
@@ -550,60 +547,59 @@ public class ESPView extends View implements Runnable {
         //snipers
 
         if (s.contains("AWM") && getConfig("AWM")) {
-            mTextPaint.setColor(Color.rgb(108,31,146));
+             mTextPaint.setColor(Color.rgb(255,127,80));
             return "AWM";
         }
 
         if (s.contains("QBU") && getConfig("QBU")) {
-            mTextPaint.setColor(Color.rgb(108,31,146));
+             mTextPaint.setColor(Color.rgb(255,127,80));
             return "QBU";
         }
 
         if (s.contains("SLR") && getConfig("SLR")) {
-            mTextPaint.setColor(Color.rgb(108,31,146));
+             mTextPaint.setColor(Color.rgb(255,127,80));
             return "SLR";
         }
 
         if (s.contains("SKS") && getConfig("SKS")) {
-            mTextPaint.setColor(Color.rgb(108,31,146));
+             mTextPaint.setColor(Color.rgb(255,127,80));
             return "SKS";
         }
 
         if (s.contains("Mini14") && getConfig("Mini-14")) {
-            mTextPaint.setColor(Color.rgb(108,31,146));
+             mTextPaint.setColor(Color.rgb(255,127,80));
             return "Mini-14";
         }
 
         if (s.contains("M24") && getConfig("M24")) {
-            mTextPaint.setColor(Color.rgb(108,31,146));
+             mTextPaint.setColor(Color.rgb(255,127,80));
             return "M24";
         }
 
         if (s.contains("Kar98k") && getConfig("Kar98k")) {
-            mTextPaint.setColor(Color.rgb(108,31,146));
+             mTextPaint.setColor(Color.rgb(255,127,80));
             return "Kar98k";
         }
 
         if (s.contains("VSS") && getConfig("Vss")) {
-            mTextPaint.setColor(Color.rgb(108,31,146));
+              mTextPaint.setColor(Color.rgb(255,127,80));
             return "Vss";
         }
 
         if (s.contains("FAMAS") && getConfig("Famas")) {
-            mTextPaint.setColor(Color.rgb(108,31,146));
+             mTextPaint.setColor(Color.rgb(255,127,80));
             return "Famas";
         }
 
         if (s.contains("Mosin") && getConfig("Mosin Nagant")) {
-            mTextPaint.setColor(Color.rgb(108,31,146));
+             mTextPaint.setColor(Color.rgb(255,127,80));
             return "Mosin Nagant";
         }
 
         if (s.contains("Mk14") && getConfig("Mk14")) {
-            mTextPaint.setColor(Color.rgb(108,31,146));
+             mTextPaint.setColor(Color.rgb(255,127,80));
             return "Mk14";
         }
-//
 ////shotguns and hand weapons
 //        if (s.contains("S12K") && getConfig("S12K")) {
 //            mTextPaint.setColor(Color.WHITE);
@@ -707,7 +703,6 @@ public class ESPView extends View implements Runnable {
 
         if (s.contains("Ammo_556mm") && getConfig("5.56mm")) {
             mTextPaint2.setColor(Color.rgb(255,190,0));
-
             return "5.56 mm";
         }
 
@@ -735,7 +730,7 @@ public class ESPView extends View implements Runnable {
 
         //bag helmet vest
         if (s.contains("Bag_Lv3") && getConfig("Bag(3)")) {
-            mTextPaint.setColor(Color.rgb(25,0,15));
+            mTextPaint2.setARGB(255, 77, 115, 255);
             return "Bag lvl 3";
         }
 
@@ -836,9 +831,9 @@ public class ESPView extends View implements Runnable {
 //
 //
 //        //others
-//        if (s.contains("Large_FlashHider") && getConfig("Flash Hider Ar")) {
+//        if (s.contains("Large_FlashHider") && getConfig("MidNight Hider Ar")) {
 //            mTextPaint.setColor(Color.WHITE);
-//            return "Flash Hider Ar";
+//            return "MidNight Hider Ar";
 //        }
 //
 //        if (s.contains("QK_Large_C") && getConfig("Ar Compensator")) {
@@ -846,9 +841,9 @@ public class ESPView extends View implements Runnable {
 //            return "Ar Compensator";
 //        }
 //
-//        if (s.contains("Mid_FlashHider") && getConfig("Flash Hider SMG")) {
+//        if (s.contains("Mid_FlashHider") && getConfig("MidNight Hider SMG")) {
 //            mTextPaint.setColor(Color.WHITE);
-//            return "Flash Hider SMG";
+//            return "MidNight Hider SMG";
 //        }
 //
 //        if (s.contains("QT_A_") && getConfig("Tactical Stock")) {
@@ -861,9 +856,9 @@ public class ESPView extends View implements Runnable {
 //            return "DuckBill";
 //        }
 //
-//        if (s.contains("Sniper_FlashHider") && getConfig("Flash Hider Snp")) {
+//        if (s.contains("Sniper_FlashHider") && getConfig("MidNight Hider Snp")) {
 //            mTextPaint.setColor(Color.WHITE);
-//            return "Flash Hider Sniper";
+//            return "MidNight Hider Sniper";
 //        }
 //
 //        if (s.contains("Mid_Suppressor") && getConfig("Suppressor SMG")) {
@@ -1027,65 +1022,88 @@ public class ESPView extends View implements Runnable {
     }
 
     private String getVehicleName(String s) {
-        if (s.contains("Buggy") && getConfig("Buggy"))
+        if (s.contains("Buggy") && getConfig("Buggy")) {
+            mTextPaint.setColor(Color.YELLOW);
             return "Buggy";
-
-        if (s.contains("UAZ") && getConfig("UAZ"))
+        }
+        if (s.contains("UAZ") && getConfig("UAZ")) {
+            mTextPaint.setColor(Color.YELLOW);
             return "UAZ";
+        }
 
-        if (s.contains("MotorcycleC") && getConfig("Trike"))
+        if (s.contains("MotorcycleC") && getConfig("Trike")) {
+            mTextPaint.setColor(Color.YELLOW);
             return "Trike";
-
-        if (s.contains("Motorcycle") && getConfig("Bike"))
+        }
+        if (s.contains("Motorcycle") && getConfig("Bike")) {
+            mTextPaint.setColor(Color.YELLOW);
             return "Bike";
-
-        if (s.contains("Dacia") && getConfig("Dacia"))
+        }
+        if (s.contains("Dacia") && getConfig("Dacia")) {
+            mTextPaint.setColor(Color.YELLOW);
             return "Dacia";
-
-        if (s.contains("AquaRail") && getConfig("Jet"))
+        }
+        if (s.contains("AquaRail") && getConfig("Jet")) {
+            mTextPaint.setColor(Color.YELLOW);
             return "Jet";
-
-        if (s.contains("PG117") && getConfig("Boat"))
+        }
+        if (s.contains("PG117") && getConfig("Boat")) {
+            mTextPaint.setColor(Color.YELLOW);
             return "Boat";
-
-        if (s.contains("MiniBus") && getConfig("Bus"))
+        }
+        if (s.contains("MiniBus") && getConfig("Bus")) {
+            mTextPaint.setColor(Color.YELLOW);
             return "Bus";
-
-        if (s.contains("Mirado") && getConfig("Mirado"))
+        }
+        if (s.contains("Mirado") && getConfig("Mirado")) {
+            mTextPaint.setColor(Color.YELLOW);
             return "Mirado";
-
-        if (s.contains("Scooter") && getConfig("Scooter"))
+        }
+        if (s.contains("Scooter") && getConfig("Scooter")) {
+            mTextPaint.setColor(Color.YELLOW);
             return "Scooter";
-
-        if (s.contains("Rony") && getConfig("Rony"))
+        }
+        if (s.contains("Rony") && getConfig("Rony")) {
+            mTextPaint.setColor(Color.YELLOW);
             return "Rony";
-
-        if (s.contains("Snowbike") && getConfig("Snowbike"))
+        }
+        if (s.contains("Snowbike") && getConfig("Snowbike")) {
+            mTextPaint.setColor(Color.YELLOW);
             return "Snowbike";
-
-        if (s.contains("Snowmobile") && getConfig("Snowmobile"))
+        }
+        if (s.contains("Snowmobile") && getConfig("Snowmobile")) {
+            mTextPaint.setColor(Color.YELLOW);
             return "Snowmobile";
-
-        if (s.contains("Tuk") && getConfig("Tempo"))
+        }
+        if (s.contains("Tuk") && getConfig("Tempo")) {
+            mTextPaint.setColor(Color.YELLOW);
             return "Tempo";
-
-        if (s.contains("PickUp") && getConfig("Truck"))
+        }
+        if (s.contains("PickUp") && getConfig("Truck")) {
+            mTextPaint.setColor(Color.YELLOW);
             return "Truck";
-
-        if (s.contains("BRDM") && getConfig("BRDM"))
+        }
+        if (s.contains("BRDM") && getConfig("BRDM")) {
+            mTextPaint.setColor(Color.YELLOW);
             return "BRDM";
-
-        if (s.contains("LadaNiva") && getConfig("LadaNiva"))
+        }
+        if (s.contains("LadaNiva") && getConfig("LadaNiva")) {
+            mTextPaint.setColor(Color.YELLOW);
             return "LadaNiva";
-
-        if (s.contains("Bigfoot") && getConfig("Monster Truck"))
+        }
+        if (s.contains("Bigfoot") && getConfig("Monster Truck")) {
+            mTextPaint.setColor(Color.YELLOW);
             return "Monster Truck";
+        }
+        if (s.contains("FerrisWheelCar_C") && getConfig("CoupleRB")) {
+            mTextPaint.setColor(Color.YELLOW);
 
-        if (s.contains("FerrisWheelCar_C") && getConfig("CoupleRB"))
             return "CoupleRB";
-        if (s.contains("Motorglider") && getConfig("Motar-Glider"))
+        }
+        if (s.contains("Motorglider") && getConfig("Motar-Glider")) {
+            mTextPaint.setColor(Color.YELLOW);
             return "Motor Glider";
-
+        }
         return "";
     }
 }

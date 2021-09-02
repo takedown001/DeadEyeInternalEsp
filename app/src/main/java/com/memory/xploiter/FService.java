@@ -1,5 +1,8 @@
 package com.memory.xploiter;
 
+import static com.memory.xploiter.Anima.Apak;
+import static com.memory.xploiter.Login.isfree;
+
 import android.annotation.TargetApi;
 import android.app.Service;
 import android.content.Context;
@@ -8,11 +11,14 @@ import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.content.res.ColorStateList;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Typeface;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -20,7 +26,6 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.CheckBox;
@@ -36,10 +41,16 @@ import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-import java.util.Arrays;
+import androtrainer.Flags;
+import androtrainer.MemoryScanner;
+import androtrainer.Ranges;
 
-public class FService extends Service {
+public class FService extends Service  {
 
     private WindowManager mWindowManager;
     private FrameLayout rootFrame;
@@ -57,7 +68,11 @@ public class FService extends Service {
     private LinearLayout itemtab;
     private LinearLayout PlayerBody;
     private LinearLayout aimbot;
+    private LinearLayout premium;
     static Context ctx;
+    private String settime;
+    private String gamename;
+    SharedPreferences configPrefs;
     private ImageView playerimg,itemimg,vehicalimg;
     private LinearLayout weapon,ammo, armors,health,scope,vehical,special;
     @Override
@@ -70,12 +85,27 @@ public class FService extends Service {
     public void onCreate() {
         super.onCreate();
         ctx = getBaseContext();
-        System.loadLibrary("tersafe2");
-        initFloatingView();
         loader.Init(this, this);
+        configPrefs = getSharedPreferences("config", MODE_PRIVATE);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        initFloatingView();
+                    });
+                }
+            }).start();
+            loadAssets();
     }
+    @Override
+    public int onStartCommand (Intent intent, int flags, int startId) {
+        gamename = intent.getStringExtra("gamename");
+        if(!gamename.equals(Login.Check())) {
+            stopSelf();
+        }
 
-
+        return START_NOT_STICKY;
+    }
 
     native String Title();
     native String Icon();
@@ -83,24 +113,42 @@ public class FService extends Service {
     native String ItemEsp();
     native String VehicalEsp();
 
+    private void UpdateConfiguration(String s, Object v) {
+        try {
+            onSendConfig(s, v.toString());
+            SharedPreferences.Editor configEditor = configPrefs.edit();
+            configEditor.putString(s, v.toString());
+            configEditor.apply();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
 
+    private native void onSendConfig(String s, String v);
+
+    public static native void onCanvasDraw(Canvas canvas, int w, int h, float d);
+
+    public static native void Switch(int i, boolean jboolean1);
     @Override
     public void onDestroy() {
         super.onDestroy();
+
         if (mMenuHeadImageView != null) mWindowManager.removeView(mMenuHeadImageView);
         loader.Destroy();
         stopSelf();
     }
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        return Service.START_NOT_STICKY;
-    }
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
-        stopSelf();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                clearcache();
+            }
+        }).start();
+        onDestroy();
     }
 
     private void createMenu() {
@@ -140,9 +188,9 @@ public class FService extends Service {
         itemlayout.setLayoutParams(new LinearLayout.LayoutParams(100, LinearLayout.LayoutParams.WRAP_CONTENT));
         itemlayout.setOrientation(LinearLayout.VERTICAL);
         byte[] decode = Base64.decode(PlayerEsp(), 0);
-        playerimg.setLayoutParams(new LinearLayout.LayoutParams(100,100));
+        playerimg.setLayoutParams(new LinearLayout.LayoutParams(100,120));
         playerimg.setImageBitmap(BitmapFactory.decodeByteArray(decode, 0, decode.length));
-        playerimg.setPadding(5,5,0,5);
+        playerimg.setPadding(0,2,0,2);
         playerimg.setImageAlpha(255);
         playerimg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -153,10 +201,11 @@ public class FService extends Service {
             }
         });
         byte[] iecode = Base64.decode(ItemEsp(), 0);
-        itemimg.setLayoutParams(new LinearLayout.LayoutParams(100,100));
+        itemimg.setLayoutParams(new LinearLayout.LayoutParams(100,120));
         itemimg.setImageBitmap(BitmapFactory.decodeByteArray(iecode, 0, decode.length));
+        itemimg.setVisibility(View.GONE);
         itemimg.setImageAlpha(255);
-        itemimg.setPadding(5,5,0,5);
+        itemimg.setPadding(0,0,0,0);
         itemimg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -165,11 +214,11 @@ public class FService extends Service {
                 aimbot.setVisibility(View.GONE);
             }
         });
-        vehicalimg.setLayoutParams(new LinearLayout.LayoutParams(100 ,100));
+        vehicalimg.setLayoutParams(new LinearLayout.LayoutParams(100 ,120));
         byte[] vecode = Base64.decode(VehicalEsp(), 0);
         vehicalimg.setImageBitmap(BitmapFactory.decodeByteArray(vecode, 0, decode.length));
         vehicalimg.setImageAlpha(255);
-        vehicalimg.setPadding(5,5,0,5);
+        vehicalimg.setPadding(0,0,0,0);
         vehicalimg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -178,13 +227,78 @@ public class FService extends Service {
                 aimbot.setVisibility(View.VISIBLE);
             }
         });
+
         itemlayout.addView(playerimg);
         itemlayout.addView(itemimg);
         itemlayout.addView(vehicalimg);
         mainlayout.addView(itemlayout);
     }
 
+    private void clearcache(){
+        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Logs");
+        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/GameErrorNoRecords");
+        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/StartEvenReportedFlag");
+        FileUtil.deleteFile(ctx.getCacheDir()+"/*");
+        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+Apak()+".pak");
+
+    }
+    private void applysrc(){
+
+        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/PufferEifs0");
+        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/PufferEifs1");
+        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/SrcVersion.ini");
+        FileUtil.writeFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/SrcVersion.ini",sendsrcconfig()+configPrefs.getString("src","15339"));
+        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/PufferEifs0");
+        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/PufferEifs1");
+        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/LightData");
+        FileUtil.makeDir(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/LightData");
+        FileUtil.writeFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/LightData/LightData3036393187.ltz","kpk3o");
+
+    }
+    public native String sendsrcconfig();
+
+    public native String modify ();
+
     private void createMenuBody() {
+       addSubtitle("Bypass MTP Protection",mMenuBody);
+       adddescription("Bypasses Normal Integrity Scans And Security Patches On Logo", mMenuBody);
+       addSwitch("Inject", new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            FileUtil.writeFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/Updater.ini", modify());
+                            clearcache();
+                            loader.SwitchMemory(11);
+                           }
+                    }).start();
+//                    new Thread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            applysrc();
+//                        }
+//                    }).start();
+                Toast.makeText(ctx,"MTP Protection Bypassed",Toast.LENGTH_LONG).show();
+                }else{
+                    clearcache();
+                }
+            }
+        },mMenuBody);
+//        addSubtitle("Src Patch",mMenuBody);
+//       adddescription("Src Patch Sync Your Game Version To Server & Avoid Detection ( Only First Time Use)", mMenuBody);
+//        addSwitch("Apply Patch", new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                if(isChecked) {
+//
+//                }else{
+//                    clearcache();
+//                }
+//            }
+//        },mMenuBody);
+
         addSubtitle("Render FrameRate",mMenuBody);
         String [] FPS = {"30 FPS","45 FPS", "60 FPS", "90 FPS", "120 FPS"};
         addRadioGroup(FPS, 0, new RadioGroup.OnCheckedChangeListener() {
@@ -278,7 +392,7 @@ public class FService extends Service {
         item.setLayoutParams(new LinearLayout.LayoutParams( LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
         LinearLayout horiz = new LinearLayout(getBaseContext());
         horiz.setOrientation(LinearLayout.HORIZONTAL);
-        horiz.setPadding(50,0,0,0);
+        horiz.setPadding(47,0,0,0);
         addSubtitle("ESP Generic Adjustment",item);
         additem("Distance", new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -297,7 +411,7 @@ public class FService extends Service {
         LinearLayout horiz1 = new LinearLayout(getBaseContext());
         horiz1.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
         horiz.setOrientation(LinearLayout.HORIZONTAL);
-        horiz1.setPadding(50,0,0,0);
+        horiz1.setPadding(47,0,0,0);
         additem("Name", new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -310,10 +424,14 @@ public class FService extends Service {
                 loader.Switch(9, isChecked);
             }
         },horiz1,4);
-
         item.addView(horiz1);
+        addi(new String[]{"360 Alert"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                loader.Switch(149,isChecked);
+            }
+        },item);
         addSubtitle("Items Generic Adjustment",item);
-
         AddSeekbarng(" Size Adjustment",10,25,15,"","",new SeekBar.OnSeekBarChangeListener(){
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -331,6 +449,38 @@ public class FService extends Service {
 
             }
         },item);
+        //weapon start
+        addi(new String[]{"AKM", "M416","Dp-28"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String) buttonView.getText(),isChecked);
+            }
+        },item);
+        addi(new String[]{"SCAR-L", "M762"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String) buttonView.getText(),isChecked);
+            }
+        },item);
+        addi(new String[]{"Buggy", "UAZ","Dacia"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },item);
+
+        addi(new String[]{"3x", "FirstAid","FlareGun"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setValue((String)buttonView.getText(),isChecked);
+            }
+        },item);
+//        addi(new String[]{"3x", "6x","FlareGun"}, new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                setValue((String)buttonView.getText(),isChecked);
+//            }
+//        },item);
 
         mMenuBody.addView(item);
         addSwitch("Memory Features", new CompoundButton.OnCheckedChangeListener() {
@@ -353,98 +503,137 @@ public class FService extends Service {
     private void aimbot(){
         aimbot.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
         aimbot.setOrientation(LinearLayout.VERTICAL);
-        addSubtitle("Aimbot Mode",aimbot);
-        addRadioGroup(new String[]{"Disable", "Enabled"}, 0, new RadioGroup.OnCheckedChangeListener() {
+        addSubtitle("Bullet Tracking", aimbot);
+        adddescription("Bullets Will Have its Own Aim While Firing", aimbot);
+        addSwitch("Enable Bullet Tracking", new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-               switch (checkedId){
-                   case 0: loader.Switch(14,false);break;
-                   case 1: loader.Switch(14,true); break;
-               }
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                UpdateConfiguration("AIM::AIMBULLET", isChecked ? 1 : 0);
+                loader.Switch(14,isChecked);
             }
-        },aimbot);
-
-        addSubtitle("Aim at the Body Part",aimbot);
-        addRadioGroup(new String[]{"Head","Stomach","Legacy"}, 0, new RadioGroup.OnCheckedChangeListener() {
+        }, aimbot);
+        premium.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        premium.setOrientation(LinearLayout.VERTICAL);
+        if(!isfree)
+        {    
+            premium.setVisibility(View.VISIBLE);
+        }
+        addSubtitle("Aim at the Body Part",premium);
+        addRadioGroup(new String[]{"Head","Stomach"}, 0, new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 switch (checkedId){
-                    case 0:  loader.SetAim(2,1); break;
-                    case 1: loader.SetAim(2,2); break;
-                    case 2 : loader.SetAim(2,3); break;
+                    case 0:  loader.SetAim(2,1);
+                        UpdateConfiguration("AIM::AIMBULLET",1);
+                        
+                    break;
+//                    case 1:  loader.SetAim(2,2); break;
+//                    case 2 : loader.SetAim(23);
+//                        UpdateConfiguration("AIM::AIMBULLET",2);
+//                    break;
+                    case 2 : loader.SetAim(2,4);
+                        
+                        UpdateConfiguration("AIM::AIMBULLET",2);
+                        break;
                 }
-            }
-        },aimbot);
-        addSubtitle("Target Selection Mode",aimbot);
-        addRadioGroup(new String[]{"CrossHair Priority", "Distance Priority"}, 0, new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                    switch (checkedId){
-                        case 0:loader.SetAim(3,1); break;
-                        case 1:  loader.SetAim(3,0); break;
-                    }
-            }
-        },aimbot);
-        addSubtitle("Aimbot Toggle Mode",aimbot);
-        addRadioGroup(new String[]{"Firing & Aiming down Sight", "Aiming Down Sight", "Firing"}, 0, new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-               switch (checkedId){
-                   case 0:  loader.SetAim(4,3); break;
-                   case 1:  loader.SetAim(4,2); break;
-                   case 2:  loader.SetAim(4,1); break;
 
-               }
             }
-        },aimbot);
+        },premium);
         addSwitch("Ignore Knocked Out Player", new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 loader.Switch(16,isChecked);
-
+                UpdateConfiguration("AIM::KNOCKED",isChecked ?1:0);
+                
             }
-        },aimbot);
-        addSubtitle("AimBot FOV",aimbot);
-        int range =100;
-        AddSeekbarng( "Only aim with in the range", 0, 1000, range, "", "", new SeekBar.OnSeekBarChangeListener(){
-            public void onProgressChanged(SeekBar seekBar, int range, boolean isChecked) {
-                loader.Range(seekBar.getProgress());
-            }
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        },aimbot);
-        LinearLayout tv = new LinearLayout(getBaseContext());
-        tv.setOrientation(LinearLayout.VERTICAL);
-        tv.setVisibility(View.GONE);
-        addSwitch("Aim Prediction", new CompoundButton.OnCheckedChangeListener() {
+        },premium);
+        addSubtitle("Target Selection Mode",premium);
+        addRadioGroup(new String[]{"CrossHair Priority", "Distance Priority"}, 0, new RadioGroup.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked){
-                    tv.setVisibility(View.VISIBLE);
-                }else {
-                    tv.setVisibility(View.GONE);
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId){
+                    case 0:loader.SetAim(3,1);
+                        
+                        break;
+                    case 1:loader.SetAim(3,0);
+                        
+                        break;
                 }
             }
-        }, aimbot);
-        adddescription("Based on the Speed & Direction Of The Enenmy",aimbot);
-        tv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        addsubheading("Bullet Speed",tv);
-        int BSpeed =8100;
-        AddSeekbarng( "Adjust the bullet speed ", 8000, 10000, BSpeed, "", "", new SeekBar.OnSeekBarChangeListener(){
-            public void onProgressChanged(SeekBar seekBar, int BSpeed, boolean isChecked) {
-                loader.BSpeed(seekBar.getProgress());
+        },premium);
+
+        addSwitch(" Aim Prediction", new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                UpdateConfiguration("AIM::PREDICTION",isChecked ? 1:0);
+            }
+        },premium);
+        adddescription("Predicts Aim On Basis Player Location",premium);
+        addSubtitle("Toggle Mode",premium);
+        addRadioGroup(new String[]{"Firing & Aiming down Sight", "Aiming Down Sight", "Firing"}, 0, new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                UpdateConfiguration("AIM::TRIGGER",0);
+                switch (checkedId){
+                    case 0:  loader.SetAim(4,3);
+                        
+                            UpdateConfiguration("AIM::TRIGGER",3);
+                    break;
+                    case 1:  loader.SetAim(4,2);
+                        
+                            UpdateConfiguration("AIM::TRIGGER",2);
+                        break;
+                    case 2:  loader.SetAim(4,1);
+                        
+                            UpdateConfiguration("AIM::TRIGGER",1);
+                    break;
+                }
+            }
+        },premium);
+        addSubtitle("FOV",premium);
+        int range =100;
+        AddSeekbarng( "Bullet aim with in the range", 0, 200, range, "", "", new SeekBar.OnSeekBarChangeListener(){
+            public void onProgressChanged(SeekBar seekBar, int range, boolean isChecked) {
+                loader.Range(seekBar.getProgress());
+                
+                UpdateConfiguration("AIM::SIZE",seekBar.getProgress());
             }
             public void onStartTrackingTouch(SeekBar seekBar) {
             }
 
             public void onStopTrackingTouch(SeekBar seekBar) {
+
             }
-        },tv);
-        aimbot.addView(tv);
+        },premium);
+        aimbot.addView(premium);
+//        LinearLayout tv = new LinearLayout(getBaseContext());
+//        tv.setOrientation(LinearLayout.VERTICAL);
+//        tv.setVisibility(View.GONE);
+//        addSwitch("Aim Prediction", new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                if (isChecked){
+//                    tv.setVisibility(View.VISIBLE);
+//                }else {
+//                    tv.setVisibility(View.GONE);
+//                }
+//            }
+//        }, aimbot);
+//        adddescription("Based on the Speed & Direction Of The Enenmy",aimbot);
+//        tv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+//        addsubheading("Bullet Speed",tv);
+//        int BSpeed = 8100;
+//        AddSeekbarng( "Adjust the bullet speed ", 8000, 10000, BSpeed, "", "", new SeekBar.OnSeekBarChangeListener(){
+//            public void onProgressChanged(SeekBar seekBar, int BSpeed, boolean isChecked) {
+//                loader.BSpeed(seekBar.getProgress());
+//            }
+//            public void onStartTrackingTouch(SeekBar seekBar) {
+//            }
+//
+//            public void onStopTrackingTouch(SeekBar seekBar) {
+//            }
+//        },tv);
+//        aimbot.addView(tv);
 
     }
 
@@ -457,13 +646,12 @@ public class FService extends Service {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 setValue((String) buttonView.getText(),isChecked);
 
-
             }
         },weapon);
         addi(new String[]{"AUG", "M762"}, new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    setValue((String) buttonView.getText(),isChecked);
+                setValue((String) buttonView.getText(),isChecked);
 
 
             }
@@ -655,7 +843,7 @@ public class FService extends Service {
                 setValue((String)buttonView.getText(),isChecked);
             }
         },vehical);
-        addi(new String[]{"Bike", "Darcia","Jet"}, new CompoundButton.OnCheckedChangeListener() {
+        addi(new String[]{"Bike", "Dacia","Jet"}, new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 setValue((String)buttonView.getText(),isChecked);
@@ -667,7 +855,7 @@ public class FService extends Service {
                 setValue((String)buttonView.getText(),isChecked);
             }
         },vehical);
-        addi(new String[]{"Scooter", "Rony","BRDM"}, new CompoundButton.OnCheckedChangeListener() {
+        addi(new String[]{"Scooter", "Rony"}, new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 setValue((String)buttonView.getText(),isChecked);
@@ -691,7 +879,7 @@ public class FService extends Service {
                 setValue((String)buttonView.getText(),isChecked);
             }
         },vehical);
-        addi(new String[]{"Monster Truck"}, new CompoundButton.OnCheckedChangeListener() {
+        addi(new String[]{"Monster Truck","BRDM"}, new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 setValue((String)buttonView.getText(),isChecked);
@@ -762,8 +950,8 @@ public class FService extends Service {
 
         Ammo.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,100));
         Ammo.setPadding(2,5,0,2);
-        Ammo.setText("Ammo");
         Ammo.setTypeface(Typeface.DEFAULT_BOLD);
+        Ammo.setText("Ammo");
         Ammo.setBackgroundColor(Color.GRAY);
         Ammo.setTextColor(Color.WHITE);
         Ammo.setOnClickListener(new View.OnClickListener() {
@@ -827,7 +1015,7 @@ public class FService extends Service {
                 Weapon.setBackgroundColor(Color.GRAY);
                 Ammo.setBackgroundColor(Color.GRAY);
                 Armors.setBackgroundColor(Color.GRAY);
-                Scope.setTextColor(Color.GRAY);
+                Scope.setBackgroundColor(Color.GRAY);
                 Special.setBackgroundColor(Color.GRAY);
                 Vehical.setBackgroundColor(Color.GRAY);
                 weapon.setVisibility(View.GONE);
@@ -930,17 +1118,22 @@ public class FService extends Service {
     private void addi(String [] name, CompoundButton.OnCheckedChangeListener on, LinearLayout parent){
         LinearLayout hori = new LinearLayout(getBaseContext());
         hori.setOrientation(LinearLayout.HORIZONTAL);
+        hori.setPadding(47,0,0,0);
+        hori.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         CheckBox[] checkBox = new CheckBox[name.length];
         for (int i = 0 ; i<name.length;i++) {
             checkBox[i] = new CheckBox(getBaseContext());
             checkBox[i].setTextSize(14);
             checkBox[i].setId(i);
+            checkBox[i].setTypeface(Typeface.createFromAsset(getAssets(), "fonts/montserrat.ttf"));
             checkBox[i].setTextColor(Color.WHITE);
             checkBox[i].setText(name[i]);
+            checkBox[i].setChecked(getConfig(name[i]));
             checkBox[i].setButtonTintList(ColorStateList.valueOf(Color.WHITE));
             checkBox[i].setOnCheckedChangeListener(on);
             hori.addView(checkBox[i]);
         }
+
         parent.addView(hori);
     }
     @TargetApi(Build.VERSION_CODES.O)
@@ -948,6 +1141,7 @@ public class FService extends Service {
         CheckBox checkBox = new CheckBox(getBaseContext());
         checkBox.setTextSize(14);
         checkBox.setId(id);
+        checkBox.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/montserrat.ttf"));
         checkBox.setTextColor(Color.WHITE);
         checkBox.setText(name);
         checkBox.setButtonTintList(ColorStateList.valueOf(Color.WHITE));
@@ -958,8 +1152,8 @@ public class FService extends Service {
         memorytab.setLayoutParams(new LinearLayout.LayoutParams( LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
         memorytab.setOrientation(LinearLayout.VERTICAL);
         adddescription("Runtime Memory Modificaiton (You Might Be At Risk)",mMenuBody);
-        addSubtitle("Aimbot",memorytab);
-        adddescription("Increases Aim Assist",memorytab);
+        addSubtitle("Aimbot (Line Of Sight)",memorytab);
+        adddescription("Increases Aim Support On Visible Enemies",memorytab);
         String [] aim = {"OFF","Head","Body"};
         addRadioGroup(aim, 0, new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -980,7 +1174,7 @@ public class FService extends Service {
             }
         }, memorytab);
         addSubtitle("Magic Bullet",memorytab);
-        adddescription("Forces Scattered Bullets On Enemies",memorytab);
+        adddescription("Bullet Auto Follows Enemy",memorytab);
         addSwitch("Activate Magic Bullet", new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -993,20 +1187,31 @@ public class FService extends Service {
             }
         },memorytab);
         addSubtitle("Recoil Compensation",memorytab);
-        adddescription("Reduces Weapon Recoil",memorytab);
-        addSwitch("Activate Recoil", new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
-                    loader.SwitchMemory(1);
-                }
-                else{
-                    loader.SwitchMemory(2);
-                }
-            }
-        },memorytab);
+        adddescription("Reduces Weapon Recoil On Firing",memorytab);
+       addRadioGroup(new String[]{"OFF", "Vertical", "Horizontal","Both"}, 0, new RadioGroup.OnCheckedChangeListener() {
+           @Override
+           public void onCheckedChanged(RadioGroup group, int checkedId) {
+               switch (checkedId){
+                   case 0 :
+                       loader.SwitchMemory(2);
+                       loader.SwitchMemory(21);
+                       break;
+                   case 1:
+                       loader.SwitchMemory(1);
+                       break;
+                   case 2:
+                       loader.SwitchMemory(20);
+                       break;
+                   case 3:
+                       loader.SwitchMemory(1);
+                       loader.SwitchMemory(20);
+                       break;
+               }
+           }
+       },memorytab);
+
         addSubtitle("Custom Crosshair",memorytab);
-        adddescription("Reduces Bullet Spread On Hip Fire And Improves Raw Aim",memorytab);
+        adddescription("Reduces Bullet Spread On Hip Fire Or Improves Raw Aim",memorytab);
         String [] crosshair = {"OFF","Graphical Crosshair","Memory Crosshair"};
 //        addSwitch("Medium Speed", new CompoundButton.OnCheckedChangeListener() {
 //            @Override
@@ -1031,7 +1236,7 @@ public class FService extends Service {
                     case 1:
                         loader.Switch(148, true);
                         loader.SwitchMemory(4);
-                        Toast.makeText(getBaseContext(),"Graphical CrossHair Activated",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getBaseContext(),"Graphical Crosshair Activated",Toast.LENGTH_SHORT).show();
                         break;
                     case 2:
                         loader.SwitchMemory(3);
@@ -1041,7 +1246,110 @@ public class FService extends Service {
             }
         }, memorytab);
 
+        addSwitch("Midnight Enviornment", new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    loader.SwitchMemory(9);
+                    Toast.makeText(getBaseContext(),buttonView.getText()+" Activated",Toast.LENGTH_SHORT).show();
+                }else{
+                    loader.SwitchMemory(10);
+                }
+            }
+        },memorytab);
+        adddescription("Turn Surrounding into Midnight View For Better Visibility",memorytab);
+//        addSubtitle("Player Scope Adjustment",memorytab);
+//        adddescription("Gives You advantage To shoot Through Wall(Can't Be Turn Off & Highly Risky)",memorytab);
+//        addi(new String[]{"SitScope", "SitLeftScope"}, new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                switch (buttonView.getId()){
+//                    case 0:
+//                        sitscope();
+//                    case 1:
+//                        sitleft();
+//                }
+//            }
+//        },memorytab);
+
+
+//        addSwitch("Speed Knock", new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                if(isChecked){
+//                    loader.SwitchMemory(14);
+//                    Toast.makeText(getBaseContext(),buttonView.getText()+" Activated",Toast.LENGTH_SHORT).show();
+//                }else{
+//                    loader.SwitchMemory(15);
+//                }
+//            }
+//        },memorytab);
+
+
+        adddescription("Increases And Improves Player Knock Speed", memorytab);
+        addSubtitle("Accelerate Player Speed", memorytab);
+        adddescription("Increases Player Speed On Tap & Makes You SuperMan With Double-Tap(200m)", memorytab);
+        addRadioGroup(new String[]{"OFF", "ON"}, 0, new
+                RadioGroup.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(RadioGroup group, int checkedId) {
+                        switch (checkedId){
+                            case 0:
+                                stopService(new Intent(ctx,Flogo.class));
+                                loader.SwitchMemory(26);
+                                loader.SwitchMemory(17);
+                                break;
+                            case 1:
+                                startService(new Intent(ctx,Flogo.class));
+                                Toast.makeText(getBaseContext(),"Player Speed Menu Open",Toast.LENGTH_SHORT).show();
+                                break;
+                        }
+                    }
+                }, memorytab);
+        addSubtitle("Car Generic Adjustments", memorytab);
+        addi(new String[]{"Car Speed", "Car Jump"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                switch (buttonView.getId()){
+                    case 0:
+                        if(isChecked){
+                            loader.SwitchMemory(12);
+                            Toast.makeText(getBaseContext(),buttonView.getText()+" Activated",Toast.LENGTH_SHORT).show();
+                        }else {
+                            loader.SwitchMemory(13);
+                        }
+                        break;
+                    case 1:
+                        if(isChecked){
+                            startService(new Intent(ctx,logo.class));
+                            Toast.makeText(getBaseContext(),"Car jump Menu Open",Toast.LENGTH_SHORT).show();
+                        }else {
+                            stopService(new Intent(ctx,logo.class));
+                        }
+                        break;
+                }
+            }
+        },memorytab);
     }
+
+//    private void sitscope(){
+//            xploit.clearResults();
+//            xploit.setRanges(new int[]{Ranges.ANONYMOUS});
+//            xploit.searchNumber("18.38787841797", Flags.FLOAT);
+//            xploit.getResultsCount(1);
+//            xploit.editAll("130.5419921875", Flags.FLOAT, 0x0);
+//            xploit.clearResults();
+//    }
+//    private void sitleft(){
+//            xploit.clearResults();
+//            xploit.setRanges(new int[]{Ranges.ANONYMOUS});
+//            xploit.searchNumber("13.27983283997", Flags.FLOAT);
+//            xploit.getResultsCount(500);
+//            xploit.editAll("-250", Flags.FLOAT, 0x0);
+//            xploit.clearResults();
+//    }
+
+
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void initFloatingView() {
@@ -1063,6 +1371,7 @@ public class FService extends Service {
         vehical = new LinearLayout(getBaseContext());
         itemtab = new LinearLayout(getBaseContext());
         aimbot = new LinearLayout(getBaseContext());
+        premium = new LinearLayout(getBaseContext());
         // items
         weapon = new LinearLayout(getBaseContext());
         ammo = new LinearLayout(getBaseContext());
@@ -1074,6 +1383,7 @@ public class FService extends Service {
         itemtab.setVisibility(View.GONE);
         aimbot.setVisibility(View.GONE);
         memorytab.setVisibility(View.GONE);
+        premium.setVisibility(View.GONE);
         /*
             When -1 or -2 is applied, the view fills the screen
             just as it would for match_parent or fill_parent.
@@ -1175,7 +1485,6 @@ public class FService extends Service {
                                 Log.d("ACTION_UP", "Expanding View...");
                                 mCollapsed.setVisibility(View.VISIBLE);
                                 mExpanded.setVisibility(View.VISIBLE);
-
                             } else {
                                 Log.d("ACTION_UP", "Collapsing View...");
                                 mExpanded.setVisibility(View.GONE);
@@ -1193,14 +1502,15 @@ public class FService extends Service {
         });
     }
 
-    private int convertDipToPixels(int i) {
-        return (int) ((((float) i) * getResources().getDisplayMetrics().density) + 0.5f);
+       private int convertDipToPixels(int i) {
+            return (int) ((((float) i) * getResources().getDisplayMetrics().density) + 0.5f);
     }
 
     @TargetApi(Build.VERSION_CODES.O)
     private void addSwitch(String text, Switch.OnCheckedChangeListener on,LinearLayout parent) {
         Switch switchBtn = new Switch(getBaseContext());
         switchBtn.setTextSize(12);
+        switchBtn.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/montserrat_bold.ttf"));
         switchBtn.setLayoutParams(new LinearLayout.LayoutParams(650, LinearLayout.LayoutParams.WRAP_CONTENT));
         switchBtn.setBackgroundColor(Color.parseColor("#FF102030"));
         switchBtn.setTextColor(Color.WHITE);
@@ -1215,12 +1525,40 @@ public class FService extends Service {
             parent.addView(switchBtn);
         }
     }
+    public void loadAssets() {
 
+        new Thread()
+        {
+            public void run() {
+                clearcache();
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    String pathf =ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+Apak()+configPrefs.getString("src","15339")+".pak";
+                    try {
+                        OutputStream myOutput = new FileOutputStream(pathf);
+                        byte[] buffer = new byte[1024];
+                        int length;
+                        InputStream myInput = ctx.getAssets().open("midas_oversea_us_igame/debug.key");
+                        while ((length = myInput.read(buffer)) > 0) {
+                            myOutput.write(buffer, 0, length);
+                        }
+                        myInput.close();
+                        myOutput.flush();
+                        myOutput.close();
+
+                    } catch (IOException e) {
+                    }
+                  //  Toast.makeText(ctx,"Src Patch Applied",Toast.LENGTH_LONG).show();
+                });
+            }
+        }.start();
+
+    }
 
     @TargetApi(Build.VERSION_CODES.O)
     private void adddescription(String text, LinearLayout parent) {
         TextView label = new TextView(getBaseContext());
         label.setTextSize(10);
+        label.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/montserrat.ttf"));
         label.setBackgroundColor(Color.parseColor("#FF102030"));
         label.setPadding(47, 0, 0, 5);
         label.setTextColor(Color.WHITE);
@@ -1237,6 +1575,7 @@ public class FService extends Service {
         label.setBackgroundColor(Color.parseColor("#FF102030"));
         label.setPadding(47, 0, 0, 5);
         label.setText(text);
+        label.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/montserrat.ttf"));
         label.setTextColor(Color.WHITE);
         if(label.getParent() != null) {
             ((LinearLayout)label.getParent()).removeView(label); // <- fix
@@ -1248,6 +1587,7 @@ public class FService extends Service {
         TextView label = new TextView(getBaseContext());
         label.setTextColor(Color.WHITE);
         label.setTextSize(14);
+        label.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/montserrat_bold.ttf"));
         label.setTypeface(null,Typeface.BOLD);
         label.setBackgroundColor(Color.parseColor("#FF102030"));
         label.setPadding(45,0 , 0, 5);
@@ -1263,7 +1603,7 @@ public class FService extends Service {
     private void addRadioGroup(String [] text, int n, RadioGroup.OnCheckedChangeListener on,LinearLayout parent) {
         RadioGroup radioGroup = new RadioGroup(getBaseContext());
         radioGroup.setPadding(47,0,0,0);
-        RadioButton radioButton[] = new RadioButton[text.length];
+        RadioButton[] radioButton = new RadioButton[text.length];
         for (int i = 0 ; i< text.length; i++) {
             radioButton[i] = new RadioButton(getBaseContext());
             if(i ==n){
@@ -1271,6 +1611,7 @@ public class FService extends Service {
             }
             radioButton[i].setText(text[i]);
             radioButton[i].setId(i);
+            radioButton[i].setTypeface(Typeface.createFromAsset(getAssets(), "fonts/montserrat.ttf"));
             radioButton[i].setTextColor(Color.WHITE);
             radioButton[i].setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             radioButton[i].setButtonTintList(ColorStateList.valueOf(Color.WHITE));
@@ -1306,10 +1647,8 @@ public class FService extends Service {
             seekBar.setMin(n);
             seekBar.setProgress(n);
         }
-        if (Build.VERSION.SDK_INT >= 21) {
-            seekBar.setThumbTintList(ColorStateList.valueOf((int)-1));
-            seekBar.setProgressTintList(ColorStateList.valueOf((int)-1));
-        }
+        seekBar.setThumbTintList(ColorStateList.valueOf((int)-1));
+        seekBar.setProgressTintList(ColorStateList.valueOf((int)-1));
         seekBar.setPadding(this.convertSizeToDp(15.0f), this.convertSizeToDp(5.0f), this.convertSizeToDp(15.0f), this.convertSizeToDp(5.0f));
         final TextView textView2 = new TextView((Context)this);
         StringBuilder stringBuilder2 = new StringBuilder();
@@ -1333,7 +1672,7 @@ public class FService extends Service {
             stringBuilder3.append(string2);
             stringBuilder3.append(n4);
             stringBuilder3.append(string3);
-           textView2.setText((CharSequence)stringBuilder3.toString());
+            textView2.setText((CharSequence)stringBuilder3.toString());
             seekBar.setProgress(n4);
         }
         SeekBar.OnSeekBarChangeListener onSeekBarChangeListener2 = new SeekBar.OnSeekBarChangeListener(){
@@ -1352,7 +1691,7 @@ public class FService extends Service {
                 stringBuilder.append(string2);
                 stringBuilder.append(n2);
                 stringBuilder.append(string3);
-               textView.setText(stringBuilder.toString());
+                textView.setText(stringBuilder.toString());
 
 
             }

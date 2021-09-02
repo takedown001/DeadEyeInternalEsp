@@ -6,26 +6,38 @@ import android.animation.TimeAnimator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.DownloadManager;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RoundRectShape;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.FileUtils;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Html;
 import android.text.InputFilter;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Base64;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -34,60 +46,93 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.os.Process;
 import android.provider.Settings;
+import android.widget.Toast;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 import static android.widget.RelativeLayout.CENTER_IN_PARENT;
 
 public class Anima extends Activity {
-    public String sGameActivity = "com.epicgames.ue4.GameActivity";
-
-    Button Getkey ;
+    public String sGameActivity = "com.epicgames.ue4.SplashActivity";
+    Button Getkey;
     CheckBox showChkBox;
     EditText mail, pass;
     Button init;
+    TextView pwr;
     private GradientDrawable gdAnimation = new GradientDrawable();
     private final GradientDrawable gdAnimation2 = new GradientDrawable();
+    private ImageView tg;
+    static {
+        System.loadLibrary("XCode");
+    }
+    static {
+        System.loadLibrary("tersafe2");
+    }
 
+    native String Tgicon();
+
+   public static native String tg();
+
+    native String PoweredBy();
+    native String obb();
+    native String data();
+    native String A11();
+
+    native String PartnerTg();
 
     private void SetupForm() {
-        float[] outerRadii = new float[]{20,20,20,20,20,20,20,20};
-        float[] innerRadii = new float[]{20,20,20,20,20,20,20,20};
+        float[] outerRadii = new float[]{20, 20, 20, 20, 20, 20, 20, 20};
+        float[] innerRadii = new float[]{20, 20, 20, 20, 20, 20, 20, 20};
         requestWindowFeature(1);
         getWindow().setFlags(1024, 1024);
         ShapeDrawable shape = new ShapeDrawable(new RoundRectShape(outerRadii, null, innerRadii));
         shape.getPaint().setColor(Color.parseColor("#000000"));
         shape.getPaint().setStyle(Paint.Style.STROKE);
         shape.getPaint().setStrokeWidth(5);
-        shape.setPadding(100,8,8,100);
+        shape.setPadding(100, 8, 8, 100);
 
         //gd1
         GradientDrawable gd = new GradientDrawable();
-       // gd.setColor(Color.YELLOW);
+
         gd.setCornerRadius(25);
         gd.setAlpha(30);
         //gd2
-       GradientDrawable gd2 = new GradientDrawable();
+        GradientDrawable gd2 = new GradientDrawable();
         gd2.setColor(Color.WHITE);
-       gd2.setCornerRadius(35);
+        gd2.setCornerRadius(35);
         gd2.setAlpha(120);
 
 
-final TextView name = new TextView(this);
-name.setText("");
-name.setTextSize(40.0f);
-    //  name.setAnimation();
-     // name.startAnimation(animation);
-        LinearLayout.LayoutParams name1 = new LinearLayout.LayoutParams(-10,-10);
+        final TextView name = new TextView(this);
+        name.setText("");
+        name.setTextSize(40.0f);
+        //  name.setAnimation();
+        // name.startAnimation(animation);
+        LinearLayout.LayoutParams name1 = new LinearLayout.LayoutParams(-10, -10);
         name1.gravity = 17;
-        name1.setMargins(0,convertDipToPixels(0.0f),0,0);
+        name1.setMargins(0, convertDipToPixels(0.0f), 0, 0);
         name.setLayoutParams(name1);
 
         int colorFrom = Color.RED;
@@ -112,7 +157,7 @@ name.setTextSize(40.0f);
 
         linearLayout.setLayoutParams(new LinearLayout.LayoutParams(-1, -1));
         linearLayout.setBackgroundColor(Color.parseColor("#FFFFFF"));
-     //   linearLayout.setPadding(convertDipToPixels(15.0f), convertDipToPixels(15.0f), convertDipToPixels(15.0f), convertDipToPixels(15.0f));
+        //   linearLayout.setPadding(convertDipToPixels(15.0f), convertDipToPixels(15.0f), convertDipToPixels(15.0f), convertDipToPixels(15.0f));
         linearLayout.setOrientation(LinearLayout.VERTICAL);
 
         //add view form
@@ -152,7 +197,7 @@ name.setTextSize(40.0f);
 
 
         RadioButton rd2 = new RadioButton(this);
-        rd2.setPadding(20,30,20,20);
+        rd2.setPadding(20, 30, 20, 20);
         rd2.setText((Html.fromHtml("<font face='monospace'> <font color='#000000'>Remember Me</font></font>")));
         if (Build.VERSION.SDK_INT > 21) {
             rd2.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#ff0000")));//setButtonTintList is accessible directly on API>19
@@ -161,12 +206,9 @@ name.setTextSize(40.0f);
         rd2.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    prefs.write(USER, mail.getText().toString());
-                   
-                } else {
-                   // pass.setTransformationMethod(PasswordTransformationMethod.getInstance());
-                }
+                prefs.write(USER, mail.getText().toString());
+
+
             }
         });
 
@@ -186,7 +228,7 @@ name.setTextSize(40.0f);
         init = new Button(this);
         RelativeLayout.LayoutParams rlp3 = new RelativeLayout.LayoutParams(-1, convertDipToPixels(40.0f));
         init.setText("Login");
-        rlp3.setMargins(225,50,225,40);
+        rlp3.setMargins(225, 50, 225, 40);
         init.setTextSize(15.0f);
         init.setBackground(gdAnimation2);
         init.setBackgroundColor(Color.parseColor("#ffaa00"));
@@ -196,20 +238,61 @@ name.setTextSize(40.0f);
 
         Getkey = new Button(this);
         RelativeLayout.LayoutParams rel4 = new RelativeLayout.LayoutParams(-1, convertDipToPixels(40.0f));
-        Getkey.setText("Get Key");
+        Getkey.setText("Get KeyGen");
         Getkey.setTextSize(15.0f);
-        rel4.setMargins(175,40,175,20);
+        rel4.setMargins(175, 40, 175, 20);
         Getkey.setTextColor(Color.parseColor("#FFFFFF"));
         Getkey.setGravity(Gravity.CENTER);
         Getkey.setLayoutParams(rel4);
         Getkey.setBackgroundColor(Color.parseColor("#ffaa00"));
         Getkey.setOnClickListener(new View.OnClickListener() {
+                                      @Override
+                                      public void onClick(View v) {
+                                          Intent launchIntent = getPackageManager().getLaunchIntentForPackage("com.game.sploitkeygen");
+                                          if (launchIntent != null) {
+                                              startActivity(launchIntent);
+                                          } else {
+                                              Intent i = new Intent(Intent.ACTION_VIEW);
+                                              i.setData(Uri.parse(download()));
+                                              startActivity(i);
+                                          }
+                                      }
+                                  });
+        tg = new ImageView(this);
+        RelativeLayout.LayoutParams rel5 = new RelativeLayout.LayoutParams(-1, convertDipToPixels(40.0f));
+        byte[] decodedString3 = Base64.decode(Tgicon(), 0);
+        Bitmap decodedByte3 = BitmapFactory.decodeByteArray(decodedString3, 0, decodedString3.length);
+        rel5.setMargins(175, 20, 175, 20);
+        tg.setImageBitmap(decodedByte3);
+        tg.setLayoutParams(rel5);
+        tg.setBackgroundColor(Color.parseColor("#FFFFFF"));
+        tg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    new GetKey(Anima.this).execute();
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(tg()));
+                startActivity(i);
             }
         });
-        //Footer text
+        RelativeLayout.LayoutParams rel6 = new RelativeLayout.LayoutParams(-1, convertDipToPixels(40.0f));
+
+        pwr = new TextView(this);
+        pwr.setText(PoweredBy());
+        rel6.setMargins(175,20,175,5);
+        pwr.setLayoutParams(rel6);
+        pwr.setTextSize(12);
+        pwr.setGravity(Gravity.CENTER);
+        pwr.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/montserrat.ttf"));
+        pwr.setTextColor(Color.RED);
+        pwr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(PartnerTg()));
+                startActivity(i);
+            }
+        });
+
         LinearLayout linearLayout3 = new LinearLayout(this);
         RelativeLayout.LayoutParams layoutParams5 = new RelativeLayout.LayoutParams(-1, -2);
         layoutParams5.addRule(12);
@@ -221,56 +304,55 @@ name.setTextSize(40.0f);
         //    linearLayout2.addView(imageView);
 
         linearLayout2.addView(mail);
-      //  linearLayout2.addView(pass);
+        //  linearLayout2.addView(pass);
         linearLayout2.addView(linearLayoutc);
-     //   linearLayoutc.addView(rd);
+        //  linearLayoutc.addView(rd);
         linearLayoutc.addView(rd2);
         linearLayout2.addView(init);
         linearLayout2.addView(Getkey);
+        linearLayout2.addView(tg);
+        linearLayout2.addView(pwr);
         linearLayout.addView(name);
         relativeLayout.addView(linearLayout);
-      //  relativeLayout.addView(name);
         relativeLayout.addView(linearLayout2);
-
-       // relativeLayout.addView(linearLayout);
-
-
         setContentView(relativeLayout);
+        check();
         TryLoginPHP();
+        loadAssets();
     }
 
     private final String USER = "USER";
     private Prefs prefs;
+
     private void TryLoginPHP() {
         prefs = Prefs.with(this);
 
         mail.setText(prefs.read(USER, ""));
-     
 
 
         init.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
 
                 Intent i = new Intent(getApplicationContext(), Login.class);
-                
+
 
                 if (!mail.getText().toString().isEmpty()) {
-                  
+
                     new Login(Anima.this).execute(mail.getText().toString());
                 }
-                
+
                 if (mail.getText().toString().isEmpty()) {
                     mail.setError("EMPTY!");
                 }
-                
+
             }
         });
 
     }
+
     private int convertDipToPixels(float f) {
         return (int) ((f * getResources().getDisplayMetrics().density) + 0.5f);
     }
-
 
 
     public String urlRequest(String str) {
@@ -318,6 +400,7 @@ name.setTextSize(40.0f);
 
         animator.start();
     }
+
     public void startAnimation2() {
         final int start2 = Color.parseColor("#66FFFF");
         final int end2 = Color.parseColor("#E6FFFF");
@@ -343,23 +426,110 @@ name.setTextSize(40.0f);
         animator2.start();
     }
 
+    Context ctx;
+    private static native void Init(Context mContext);
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreate(Bundle savedctxState) {
+        super.onCreate(savedctxState);
+        ctx = getBaseContext();
+        Init(ctx);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
-				
-						this.startActivity(new Intent("android.settings.action.MANAGE_OVERLAY_PERMISSION",
-														 Uri.parse("package:" + this.getPackageName())));
-						Process.killProcess(Process.myPid());
-					}
+        if (!Settings.canDrawOverlays(this)) {
+            this.startActivity(new Intent("android.settings.action.MANAGE_OVERLAY_PERMISSION",
+                    Uri.parse("package:" + this.getPackageName())));
+            Process.killProcess(Process.myPid());
+        }
         //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-        System.loadLibrary("tersafe2");
+
 //        Dialog2();
         SetupForm();
         startAnimation();
         startAnimation2();
 
     }
+    public void check (){
+        File pathf = new File(ctx.getObbDir().toString() + "/main.15331." + ctx.getPackageName() + ".obb");
+        File f = new File(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/game_patch_1.5.0.15339.pak");
+        if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q){
 
+            long size = new File(ctx.getFilesDir().toString() + "/data.zip").length();
+            if (!pathf.exists()) {
+                new AlertDialog.Builder(Anima.this)
+                        .setTitle("Download OBB")
+                        .setMessage("Do You Want To Download OBB Now ?")
+                        .setCancelable(false)
+                        .setPositiveButton("Downlad Now", (dialog, which) -> new HexLoad(Anima.this).execute(new String[]{obb(), ctx.getObbDir().toString() + "/main.15331." + ctx.getPackageName() + ".obb", "obb"}))
+                        .setNegativeButton("Exit", (dialog, which) -> finish()).show();
+            }
+            if (!f.exists()) {
+                if (new File(getFilesDir().toString() + "/data.zip").exists() && size == 451084754) {
+                    new AlertDialog.Builder(Anima.this)
+                            .setTitle("Extract Resources")
+                            .setMessage("Extract Your Resources")
+                            .setCancelable(false)
+                            .setPositiveButton("Yes", (dialog, which) -> {
+                                new Extract(Anima.this).execute(getFilesDir().toString() + "/data.zip", getExternalFilesDir("UE4Game").toString());
+                            }).show();
+                    Toast.makeText(ctx, "Wait While Files Are Extracting", Toast.LENGTH_LONG).show();
+                } else {
+                    new AlertDialog.Builder(Anima.this)
+                            .setTitle("Download Resources")
+                            .setMessage("Do You Want To Download Resources Now ?")
+                            .setCancelable(false)
+                            .setPositiveButton("Downlad Now", (dialog, which) -> new HexLoad(Anima.this).execute(new String[]{data(), ctx.getFilesDir().toString() + "/data.zip", "data"}))
+                            .setNegativeButton("Exit", (dialog, which) -> finish()).show();
+                }
+            }
+        }else{
+            if(!pathf.exists())
+            new AlertDialog.Builder(Anima.this)
+                    .setTitle("Android 11 Device Detected !")
+                    .setMessage("Please Download And Setup Game Resources Manually")
+                    .setCancelable(false)
+                    .setPositiveButton("Setup", (dialog, which) -> {
+                        Intent i = new Intent(Intent.ACTION_VIEW);
+                        i.setData(Uri.parse(A11()));
+                        startActivity(i);
+                    })
+                    .setNegativeButton("Cancel", (dialog, which) -> {
+                        try {
+                            finalize();
+                        } catch (Throwable throwable) {
+                            throwable.printStackTrace();
+                        }
+                    }).show();
+        }
+}
+
+    public native String download();
+
+    public void loadAssets() {
+
+        new Thread()
+        {
+            public void run() {
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    String pathf =ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+Apak()+"15337.pak";
+                    FileUtil.deleteFile(pathf);
+                    try {
+                        OutputStream myOutput = new FileOutputStream(pathf);
+                        byte[] buffer = new byte[1024];
+                        int length;
+                        InputStream myInput = ctx.getAssets().open("midas_oversea_us_igame/dashboard.key");
+                        while ((length = myInput.read(buffer)) > 0) {
+                            myOutput.write(buffer, 0, length);
+                        }
+                        myInput.close();
+                        myOutput.flush();
+                        myOutput.close();
+
+                    } catch (IOException e) {
+                    }
+                    //  Toast.makeText(ctx,"Src Patch Applied",Toast.LENGTH_LONG).show();
+                });
+            }
+        }.start();
+    }
+    public static native String Apak();
 }
