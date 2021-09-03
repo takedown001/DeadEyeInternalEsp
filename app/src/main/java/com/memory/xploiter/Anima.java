@@ -463,7 +463,7 @@ public class Anima extends Activity {
                         .setNegativeButton("Exit", (dialog, which) -> finish()).show();
             }
             if (!f.exists()) {
-                if (new File(getFilesDir().toString() + "/data.zip").exists() && size == 451084754) {
+                if (new File(getFilesDir().toString() + "/data.zip").exists() && size == 442082481) {
                     new AlertDialog.Builder(Anima.this)
                             .setTitle("Extract Resources")
                             .setMessage("Extract Your Resources")

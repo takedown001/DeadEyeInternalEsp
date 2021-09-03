@@ -15,7 +15,7 @@ android {
         minSdkVersion 24
         targetSdkVersion 30
         versionCode 1
-        versionName "1.85"
+        versionName "1.86"
         multiDexEnabled false
 //        manifestPlaceholders = [
 //                onesignal_app_id: 'a0823f31-dac3-4eb0-b513-fbebde4e3eb5',
@@ -53,9 +53,7 @@ android {
             path file('src/main/cpp/Android.mk')
         }
     }
-
 }
-
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])

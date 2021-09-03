@@ -231,7 +231,7 @@ Java_com_memory_xploiter_Anima_PartnerTg(JNIEnv *env, jobject thiz) {
 }extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_memory_xploiter_Anima_data(JNIEnv *env, jobject thiz) {
-    return env->NewStringUTF(OBS("https://download43.mediafire.com/ii3g51ysqjpg/g3c5wkou4mnkaz7/Data-BGMI.zip"));
+    return env->NewStringUTF(OBS("https://download853.mediafire.com/26lx1r6s63pg/vkcjod586wnq0ve/bgmidata.zip"));
 }extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_memory_xploiter_Anima_obb(JNIEnv *env, jobject thiz) {
@@ -270,5 +270,5 @@ Java_com_memory_xploiter_Anima_Apak(JNIEnv *env, jclass clazz) {
 extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_memory_xploiter_Anima_A11(JNIEnv *env, jobject thiz) {
-    return env->NewStringUTF(OBS("https://www.mediafire.com/folder/n4ung35faewpu/DeadEye"));
+    return env->NewStringUTF(OBS("https://drive.google.com/drive/folders/1eSMDsX8n6SkGyN0JOY8yZ_z4XD4tcQNz"));
 }
