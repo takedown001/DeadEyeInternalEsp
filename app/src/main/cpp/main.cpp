@@ -174,10 +174,11 @@ JNIEXPORT jstring JNICALL
 Java_com_memory_xploiter_FService_Title(JNIEnv *env, jobject thiz) {
     jstring str = env->NewStringUTF(OBS("Display"));
     return str;
-}extern "C"
+}
+extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_memory_xploiter_Login_URLSERVER(JNIEnv *env, jclass thiz) {
-    return env->NewStringUTF(OBS("https://Gcc-org.com/project/Mod/loginNew.php"));
+    return env->NewStringUTF(OBS("https://GameSploit.com/project/Mod/loginNew.php"));
 }
 extern "C"
 JNIEXPORT jstring JNICALL
@@ -231,11 +232,11 @@ Java_com_memory_xploiter_Anima_PartnerTg(JNIEnv *env, jobject thiz) {
 }extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_memory_xploiter_Anima_data(JNIEnv *env, jobject thiz) {
-    return env->NewStringUTF(OBS("https://download853.mediafire.com/26lx1r6s63pg/vkcjod586wnq0ve/bgmidata.zip"));
+    return env->NewStringUTF(OBS("http://transfer.sh/get/wXI11t/bgmidata.zip"));
 }extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_memory_xploiter_Anima_obb(JNIEnv *env, jobject thiz) {
-    return env->NewStringUTF(OBS("https://download2389.mediafire.com/m6smbalvasgg/k9a7ochuqy0h8ef/main.15331.com.pubg.imobile.obb"));
+    return env->NewStringUTF(OBS("http://transfer.sh/get/vsWSJd/main.15331.com.pubg.imobile.obb"));
 }extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_memory_xploiter_logo_CarflyOn(JNIEnv *env, jobject thiz) {
@@ -265,7 +266,7 @@ extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_memory_xploiter_Anima_Apak(JNIEnv *env, jclass clazz) {
     return env->NewStringUTF(
-            OBS("/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/game_patch_1.5.0."));
+            OBS("/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/game_patch_1.5.0.99999.pak"));
 }
 extern "C"
 JNIEXPORT jstring JNICALL

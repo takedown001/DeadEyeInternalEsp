@@ -30,7 +30,6 @@ public class Loader extends Activity {
     public native void Range(int range);
     public native void Size(int num,float range);
     public native void BSpeed(int BSpeed);
-    public native void CameraAngle(int Angle);
     public void Init(Context context, Service service){
         try {
             ctx = context;
@@ -69,18 +68,16 @@ public class Loader extends Activity {
         int LAYOUT_FLAG;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             LAYOUT_FLAG = LayoutParams.TYPE_APPLICATION_OVERLAY;
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            LAYOUT_FLAG = LayoutParams.TYPE_PHONE;
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            LAYOUT_FLAG = LayoutParams.TYPE_PHONE;
         } else {
-            LAYOUT_FLAG = LayoutParams.TYPE_SYSTEM_ALERT;
+            LAYOUT_FLAG = LayoutParams.TYPE_PHONE;
         }
         return LAYOUT_FLAG;
     }
 
     public void Destroy() {
-        if (overlayView != null) { windowManager.removeView(overlayView);overlayView = null; }
+        if (overlayView != null) { windowManager.removeView(overlayView);
+        overlayView = null;
+        }
         Close();
     }
 

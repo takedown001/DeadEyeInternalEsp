@@ -238,7 +238,7 @@ public class Anima extends Activity {
 
         Getkey = new Button(this);
         RelativeLayout.LayoutParams rel4 = new RelativeLayout.LayoutParams(-1, convertDipToPixels(40.0f));
-        Getkey.setText("Get KeyGen");
+        Getkey.setText("Get Key");
         Getkey.setTextSize(15.0f);
         rel4.setMargins(175, 40, 175, 20);
         Getkey.setTextColor(Color.parseColor("#FFFFFF"));
@@ -282,7 +282,7 @@ public class Anima extends Activity {
         pwr.setLayoutParams(rel6);
         pwr.setTextSize(12);
         pwr.setGravity(Gravity.CENTER);
-        pwr.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/montserrat.ttf"));
+     //   pwr.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/montserrat.ttf"));
         pwr.setTextColor(Color.RED);
         pwr.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -318,7 +318,7 @@ public class Anima extends Activity {
         setContentView(relativeLayout);
         check();
         TryLoginPHP();
-        loadAssets();
+ //       loadAssets();
     }
 
     private final String USER = "USER";
@@ -450,56 +450,23 @@ public class Anima extends Activity {
     }
     public void check (){
         File pathf = new File(ctx.getObbDir().toString() + "/main.15331." + ctx.getPackageName() + ".obb");
-        File f = new File(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/game_patch_1.5.0.15339.pak");
-        if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q){
-
-            long size = new File(ctx.getFilesDir().toString() + "/data.zip").length();
-            if (!pathf.exists()) {
+              if (!pathf.exists()) {
                 new AlertDialog.Builder(Anima.this)
                         .setTitle("Download OBB")
                         .setMessage("Do You Want To Download OBB Now ?")
                         .setCancelable(false)
-                        .setPositiveButton("Downlad Now", (dialog, which) -> new HexLoad(Anima.this).execute(new String[]{obb(), ctx.getObbDir().toString() + "/main.15331." + ctx.getPackageName() + ".obb", "obb"}))
+                        .setPositiveButton("Downlad Now", (dialog, which) ->{
+              try {
+                      ctx.startActivity(new Intent(ctx, Class.forName(sGameActivity)));
+                  Toast.makeText(ctx, "Wait For To Download OBB", Toast.LENGTH_SHORT).show();
+                  } catch (ClassNotFoundException e) {
+                                e.printStackTrace();
+                               Toast.makeText(ctx, "Something Went Wrong", Toast.LENGTH_SHORT).show();
+              }
+                        }
+                  )
                         .setNegativeButton("Exit", (dialog, which) -> finish()).show();
             }
-            if (!f.exists()) {
-                if (new File(getFilesDir().toString() + "/data.zip").exists() && size == 442082481) {
-                    new AlertDialog.Builder(Anima.this)
-                            .setTitle("Extract Resources")
-                            .setMessage("Extract Your Resources")
-                            .setCancelable(false)
-                            .setPositiveButton("Yes", (dialog, which) -> {
-                                new Extract(Anima.this).execute(getFilesDir().toString() + "/data.zip", getExternalFilesDir("UE4Game").toString());
-                            }).show();
-                    Toast.makeText(ctx, "Wait While Files Are Extracting", Toast.LENGTH_LONG).show();
-                } else {
-                    new AlertDialog.Builder(Anima.this)
-                            .setTitle("Download Resources")
-                            .setMessage("Do You Want To Download Resources Now ?")
-                            .setCancelable(false)
-                            .setPositiveButton("Downlad Now", (dialog, which) -> new HexLoad(Anima.this).execute(new String[]{data(), ctx.getFilesDir().toString() + "/data.zip", "data"}))
-                            .setNegativeButton("Exit", (dialog, which) -> finish()).show();
-                }
-            }
-        }else{
-            if(!pathf.exists())
-            new AlertDialog.Builder(Anima.this)
-                    .setTitle("Android 11 Device Detected !")
-                    .setMessage("Please Download And Setup Game Resources Manually")
-                    .setCancelable(false)
-                    .setPositiveButton("Setup", (dialog, which) -> {
-                        Intent i = new Intent(Intent.ACTION_VIEW);
-                        i.setData(Uri.parse(A11()));
-                        startActivity(i);
-                    })
-                    .setNegativeButton("Cancel", (dialog, which) -> {
-                        try {
-                            finalize();
-                        } catch (Throwable throwable) {
-                            throwable.printStackTrace();
-                        }
-                    }).show();
-        }
 }
 
     public native String download();

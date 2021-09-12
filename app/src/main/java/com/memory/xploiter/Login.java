@@ -21,6 +21,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
 import java.net.URL;
@@ -39,6 +40,7 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.TrustManagerFactory;
 
 import static android.content.Context.MODE_PRIVATE;
+import static com.memory.xploiter.Anima.Apak;
 import static com.memory.xploiter.Anima.tg;
 
 public class Login extends AsyncTask<String, Void, String> {
@@ -158,184 +160,143 @@ public class Login extends AsyncTask<String, Void, String> {
             isforce = data.getBoolean("force");
             url = data.getString("updateurl");
             isfree = data.getBoolean("isfree");
-            configPrefs.edit().putString("src",data.getString("src")).apply();
-            String msg = data.getString("MessageString");
-            if (!data.get("CurrVersion").equals("v" + BuildConfig.VERSION_NAME)) {
-                AlertDialog.Builder ab = new AlertDialog.Builder(activity);
-                ab.setTitle("New Update Found!");
-                ab.setMessage("New Version DeadEyE Internal Esp" + data.get("CurrVersion") + " Available To Download");
-                ab.setPositiveButton("Download", (dialog, which) -> {
-                    Intent i = new Intent(Intent.ACTION_VIEW);
-                    i.setData(Uri.parse(url));
-                    activity.startActivity(i);
-                });
-                if(isforce) {
-                    ab.setNegativeButton("Exit", (dialog, which) -> {
-                        try {
-                            activity.finish();
-                        } catch (Throwable throwable) {
-                            throwable.printStackTrace();
-                        }
+            String pak = data.getString("src");
+            if (!new File(activity.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/"+pak).exists()) {
+                new AlertDialog.Builder(activity)
+                        .setTitle("In-Game Update Available To Download ")
+                        .setMessage("Please Download Resources From In-Game")
+                        .setCancelable(false)
+                        .setPositiveButton("Download", (dialog, which) -> {
+                            try {
+                                activity.startActivity(new Intent(activity, Class.forName(activity.sGameActivity)));
+                                FileUtil.deleteFile(activity.getExternalFilesDir("UE4Game").getAbsolutePath()+Apak());
+                                FileUtil.deleteFile(activity.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/Updater.ini");
+                            } catch (ClassNotFoundException e) {
+                                e.printStackTrace();
+                                Toast.makeText(activity, "Something Went Wrong", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .setNegativeButton("Cancel", (dialog, which) -> {
+                            try {
+                                finalize();
+                            } catch (Throwable throwable) {
+                                throwable.printStackTrace();
+                            }
+                        }).show();
+            } else {
+                String msg = data.getString("MessageString");
+                if (!data.get("CurrVersion").equals("v" + BuildConfig.VERSION_NAME)) {
+                    AlertDialog.Builder ab = new AlertDialog.Builder(activity);
+                    ab.setTitle("New Update Found!");
+                    ab.setMessage("New Version DeadEyE Internal Esp" + data.get("CurrVersion") + " Available To Download");
+                    ab.setPositiveButton("Download", (dialog, which) -> {
+                        Intent i = new Intent(Intent.ACTION_VIEW);
+                        i.setData(Uri.parse(url));
+                        activity.startActivity(i);
                     });
-                }else{
-                    ab.setNegativeButton("Continue", (dialog, which) -> {
-                        try {
-                            if (data.get("Status").toString().equals("Success")) {
-                                if(!isfree) {
-                                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(activity)
-                                            .setTitle("Account Information")
-                                            .setMessage("Login Successful:User:" + data.get("uname").toString() + "Expiry Date:" + data.get("SubscriptionLeft").toString().replace(" 00:00:00", "") + "min" + "Account Status: ACTIVE!");
-                                    alertDialog.setNegativeButton("OK!", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            try {
-                                                activity.startActivity(new Intent(activity, Class.forName(activity.sGameActivity)));
-                                                Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show();
-                                                Intent i = new Intent(activity.getApplicationContext(), FService.class);
-                                                i.putExtra("gamename",Login.Check());
-                                                activity.startService(i);
-                                            } catch (ClassNotFoundException e) {
-                                                e.printStackTrace();
-                                                Toast.makeText(activity, "Something Went Wrong", Toast.LENGTH_SHORT).show();
-                                            }
-                                        }
-                                    });
-                                    alertDialog.setCancelable(false);
-                                    alertDialog.show();
-                                }else{
-
-                                    AlertDialog.Builder Dialog = new AlertDialog.Builder(activity)
-                                            .setTitle("DeadEye")
-                                            .setMessage("Join Our Telegram Channel For Receiving News And Upcoming Updates");
-                                    Dialog.setNegativeButton("Join Us", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            Intent i = new Intent(Intent.ACTION_VIEW);
-                                            i.setData(Uri.parse(tg()));
-                                            activity.startActivity(i);
-
-                                        }
-                                    });
-                                    Dialog.setCancelable(false);
-                                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(activity)
-                                            .setTitle("Account Information")
-                                            .setMessage("Login Successful:User:" + data.get("uname").toString() + "Expiry Date:" + data.get("SubscriptionLeft").toString().replace(" 00:00:00", "") + "min" + "Account Status: ACTIVE!");
-                                    alertDialog.setNegativeButton("OK!", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            try {
-                                                activity.startActivity(new Intent(activity, Class.forName(activity.sGameActivity)));
-                                                Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show();
-                                                Intent i = new Intent(activity.getApplicationContext(), FService.class);
-                                                i.putExtra("gamename",Login.Check());
-                                                activity.startService(i);
-                                            } catch (ClassNotFoundException e) {
-                                                e.printStackTrace();
-                                                Toast.makeText(activity, "Something Went Wrong", Toast.LENGTH_SHORT).show();
-                                            }
-                                        }
-                                    });
-                                    alertDialog.show();
-                                    Dialog.show();
-                                }
+                    if (isforce) {
+                        ab.setNegativeButton("Exit", (dialog, which) -> {
+                            try {
+                                activity.finish();
+                            } catch (Throwable throwable) {
+                                throwable.printStackTrace();
+                            }
+                        });
+                    } else {
+                        ab.setNegativeButton("Continue", (dialog, which) -> {
+                            try {
                                 if (data.get("Status").toString().equals("Success")) {
-
-                                } else {
-                                    if (!isServiceRunning()) {
-                                        Toast.makeText(activity, "Service Already Running", Toast.LENGTH_SHORT).show();
+                                    if (!isfree) {
+                                        try {
+                                            activity.startActivity(new Intent(activity, Class.forName(activity.sGameActivity)));
+                                            new Thread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    try {
+                                                        Thread.sleep(5000);
+                                                        Intent i = new Intent(activity.getApplicationContext(), FService.class);
+                                                        i.putExtra("gamename", Login.Check());
+                                                        activity.startService(i);
+                                                    } catch (InterruptedException e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            }).start();
+                                            Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(activity, "Duration : " + data.get("SubscriptionLeft").toString().replace(" 00:00:00", "") + "min", Toast.LENGTH_SHORT).show();
+                                        } catch (ClassNotFoundException e) {
+                                            e.printStackTrace();
+                                            Toast.makeText(activity, "Something Went Wrong", Toast.LENGTH_SHORT).show();
+                                        }
                                     } else {
-                                        getActivity().finishAffinity();
+
+                                        try {
+                                            activity.startActivity(new Intent(activity, Class.forName(activity.sGameActivity)));
+                                            new Thread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    try {
+                                                        Thread.sleep(5000);
+                                                        Intent i = new Intent(activity.getApplicationContext(), FService.class);
+                                                        i.putExtra("gamename", Login.Check());
+                                                        activity.startService(i);
+                                                    } catch (InterruptedException e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            }).start();
+                                            Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(activity, "Duration : " + data.get("SubscriptionLeft").toString().replace(" 00:00:00", "") + "min", Toast.LENGTH_SHORT).show();
+                                        } catch (ClassNotFoundException e) {
+                                            e.printStackTrace();
+                                            Toast.makeText(activity, "Something Went Wrong", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                    //getActivity().finish();
+                                } else {
+                                    //customize essa mensagem no server
+                                    Toast.makeText(activity, Html.fromHtml("<font color='#ff0000'>" + data.get("MessageString").toString() + "</font>"), Toast.LENGTH_LONG).show();
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    }
+                    ab.setCancelable(false);
+                    ab.show();
+                } else {
+                    if (data.get("Status").toString().equals("Success")) {
+                        try {
+                            activity.startActivity(new Intent(activity, Class.forName(activity.sGameActivity)));
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        Thread.sleep(5000);
+                                        Intent i = new Intent(activity.getApplicationContext(), FService.class);
+                                        i.putExtra("gamename", Login.Check());
+                                        activity.startService(i);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
                                     }
                                 }
-                                //getActivity().finish();
-                            } else {
-                                //customize essa mensagem no server
-                                Toast.makeText(activity, Html.fromHtml("<font color='#ff0000'>" + data.get("MessageString").toString() + "</font>"), Toast.LENGTH_LONG).show();
-                            }
-                        } catch (JSONException e) {
+                            }).start();
+                            Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(activity, "Duration : " + data.get("SubscriptionLeft").toString().replace(" 00:00:00", "") + "min", Toast.LENGTH_SHORT).show();
+                        } catch (ClassNotFoundException e) {
                             e.printStackTrace();
+                            Toast.makeText(activity, "Something Went Wrong", Toast.LENGTH_SHORT).show();
                         }
-                    });
-                }
-                ab.setCancelable(false);
-                ab.show();
-            } else {
-                if (data.get("Status").toString().equals("Success")) {
-                    if(!isfree) {
-                        AlertDialog.Builder alertDialog = new AlertDialog.Builder(activity)
-                                .setTitle("Account Information")
-                                .setMessage("Login Successful:User:" + data.get("uname").toString() + "Expiry Date:" + data.get("SubscriptionLeft").toString().replace(" 00:00:00", "") + "min" + "Account Status: ACTIVE!");
-                        alertDialog.setNegativeButton("OK!", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                try {
-                                    activity.startActivity(new Intent(activity, Class.forName(activity.sGameActivity)));
-                                    Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show();
-                                    Intent i = new Intent(activity.getApplicationContext(), FService.class);
-                                    i.putExtra("gamename",Login.Check());
-                                    activity.startService(i);
-                                } catch (ClassNotFoundException e) {
-                                    e.printStackTrace();
-                                    Toast.makeText(activity, "Something Went Wrong", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
-                        alertDialog.setCancelable(false);
-                        alertDialog.show();
-                    }else{
 
-                        AlertDialog.Builder Dialog = new AlertDialog.Builder(activity)
-                                .setTitle("DeadEye")
-                                .setMessage("Join Our Telegram Channel For Receiving News And Upcoming Updates");
-                        Dialog.setNegativeButton("Join Us", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Intent i = new Intent(Intent.ACTION_VIEW);
-                                i.setData(Uri.parse(tg()));
-                                activity.startActivity(i);
-
-                            }
-                        });
-                        Dialog.setCancelable(false);
-                        AlertDialog.Builder alertDialog = new AlertDialog.Builder(activity)
-                                .setTitle("Account Information")
-                                .setMessage("Login Successful:User:" + data.get("uname").toString() + "Expiry Date:" + data.get("SubscriptionLeft").toString().replace(" 00:00:00", "") + "min" + "Account Status: ACTIVE!");
-                        alertDialog.setNegativeButton("OK!", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                try {
-                                    activity.startActivity(new Intent(activity, Class.forName(activity.sGameActivity)));
-                                    Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show();
-                                    Intent i = new Intent(activity.getApplicationContext(), FService.class);
-                                    i.putExtra("gamename",Login.Check());
-                                    activity.startService(i);
-                                } catch (ClassNotFoundException e) {
-                                    e.printStackTrace();
-                                    Toast.makeText(activity, "Something Went Wrong", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
-
-                        alertDialog.show();
-                        Dialog.show();
-                    }
-                    if (data.get("Status").toString().equals("Success")) {
                     } else {
-                        if (!isServiceRunning()) {
-                            Toast.makeText(activity, "Service Already Running", Toast.LENGTH_SHORT).show();
-                        } else {
-                            getActivity().finishAffinity();
-                        }
+                        //customize essa mensagem no server
+                        Toast.makeText(activity, Html.fromHtml("<font color='#ff0000'>" + data.get("MessageString").toString() + "</font>"), Toast.LENGTH_LONG).show();
                     }
-                } else {
-                    //customize essa mensagem no server
-                    Toast.makeText(activity, Html.fromHtml("<font color='#ff0000'>" + data.get("MessageString").toString() + "</font>"), Toast.LENGTH_LONG).show();
-                }
-            }
-        }catch (Exception e) {
-            e.printStackTrace();
+                } }
+            }catch(Exception e){
+                e.printStackTrace();
 
-        }
+            }
     }
 
     public static boolean isInternetAvailable(Context ctx) {

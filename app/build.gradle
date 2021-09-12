@@ -7,15 +7,16 @@ plugins {
 enigma.enabled = false
 enigma.injectFakeKeys = true
 enigma.classes  = ["com.memory.xploiter.ESPView.java","com.memory.xploiter.FService.java"]
+
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
     buildToolsVersion "30.0.3"
     defaultConfig {
         applicationId "com.memory.xploiter"
         minSdkVersion 24
-        targetSdkVersion 30
+        targetSdkVersion 31
         versionCode 1
-        versionName "1.86"
+        versionName "1.88"
         multiDexEnabled false
 //        manifestPlaceholders = [
 //                onesignal_app_id: 'a0823f31-dac3-4eb0-b513-fbebde4e3eb5',
@@ -26,6 +27,11 @@ android {
 //        ]
         }
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        externalNativeBuild {
+            ndkBuild {
+                cppFlags ''
+            }
+        }
     }
 
     buildTypes {
@@ -48,6 +54,7 @@ task wrapper(type: Wrapper) {
 }
 
 android {
+
     externalNativeBuild {
         ndkBuild {
             path file('src/main/cpp/Android.mk')

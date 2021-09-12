@@ -87,15 +87,8 @@ public class FService extends Service  {
         ctx = getBaseContext();
         loader.Init(this, this);
         configPrefs = getSharedPreferences("config", MODE_PRIVATE);
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    new Handler(Looper.getMainLooper()).post(() -> {
-                        initFloatingView();
-                    });
-                }
-            }).start();
-            loadAssets();
+        initFloatingView();
+   //     loadAssets();
     }
     @Override
     public int onStartCommand (Intent intent, int flags, int startId) {
@@ -239,8 +232,7 @@ public class FService extends Service  {
         FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/GameErrorNoRecords");
         FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/StartEvenReportedFlag");
         FileUtil.deleteFile(ctx.getCacheDir()+"/*");
-        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+Apak()+".pak");
-
+        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+Apak());
     }
     private void applysrc(){
 
@@ -262,30 +254,27 @@ public class FService extends Service  {
     private void createMenuBody() {
        addSubtitle("Bypass MTP Protection",mMenuBody);
        adddescription("Bypasses Normal Integrity Scans And Security Patches On Logo", mMenuBody);
-       addSwitch("Inject", new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked) {
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            FileUtil.writeFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/Updater.ini", modify());
-                            clearcache();
-                            loader.SwitchMemory(11);
-                           }
-                    }).start();
+       addSwitch("Inject", (buttonView, isChecked) -> {
+           if(isChecked) {
+               new Thread(new Runnable() {
+                   @Override
+                   public void run() {
+       //                FileUtil.writeFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/Updater.ini", modify());
+                  //     clearcache();
+                       loader.SwitchMemory(11);
+                      }
+               }).start();
 //                    new Thread(new Runnable() {
 //                        @Override
 //                        public void run() {
 //                            applysrc();
 //                        }
 //                    }).start();
-                Toast.makeText(ctx,"MTP Protection Bypassed",Toast.LENGTH_LONG).show();
-                }else{
-                    clearcache();
-                }
-            }
-        },mMenuBody);
+           Toast.makeText(ctx,"MTP Protection Bypassed",Toast.LENGTH_LONG).show();
+           }else{
+               clearcache();
+           }
+       },mMenuBody);
 //        addSubtitle("Src Patch",mMenuBody);
 //       adddescription("Src Patch Sync Your Game Version To Server & Avoid Detection ( Only First Time Use)", mMenuBody);
 //        addSwitch("Apply Patch", new CompoundButton.OnCheckedChangeListener() {
@@ -1532,7 +1521,7 @@ public class FService extends Service  {
             public void run() {
                 clearcache();
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    String pathf =ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+Apak()+configPrefs.getString("src","15339")+".pak";
+                    String pathf =ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+Apak();
                     try {
                         OutputStream myOutput = new FileOutputStream(pathf);
                         byte[] buffer = new byte[1024];
