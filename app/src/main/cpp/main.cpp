@@ -177,8 +177,8 @@ Java_com_memory_xploiter_FService_Title(JNIEnv *env, jobject thiz) {
 }
 extern "C"
 JNIEXPORT jstring JNICALL
-Java_com_memory_xploiter_Login_URLSERVER(JNIEnv *env, jclass thiz) {
-    return env->NewStringUTF(OBS("https://GameSploit.com/project/Mod/loginNew.php"));
+Java_com_memory_xploiter_Anima_URLSERVER(JNIEnv *env, jclass thiz) {
+    return env->NewStringUTF(OBS("https://Gamesploit.com/project/Internalesp/"));
 }
 extern "C"
 JNIEXPORT jstring JNICALL
@@ -272,4 +272,9 @@ extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_memory_xploiter_Anima_A11(JNIEnv *env, jobject thiz) {
     return env->NewStringUTF(OBS("https://drive.google.com/drive/folders/1eSMDsX8n6SkGyN0JOY8yZ_z4XD4tcQNz"));
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_memory_xploiter_AESUtils_AES(JNIEnv *env, jclass clazz) {
+    return env->NewStringUTF(OBS("tAeKpEcDe6410111"));
 }

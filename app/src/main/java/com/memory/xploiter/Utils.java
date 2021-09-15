@@ -18,8 +18,12 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.security.InvalidKeyException;
+import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Random;
 
 import javax.crypto.BadPaddingException;
@@ -98,6 +102,27 @@ class Utils {
         }
         return new String(out);
     }
+    private static PublicKey getPublicKey(byte[] keyBytes) throws Exception {
+        X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        return kf.generatePublic(spec);
+    }
+
+
+
+    public static String encrypt(String plainText, byte[] keyBytes) throws Exception {
+        Cipher encryptCipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+        encryptCipher.init(Cipher.ENCRYPT_MODE, getPublicKey(keyBytes));
+        return Utils.toBase64(encryptCipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8)));
+    }
+
+   public static boolean verify(String plainText, String signature, byte[] keyBytes) throws Exception {
+        Signature publicSignature = Signature.getInstance("SHA256withRSA");
+        publicSignature.initVerify(getPublicKey(keyBytes));
+        publicSignature.update(plainText.getBytes(StandardCharsets.UTF_8));
+        return publicSignature.verify(Utils.fromBase64(signature));
+    }
+
 
     static String toBase64(String s) {
         return Base64.encodeToString(s.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);

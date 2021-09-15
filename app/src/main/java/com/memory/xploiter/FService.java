@@ -1,7 +1,9 @@
 package com.memory.xploiter;
 
 import static com.memory.xploiter.Anima.Apak;
+import static com.memory.xploiter.Anima.URLSERVER;
 import static com.memory.xploiter.Login.isfree;
+import static com.memory.xploiter.Login.key;
 
 import android.annotation.TargetApi;
 import android.app.Service;
@@ -41,10 +43,15 @@ import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.json.JSONObject;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import androtrainer.Flags;
 import androtrainer.MemoryScanner;
@@ -79,7 +86,7 @@ public class FService extends Service  {
     public IBinder onBind(Intent intent) {
         return null;
     }
-
+    public JSONParserString jsonParserString = new JSONParserString();
     @TargetApi(Build.VERSION_CODES.O)
     @Override
     public void onCreate() {
@@ -88,6 +95,8 @@ public class FService extends Service  {
         loader.Init(this, this);
         configPrefs = getSharedPreferences("config", MODE_PRIVATE);
         initFloatingView();
+
+        Auth();
    //     loadAssets();
     }
     @Override
@@ -99,7 +108,58 @@ public class FService extends Service  {
 
         return START_NOT_STICKY;
     }
+    private void Auth () {
+        final Handler handler = new Handler();
+        Timer timer = new Timer();
+        TimerTask Async = new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
 
+                        JSONObject params = new JSONObject();
+                        final String[] rq = {null};
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    params.put("uname", key);
+                                    rq[0] = jsonParserString.makeHttpRequest(URLSERVER() + "exist2.0.php", params);
+                                    if (rq[0] == null || rq[0].isEmpty()) {
+                                        Toast.makeText(ctx, "Server Error", Toast.LENGTH_LONG).show();
+                                        return;
+                                    }
+                                    JSONObject ack = new JSONObject(rq[0]);
+                                    // Log.d("test", String.valueOf(ack));
+                                    String decData = Utils.profileDecrypt(ack.get("data").toString(), ack.get("hash").toString());
+                                    if (!Utils.verify(decData, ack.get("sign").toString(), JSONParserString.publickey)) {
+                                        Toast.makeText(ctx, "Something Went Wrong", Toast.LENGTH_LONG).show();
+                                        return;
+                                    } else {
+                                        JSONObject obj = new JSONObject(decData);
+                                        boolean check =  false;
+                                        check =  obj.getBoolean("exist");
+                                        if (!check) {
+                                            stopSelf();
+                                            Toast.makeText(ctx, "Token Time Expired", Toast.LENGTH_LONG).show();
+                                        }
+                                    }
+                                } catch (Exception e) {
+                                    stopSelf();
+                                    Toast.makeText(ctx, "Integrity Check Failed", Toast.LENGTH_SHORT).show();
+                                    e.printStackTrace();
+                                }
+                            }
+                        }).start();
+                    }
+                });
+
+            }
+            //returing the response
+        };
+        timer.schedule(Async, 1000, 10000);
+    }
     native String Title();
     native String Icon();
     native String PlayerEsp();

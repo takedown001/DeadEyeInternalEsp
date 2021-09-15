@@ -428,7 +428,7 @@ public class Anima extends Activity {
 
     Context ctx;
     private static native void Init(Context mContext);
-
+    public static native String URLSERVER();
     @Override
     protected void onCreate(Bundle savedctxState) {
         super.onCreate(savedctxState);
