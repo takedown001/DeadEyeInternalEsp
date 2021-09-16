@@ -90,7 +90,6 @@ public class ESPView extends View implements Runnable {
             int height = canvas.getHeight();
             float f = (height - 20);
             time.setTime(System.currentTimeMillis());
-
        //      DrawText(canvas, 255, 0, 255, 0, 0.5f, DeadEye() + " FPS : " + mFPS, 200, 90, 25); // Deadeye
             DrawText(canvas, 255, 0, 255, 0, 0.5f, FPS()+ mFPS, 200, 90, 35);
 //           DrawText(canvas, 255, 0, 255, 0, 0.5f, "@" + Deadeye() + " & " +"@" + DeadEye() + "_TG", canvas.getWidth() - 260, canvas.getHeight() - 25, 20);

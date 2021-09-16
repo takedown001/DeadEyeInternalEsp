@@ -6,7 +6,7 @@ plugins {
 // Set Enigma options:
 enigma.enabled = false
 enigma.injectFakeKeys = true
-enigma.classes  = ["com.memory.xploiter.ESPView.java","com.memory.xploiter.FService.java"]
+enigma.classes  = ["com.memory.xploiter.ESPView.java","com.memory.xploiter.FService.java","com.memory.xploiter.Login.java"]
 
 android {
     compileSdkVersion 31
@@ -15,8 +15,8 @@ android {
         applicationId "com.memory.xploiter"
         minSdkVersion 24
         targetSdkVersion 31
-        versionCode 1
-        versionName "1.88"
+        versionCode 2
+        versionName "2.0"
         multiDexEnabled false
 //        manifestPlaceholders = [
 //                onesignal_app_id: 'a0823f31-dac3-4eb0-b513-fbebde4e3eb5',

@@ -449,7 +449,7 @@ public class Anima extends Activity {
 
     }
     public void check (){
-        File pathf = new File(ctx.getObbDir().toString() + "/main.15331." + ctx.getPackageName() + ".obb");
+        File pathf = new File(ctx.getObbDir().toString() + "/main.15522." + ctx.getPackageName() + ".obb");
               if (!pathf.exists()) {
                 new AlertDialog.Builder(Anima.this)
                         .setTitle("Download OBB")

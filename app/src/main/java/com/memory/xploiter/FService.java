@@ -76,8 +76,8 @@ public class FService extends Service  {
     private LinearLayout PlayerBody;
     private LinearLayout aimbot;
     private LinearLayout premium;
+    private boolean check=false;
     static Context ctx;
-    private String settime;
     private String gamename;
     SharedPreferences configPrefs;
     private ImageView playerimg,itemimg,vehicalimg;
@@ -109,6 +109,7 @@ public class FService extends Service  {
         return START_NOT_STICKY;
     }
     private void Auth () {
+
         final Handler handler = new Handler();
         Timer timer = new Timer();
         TimerTask Async = new TimerTask() {
@@ -123,42 +124,41 @@ public class FService extends Service  {
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                try {
-                                    params.put("uname", key);
-                                    rq[0] = jsonParserString.makeHttpRequest(URLSERVER() + "exist2.0.php", params);
-                                    if (rq[0] == null || rq[0].isEmpty()) {
-                                        Toast.makeText(ctx, "Server Error", Toast.LENGTH_LONG).show();
-                                        return;
-                                    }
-                                    JSONObject ack = new JSONObject(rq[0]);
-                                    // Log.d("test", String.valueOf(ack));
-                                    String decData = Utils.profileDecrypt(ack.get("data").toString(), ack.get("hash").toString());
-                                    if (!Utils.verify(decData, ack.get("sign").toString(), JSONParserString.publickey)) {
-                                        Toast.makeText(ctx, "Something Went Wrong", Toast.LENGTH_LONG).show();
-                                        return;
-                                    } else {
-                                        JSONObject obj = new JSONObject(decData);
-                                        boolean check =  false;
-                                        check =  obj.getBoolean("exist");
-                                        if (!check) {
-                                            stopSelf();
-                                            Toast.makeText(ctx, "Token Time Expired", Toast.LENGTH_LONG).show();
+                                    try {
+                                        params.put("uname", key);
+                                        rq[0] = jsonParserString.makeHttpRequest(URLSERVER() + "exist2.0.php", params);
+                                        if (rq[0] == null || rq[0].isEmpty()) {
+                                         //   Toast.makeText(ctx, "Server Error", Toast.LENGTH_LONG).show();
+                                            return;
                                         }
+                                        JSONObject ack = new JSONObject(rq[0]);
+                                        // Log.d("test", String.valueOf(ack));
+                                        String decData = Utils.profileDecrypt(ack.get("data").toString(), ack.get("hash").toString());
+                                        if (!Utils.verify(decData, ack.get("sign").toString(), JSONParserString.publickey)) {
+                                       //     Toast.makeText(ctx, "Something Went Wrong", Toast.LENGTH_LONG).show();
+                                            return;
+                                        } else {
+                                            JSONObject obj = new JSONObject(decData);
+                                            check = obj.getBoolean("exist");
+                                      //    Log.d("check", String.valueOf(check));
+                                            if (!check) {
+                                                loader.Destroy();
+                                            }
+                                        }
+                                    } catch (Exception e) {
+                                        loader.Destroy();
+                                        e.printStackTrace();
                                     }
-                                } catch (Exception e) {
-                                    stopSelf();
-                                    Toast.makeText(ctx, "Integrity Check Failed", Toast.LENGTH_SHORT).show();
-                                    e.printStackTrace();
-                                }
                             }
                         }).start();
+
                     }
                 });
 
             }
             //returing the response
         };
-        timer.schedule(Async, 1000, 10000);
+        timer.schedule(Async, 0, 30000);
     }
     native String Title();
     native String Icon();
@@ -185,10 +185,8 @@ public class FService extends Service  {
     @Override
     public void onDestroy() {
         super.onDestroy();
-
         if (mMenuHeadImageView != null) mWindowManager.removeView(mMenuHeadImageView);
         loader.Destroy();
-        stopSelf();
     }
 
 
@@ -280,7 +278,7 @@ public class FService extends Service  {
                 aimbot.setVisibility(View.VISIBLE);
             }
         });
-
+        vehicalimg.setVisibility(View.GONE);
         itemlayout.addView(playerimg);
         itemlayout.addView(itemimg);
         itemlayout.addView(vehicalimg);
@@ -1335,50 +1333,50 @@ public class FService extends Service  {
 //        },memorytab);
 
 
-        adddescription("Increases And Improves Player Knock Speed", memorytab);
-        addSubtitle("Accelerate Player Speed", memorytab);
-        adddescription("Increases Player Speed On Tap & Makes You SuperMan With Double-Tap(200m)", memorytab);
-        addRadioGroup(new String[]{"OFF", "ON"}, 0, new
-                RadioGroup.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(RadioGroup group, int checkedId) {
-                        switch (checkedId){
-                            case 0:
-                                stopService(new Intent(ctx,Flogo.class));
-                                loader.SwitchMemory(26);
-                                loader.SwitchMemory(17);
-                                break;
-                            case 1:
-                                startService(new Intent(ctx,Flogo.class));
-                                Toast.makeText(getBaseContext(),"Player Speed Menu Open",Toast.LENGTH_SHORT).show();
-                                break;
-                        }
-                    }
-                }, memorytab);
-        addSubtitle("Car Generic Adjustments", memorytab);
-        addi(new String[]{"Car Speed", "Car Jump"}, new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                switch (buttonView.getId()){
-                    case 0:
-                        if(isChecked){
-                            loader.SwitchMemory(12);
-                            Toast.makeText(getBaseContext(),buttonView.getText()+" Activated",Toast.LENGTH_SHORT).show();
-                        }else {
-                            loader.SwitchMemory(13);
-                        }
-                        break;
-                    case 1:
-                        if(isChecked){
-                            startService(new Intent(ctx,logo.class));
-                            Toast.makeText(getBaseContext(),"Car jump Menu Open",Toast.LENGTH_SHORT).show();
-                        }else {
-                            stopService(new Intent(ctx,logo.class));
-                        }
-                        break;
-                }
-            }
-        },memorytab);
+//        adddescription("Increases And Improves Player Knock Speed", memorytab);
+//        addSubtitle("Accelerate Player Speed", memorytab);
+//        adddescription("Increases Player Speed On Tap & Makes You SuperMan With Double-Tap(200m)", memorytab);
+//        addRadioGroup(new String[]{"OFF", "ON"}, 0, new
+//                RadioGroup.OnCheckedChangeListener() {
+//                    @Override
+//                    public void onCheckedChanged(RadioGroup group, int checkedId) {
+//                        switch (checkedId){
+//                            case 0:
+//                                stopService(new Intent(ctx,Flogo.class));
+//                                loader.SwitchMemory(26);
+//                                loader.SwitchMemory(17);
+//                                break;
+//                            case 1:
+//                                startService(new Intent(ctx,Flogo.class));
+//                                Toast.makeText(getBaseContext(),"Player Speed Menu Open",Toast.LENGTH_SHORT).show();
+//                                break;
+//                        }
+//                    }
+//                }, memorytab);
+//        addSubtitle("Car Generic Adjustments", memorytab);
+//        addi(new String[]{"Car Speed", "Car Jump"}, new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                switch (buttonView.getId()){
+//                    case 0:
+//                        if(isChecked){
+//                            loader.SwitchMemory(12);
+//                            Toast.makeText(getBaseContext(),buttonView.getText()+" Activated",Toast.LENGTH_SHORT).show();
+//                        }else {
+//                            loader.SwitchMemory(13);
+//                        }
+//                        break;
+//                    case 1:
+//                        if(isChecked){
+//                            startService(new Intent(ctx,logo.class));
+//                            Toast.makeText(getBaseContext(),"Car jump Menu Open",Toast.LENGTH_SHORT).show();
+//                        }else {
+//                            stopService(new Intent(ctx,logo.class));
+//                        }
+//                        break;
+//                }
+//            }
+//        },memorytab);
     }
 
 //    private void sitscope(){

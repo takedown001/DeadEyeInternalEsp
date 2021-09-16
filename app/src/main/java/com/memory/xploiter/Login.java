@@ -130,8 +130,7 @@ public class Login extends AsyncTask<String, Void, String> {
     protected void onPostExecute(String s) {
         configPrefs = getActivity().getSharedPreferences("config", MODE_PRIVATE);
         final Anima activity = getActivity();
-//        Log.d("puk",new String(puk));
-//        Log.d("crt",new String(crt));
+     //   Log.d("Log",s);
         if (activity == null) {
             return;
         }
