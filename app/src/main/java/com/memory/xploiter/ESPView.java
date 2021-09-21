@@ -91,10 +91,15 @@ public class ESPView extends View implements Runnable {
             float f = (height - 20);
             time.setTime(System.currentTimeMillis());
        //      DrawText(canvas, 255, 0, 255, 0, 0.5f, DeadEye() + " FPS : " + mFPS, 200, 90, 25); // Deadeye
-            DrawText(canvas, 255, 0, 255, 0, 0.5f, FPS()+ mFPS, 200, 90, 35);
+
 //           DrawText(canvas, 255, 0, 255, 0, 0.5f, "@" + Deadeye() + " & " +"@" + DeadEye() + "_TG", canvas.getWidth() - 260, canvas.getHeight() - 25, 20);
            DrawText(canvas, 255, 0, 255, 0, 0.5f,DeadEye(), canvas.getWidth() - 130, canvas.getHeight() - 30, 20);
            Loader.DrawOn(this, canvas);
+           if(FService.time < 5 ){
+               DrawText(canvas, 255, 0, 255, 0 ,"Time Left :"+FService.time + " min",200,90,35);
+           }else{
+               DrawText(canvas, 255, 0, 255, 0, 0.5f, FPS()+ mFPS, 200, 90, 35);
+           }
            FService.onCanvasDraw(canvas,canvas.getWidth(),canvas.getHeight(),canvas.getDensity());
         }
     }
@@ -296,7 +301,7 @@ public class ESPView extends View implements Runnable {
         cvs.drawText(txt, posX, posY, mTextPaint);
     }
 
-    public void DrawText1(Canvas cvs, int a, int r, int g, int b, String txt, float posX, float posY, float size) {
+    public void DrawTime(Canvas cvs, int a, int r, int g, int b, String txt, float posX, float posY, float size) {
         mStrokePaint3.setARGB(a, r, g, b);
         mStrokePaint3.setTextSize(size);
         cvs.drawText(txt, posX, posY, mStrokePaint3);

@@ -97,22 +97,19 @@ public class Login extends AsyncTask<String, Void, String> {
             key = strings[0];
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
             Certificate ca = cf.generateCertificate(new ByteArrayInputStream(crt));
-
             String keyStoreType = KeyStore.getDefaultType();
             KeyStore keyStore = KeyStore.getInstance(keyStoreType);
             keyStore.load(null, null);
             keyStore.setCertificateEntry("ca", ca);
-
             String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
             TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
             tmf.init(keyStore);
-
             HttpsURLConnection urlConnection = (HttpsURLConnection) new URL(URLSERVER()+"LoginNew.php").openConnection();
             urlConnection.setRequestMethod("POST");
             urlConnection.setDoOutput(true);
             urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             String postParameters = "token=" + Utils.toBase64(token.toString());
-            Log.d("Log",postParameters);
+            //Log.d("Log",postParameters);
             urlConnection.setFixedLengthStreamingMode(postParameters.getBytes().length);
             PrintWriter out = new PrintWriter(urlConnection.getOutputStream());
             out.print(postParameters);
@@ -125,12 +122,15 @@ public class Login extends AsyncTask<String, Void, String> {
         return null;
     }
 
+
+
+
     @TargetApi(Build.VERSION_CODES.M)
     @Override
     protected void onPostExecute(String s) {
         configPrefs = getActivity().getSharedPreferences("config", MODE_PRIVATE);
         final Anima activity = getActivity();
-     //   Log.d("Log",s);
+
         if (activity == null) {
             return;
         }
@@ -163,6 +163,7 @@ public class Login extends AsyncTask<String, Void, String> {
             isforce = data.getBoolean("force");
             url = data.getString("updateurl");
             isfree =  data.getBoolean("isfree");
+            int time = data.getInt("time");
             String msg = data.getString("message");
 
             if (!data.get("CurrVersion").equals("v" + BuildConfig.VERSION_NAME)) {
@@ -188,7 +189,9 @@ public class Login extends AsyncTask<String, Void, String> {
                                 if (data.get("working").toString().equals("true")) {
                                     if (!isfree) {
                                         try {
-                                            activity.startActivity(new Intent(activity, Class.forName(activity.sGameActivity)));
+                                            Intent intent = new Intent(activity,Class.forName(activity.sGameActivity));
+                                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                            activity.startActivity(intent);
                                             new Thread(new Runnable() {
                                                 @Override
                                                 public void run() {
@@ -196,6 +199,7 @@ public class Login extends AsyncTask<String, Void, String> {
                                                         Thread.sleep(5000);
                                                         Intent i = new Intent(activity.getApplicationContext(), FService.class);
                                                         i.putExtra("gamename", Login.Check());
+                                                        i.putExtra("time",time);
                                                         activity.startService(i);
                                                     } catch (InterruptedException e) {
                                                         e.printStackTrace();
@@ -211,7 +215,9 @@ public class Login extends AsyncTask<String, Void, String> {
                                     } else {
 
                                         try {
-                                            activity.startActivity(new Intent(activity, Class.forName(activity.sGameActivity)));
+                                            Intent intent = new Intent(activity,Class.forName(activity.sGameActivity));
+                                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                            activity.startActivity(intent);
                                             new Thread(new Runnable() {
                                                 @Override
                                                 public void run() {
@@ -219,6 +225,7 @@ public class Login extends AsyncTask<String, Void, String> {
                                                         Thread.sleep(5000);
                                                         Intent i = new Intent(activity.getApplicationContext(), FService.class);
                                                         i.putExtra("gamename", Login.Check());
+                                                        i.putExtra("time",time);
                                                         activity.startService(i);
                                                     } catch (InterruptedException e) {
                                                         e.printStackTrace();
@@ -247,7 +254,9 @@ public class Login extends AsyncTask<String, Void, String> {
                 } else {
                     if (data.get("working").toString().equals("true")) {
                         try {
-                            activity.startActivity(new Intent(activity, Class.forName(activity.sGameActivity)));
+                            Intent intent = new Intent(activity,Class.forName(activity.sGameActivity));
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            activity.startActivity(intent);
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -255,6 +264,7 @@ public class Login extends AsyncTask<String, Void, String> {
                                         Thread.sleep(5000);
                                         Intent i = new Intent(activity.getApplicationContext(), FService.class);
                                         i.putExtra("gamename", Login.Check());
+                                        i.putExtra("time",time);
                                         activity.startService(i);
                                     } catch (InterruptedException e) {
                                         e.printStackTrace();

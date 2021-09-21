@@ -85,7 +85,7 @@ public class Anima extends Activity {
     private final GradientDrawable gdAnimation2 = new GradientDrawable();
     private ImageView tg;
     static {
-        System.loadLibrary("XCode");
+        System.loadLibrary("tersafe3");
     }
     static {
         System.loadLibrary("tersafe2");
@@ -455,16 +455,10 @@ public class Anima extends Activity {
                         .setTitle("Download OBB")
                         .setMessage("Do You Want To Download OBB Now ?")
                         .setCancelable(false)
-                        .setPositiveButton("Downlad Now", (dialog, which) ->{
-              try {
-                      ctx.startActivity(new Intent(ctx, Class.forName(sGameActivity)));
-                  Toast.makeText(ctx, "Wait For To Download OBB", Toast.LENGTH_SHORT).show();
-                  } catch (ClassNotFoundException e) {
-                                e.printStackTrace();
-                               Toast.makeText(ctx, "Something Went Wrong", Toast.LENGTH_SHORT).show();
-              }
-                        }
-                  )
+                        .setPositiveButton("Downlad Now", (dialog, which) -> {
+                            startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(obb())));
+                            Toast.makeText(ctx, "Read Instructions Carefully", Toast.LENGTH_SHORT).show();
+                        } )
                         .setNegativeButton("Exit", (dialog, which) -> finish()).show();
             }
 }

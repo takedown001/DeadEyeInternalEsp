@@ -44,7 +44,6 @@ public class Flogo extends Service{
         super.onCreate();
         Instance = this;
         createOver();
-
     }
 
     @Override
@@ -127,7 +126,7 @@ public class Flogo extends Service{
 
                         @Override
                         public boolean onDoubleTap(MotionEvent e) {
-                        //    BRun();
+                           BRun();
                             return false;
                         }
 
@@ -167,8 +166,8 @@ public class Flogo extends Service{
         switch (Chech){
             case 0:
                 byte[] decode = Base64.decode(FlashMid(), 0);
-                loader.SwitchMemory(16);
-                loader.SwitchMemory(26);
+                Loader.SwitchMemory(16);
+                Loader.SwitchMemory(26);
                 mMenuHeadImageView.setImageBitmap(BitmapFactory.decodeByteArray(decode, 0, decode.length));
                 Toast.makeText(Instance," Player Speed Increased To 20M/s",Toast.LENGTH_SHORT).show();
                 Chech=1;
@@ -176,8 +175,8 @@ public class Flogo extends Service{
             case 1:
                 Chech = 1;
                 byte[] decode2 = Base64.decode(FlashOn(), 0);
-                loader.SwitchMemory(17);
-                loader.SwitchMemory(26);
+                Loader.SwitchMemory(17);
+                Loader.SwitchMemory(26);
                 mMenuHeadImageView.setImageBitmap(BitmapFactory.decodeByteArray(decode2, 0, decode2.length));
                 Toast.makeText(Instance,"Player Speed Restored To Normal",Toast.LENGTH_SHORT).show();
                 Chech =0;
@@ -192,15 +191,15 @@ public class Flogo extends Service{
                 Chech = 1;
                 byte[] decode = Base64.decode((FlashOff()), 0);
                 mMenuHeadImageView.setImageBitmap(BitmapFactory.decodeByteArray(decode, 0, decode.length));
-                loader.SwitchMemory(25);
-                loader.SwitchMemory(17);
+                Loader.SwitchMemory(25);
+                Loader.SwitchMemory(17);
                 Toast.makeText(Instance,"Player Speed Increased TO 200 M/s Activated",Toast.LENGTH_SHORT).show();
                 break;
             case 1:
                 Chech = 0;
                 byte[] decode2 = Base64.decode(FlashOn(), 0);
-                loader.SwitchMemory(26);
-                loader.SwitchMemory(17);
+                Loader.SwitchMemory(26);
+                Loader.SwitchMemory(17);
                 mMenuHeadImageView.setImageBitmap(BitmapFactory.decodeByteArray(decode2, 0, decode2.length));
                 Toast.makeText(Instance,"Player Speed Restored To Normal",Toast.LENGTH_SHORT).show();
                 break;

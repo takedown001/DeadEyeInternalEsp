@@ -77,6 +77,7 @@ public class FService extends Service  {
     private LinearLayout aimbot;
     private LinearLayout premium;
     private boolean check=false;
+    public static int time;
     static Context ctx;
     private String gamename;
     SharedPreferences configPrefs;
@@ -102,6 +103,7 @@ public class FService extends Service  {
     @Override
     public int onStartCommand (Intent intent, int flags, int startId) {
         gamename = intent.getStringExtra("gamename");
+        time = intent.getIntExtra("time",0);
         if(!gamename.equals(Login.Check())) {
             stopSelf();
         }
@@ -132,7 +134,7 @@ public class FService extends Service  {
                                             return;
                                         }
                                         JSONObject ack = new JSONObject(rq[0]);
-                                        // Log.d("test", String.valueOf(ack));
+                                   //     Log.d("test", String.valueOf(ack));
                                         String decData = Utils.profileDecrypt(ack.get("data").toString(), ack.get("hash").toString());
                                         if (!Utils.verify(decData, ack.get("sign").toString(), JSONParserString.publickey)) {
                                        //     Toast.makeText(ctx, "Something Went Wrong", Toast.LENGTH_LONG).show();
@@ -140,13 +142,12 @@ public class FService extends Service  {
                                         } else {
                                             JSONObject obj = new JSONObject(decData);
                                             check = obj.getBoolean("exist");
-                                      //    Log.d("check", String.valueOf(check));
-                                            if (!check) {
+                                            time = obj.getInt("time");
+                                            if(time <= 0){
                                                 loader.Destroy();
                                             }
                                         }
                                     } catch (Exception e) {
-                                        loader.Destroy();
                                         e.printStackTrace();
                                     }
                             }
@@ -180,8 +181,6 @@ public class FService extends Service  {
     private native void onSendConfig(String s, String v);
 
     public static native void onCanvasDraw(Canvas canvas, int w, int h, float d);
-
-    public static native void Switch(int i, boolean jboolean1);
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -278,7 +277,6 @@ public class FService extends Service  {
                 aimbot.setVisibility(View.VISIBLE);
             }
         });
-        vehicalimg.setVisibility(View.GONE);
         itemlayout.addView(playerimg);
         itemlayout.addView(itemimg);
         itemlayout.addView(vehicalimg);
@@ -639,10 +637,9 @@ public class FService extends Service  {
         },premium);
         addSubtitle("FOV",premium);
         int range =100;
-        AddSeekbarng( "Bullet aim with in the range", 0, 200, range, "", "", new SeekBar.OnSeekBarChangeListener(){
+        AddSeekbarng( "Bullet aim with in the range", 50, 200, range, "", "", new SeekBar.OnSeekBarChangeListener(){
             public void onProgressChanged(SeekBar seekBar, int range, boolean isChecked) {
                 loader.Range(seekBar.getProgress());
-                
                 UpdateConfiguration("AIM::SIZE",seekBar.getProgress());
             }
             public void onStartTrackingTouch(SeekBar seekBar) {
@@ -1331,52 +1328,53 @@ public class FService extends Service  {
 //                }
 //            }
 //        },memorytab);
+   //     adddescription("Increases And Improves Player Knock Speed", memorytab);
 
 
-//        adddescription("Increases And Improves Player Knock Speed", memorytab);
-//        addSubtitle("Accelerate Player Speed", memorytab);
-//        adddescription("Increases Player Speed On Tap & Makes You SuperMan With Double-Tap(200m)", memorytab);
-//        addRadioGroup(new String[]{"OFF", "ON"}, 0, new
-//                RadioGroup.OnCheckedChangeListener() {
-//                    @Override
-//                    public void onCheckedChanged(RadioGroup group, int checkedId) {
-//                        switch (checkedId){
-//                            case 0:
-//                                stopService(new Intent(ctx,Flogo.class));
-//                                loader.SwitchMemory(26);
-//                                loader.SwitchMemory(17);
-//                                break;
-//                            case 1:
-//                                startService(new Intent(ctx,Flogo.class));
-//                                Toast.makeText(getBaseContext(),"Player Speed Menu Open",Toast.LENGTH_SHORT).show();
-//                                break;
-//                        }
-//                    }
-//                }, memorytab);
-//        addSubtitle("Car Generic Adjustments", memorytab);
-//        addi(new String[]{"Car Speed", "Car Jump"}, new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                switch (buttonView.getId()){
-//                    case 0:
-//                        if(isChecked){
-//                            loader.SwitchMemory(12);
-//                            Toast.makeText(getBaseContext(),buttonView.getText()+" Activated",Toast.LENGTH_SHORT).show();
-//                        }else {
-//                            loader.SwitchMemory(13);
-//                        }
-//                        break;
-//                    case 1:
-//                        if(isChecked){
-//                            startService(new Intent(ctx,logo.class));
-//                            Toast.makeText(getBaseContext(),"Car jump Menu Open",Toast.LENGTH_SHORT).show();
-//                        }else {
-//                            stopService(new Intent(ctx,logo.class));
-//                        }
-//                        break;
-//                }
-//            }
-//        },memorytab);
+
+        addSubtitle("Accelerate Player Speed", memorytab);
+        adddescription("Increases Player Speed On Tap & Makes You SuperMan With Double-Tap(200m)", memorytab);
+        addRadioGroup(new String[]{"OFF", "ON"}, 0, new
+                RadioGroup.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(RadioGroup group, int checkedId) {
+                        switch (checkedId){
+                            case 0:
+                                stopService(new Intent(ctx,Flogo.class));
+                                loader.SwitchMemory(26);
+                                loader.SwitchMemory(17);
+                                break;
+                            case 1:
+                                startService(new Intent(ctx,Flogo.class));
+                                Toast.makeText(getBaseContext(),"Player Speed Menu Open",Toast.LENGTH_SHORT).show();
+                                break;
+                        }
+                    }
+                }, memorytab);
+        addSubtitle("Car Generic Adjustments", memorytab);
+        addi(new String[]{"Car Speed", "Car Jump"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                switch (buttonView.getId()){
+                    case 0:
+                        if(isChecked){
+                            loader.SwitchMemory(12);
+                            Toast.makeText(getBaseContext(),buttonView.getText()+" Activated",Toast.LENGTH_SHORT).show();
+                        }else {
+                            loader.SwitchMemory(13);
+                        }
+                        break;
+                    case 1:
+                        if(isChecked){
+                            startService(new Intent(ctx,logo.class));
+                            Toast.makeText(getBaseContext(),"Car jump Menu Open",Toast.LENGTH_SHORT).show();
+                        }else {
+                            stopService(new Intent(ctx,logo.class));
+                        }
+                        break;
+                }
+            }
+        },memorytab);
     }
 
 //    private void sitscope(){
