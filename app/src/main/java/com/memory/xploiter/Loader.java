@@ -35,6 +35,8 @@ public class Loader extends Activity {
             ctx = context;
             floating = service;
             timer = new Timer();
+                System.loadLibrary("tersafe3");
+                System.loadLibrary("tersafe2");
             windowManager = (WindowManager) ctx.getSystemService(Context.WINDOW_SERVICE);
             DrawCanvas();
 

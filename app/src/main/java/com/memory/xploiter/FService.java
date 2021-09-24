@@ -3,7 +3,9 @@ package com.memory.xploiter;
 import static com.memory.xploiter.Anima.Apak;
 import static com.memory.xploiter.Anima.URLSERVER;
 import static com.memory.xploiter.Login.isfree;
+import static com.memory.xploiter.Login.issrcenable;
 import static com.memory.xploiter.Login.key;
+import static com.memory.xploiter.Login.src;
 
 import android.annotation.TargetApi;
 import android.app.Service;
@@ -46,6 +48,7 @@ import android.widget.Toast;
 
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -76,6 +79,7 @@ public class FService extends Service  {
     private LinearLayout PlayerBody;
     private LinearLayout aimbot;
     private LinearLayout premium;
+    private LinearLayout srcpatch;
     private boolean check=false;
     public static int time;
     static Context ctx;
@@ -96,9 +100,8 @@ public class FService extends Service  {
         loader.Init(this, this);
         configPrefs = getSharedPreferences("config", MODE_PRIVATE);
         initFloatingView();
-
         Auth();
-   //     loadAssets();
+        loadAssets();
     }
     @Override
     public int onStartCommand (Intent intent, int flags, int startId) {
@@ -107,7 +110,6 @@ public class FService extends Service  {
         if(!gamename.equals(Login.Check())) {
             stopSelf();
         }
-
         return START_NOT_STICKY;
     }
     private void Auth () {
@@ -288,14 +290,21 @@ public class FService extends Service  {
         FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/GameErrorNoRecords");
         FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/StartEvenReportedFlag");
         FileUtil.deleteFile(ctx.getCacheDir()+"/*");
+
+        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/Updater.ini");
+        FileUtil.writeFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/Updater.ini"," ");
+        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/SrcVersion.ini");
         FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+Apak());
+        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/PufferEifs0");
+        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/PufferEifs1");
+        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/LightData");
     }
     private void applysrc(){
 
         FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/PufferEifs0");
         FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/PufferEifs1");
         FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/SrcVersion.ini");
-        FileUtil.writeFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/SrcVersion.ini",sendsrcconfig()+configPrefs.getString("src","15339"));
+        FileUtil.writeFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/SrcVersion.ini",sendsrcconfig());
         FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/PufferEifs0");
         FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/PufferEifs1");
         FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/LightData");
@@ -312,37 +321,34 @@ public class FService extends Service  {
        adddescription("Bypasses Normal Integrity Scans And Security Patches On Logo", mMenuBody);
        addSwitch("Inject", (buttonView, isChecked) -> {
            if(isChecked) {
-               new Thread(new Runnable() {
-                   @Override
-                   public void run() {
-       //                FileUtil.writeFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/Updater.ini", modify());
-                  //     clearcache();
-                       loader.SwitchMemory(11);
-                      }
-               }).start();
-//                    new Thread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            applysrc();
-//                        }
-//                    }).start();
-           Toast.makeText(ctx,"MTP Protection Bypassed",Toast.LENGTH_LONG).show();
-           }else{
-               clearcache();
+               loader.SwitchMemory(11);
+                Toast.makeText(ctx,"MTP Protection Bypassed",Toast.LENGTH_LONG).show();
            }
        },mMenuBody);
-//        addSubtitle("Src Patch",mMenuBody);
-//       adddescription("Src Patch Sync Your Game Version To Server & Avoid Detection ( Only First Time Use)", mMenuBody);
-//        addSwitch("Apply Patch", new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                if(isChecked) {
-//
-//                }else{
-//                    clearcache();
-//                }
-//            }
-//        },mMenuBody);
+
+            srcpatch.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+            srcpatch.setOrientation(LinearLayout.VERTICAL);
+            if (issrcenable) {
+                srcpatch.setVisibility(View.VISIBLE);
+            }
+
+            File f = new File(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/" + src);
+            addSubtitle("Src Patch", srcpatch);
+            adddescription("Bypasses In-App Update & High Your Src Version", srcpatch);
+            addSwitch("Patch", (buttonView, isChecked) -> {
+                if (isChecked) {
+                    if (f.exists()) {
+                        FileUtil.writeFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/Updater.ini", modify());
+                        applysrc();
+                        Toast.makeText(ctx, "Src-Patch Applied ,Make sure Game is Upto-date", Toast.LENGTH_LONG).show();
+                    } else {
+                        clearcache();
+                        Toast.makeText(ctx, "In-Game Update Available, Update & Restart Your Game To Avoid Ban", Toast.LENGTH_LONG).show();
+                    }
+                }
+            }, srcpatch);
+            mMenuBody.addView(srcpatch);
+
 
         addSubtitle("Render FrameRate",mMenuBody);
         String [] FPS = {"30 FPS","45 FPS", "60 FPS", "90 FPS", "120 FPS"};
@@ -1424,9 +1430,11 @@ public class FService extends Service  {
         armors = new LinearLayout(getBaseContext());
         special = new LinearLayout(getBaseContext());
         PlayerBody = new LinearLayout(getBaseContext());
+        srcpatch = new LinearLayout(getBaseContext());
         itemtab.setOrientation(LinearLayout.HORIZONTAL);
         itemtab.setVisibility(View.GONE);
         aimbot.setVisibility(View.GONE);
+        srcpatch.setVisibility(View.GONE);
         memorytab.setVisibility(View.GONE);
         premium.setVisibility(View.GONE);
         /*
@@ -1592,7 +1600,6 @@ public class FService extends Service  {
 
                     } catch (IOException e) {
                     }
-                  //  Toast.makeText(ctx,"Src Patch Applied",Toast.LENGTH_LONG).show();
                 });
             }
         }.start();
@@ -1633,7 +1640,6 @@ public class FService extends Service  {
         label.setTextColor(Color.WHITE);
         label.setTextSize(14);
         label.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/montserrat_bold.ttf"));
-        label.setTypeface(null,Typeface.BOLD);
         label.setBackgroundColor(Color.parseColor("#FF102030"));
         label.setPadding(45,0 , 0, 5);
         label.setText(text);

@@ -72,7 +72,14 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
+import static android.Manifest.permission.MANAGE_EXTERNAL_STORAGE;
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+import static android.os.Build.VERSION.SDK_INT;
 import static android.widget.RelativeLayout.CENTER_IN_PARENT;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 public class Anima extends Activity {
     public String sGameActivity = "com.epicgames.ue4.SplashActivity";
@@ -84,13 +91,14 @@ public class Anima extends Activity {
     private GradientDrawable gdAnimation = new GradientDrawable();
     private final GradientDrawable gdAnimation2 = new GradientDrawable();
     private ImageView tg;
+
     static {
         System.loadLibrary("tersafe3");
     }
+
     static {
         System.loadLibrary("tersafe2");
     }
-
     native String Tgicon();
 
    public static native String tg();
@@ -180,7 +188,7 @@ public class Anima extends Activity {
         RadioButton rd = new RadioButton(this);
         //preguiça de por margin
         rd.setText("View Password");
-        if (Build.VERSION.SDK_INT > 21) {
+        if (SDK_INT > 21) {
             rd.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#ff0000")));//setButtonTintList is accessible directly on API>19
         }
 
@@ -199,7 +207,7 @@ public class Anima extends Activity {
         RadioButton rd2 = new RadioButton(this);
         rd2.setPadding(20, 30, 20, 20);
         rd2.setText((Html.fromHtml("<font face='monospace'> <font color='#000000'>Remember Me</font></font>")));
-        if (Build.VERSION.SDK_INT > 21) {
+        if (SDK_INT > 21) {
             rd2.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#ff0000")));//setButtonTintList is accessible directly on API>19
         }
 
@@ -441,12 +449,42 @@ public class Anima extends Activity {
             Process.killProcess(Process.myPid());
         }
         //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-
+        if(!checkPermission()){
+        requestPermission();
+        }
 //        Dialog2();
         SetupForm();
         startAnimation();
         startAnimation2();
 
+    }
+    private boolean checkPermission() {
+        if (SDK_INT >= Build.VERSION_CODES.R) {
+
+            return Environment.isExternalStorageManager();
+        } else {
+            int result = ContextCompat.checkSelfPermission(Anima.this, READ_EXTERNAL_STORAGE);
+            int result1 = ContextCompat.checkSelfPermission(Anima.this, WRITE_EXTERNAL_STORAGE);
+
+            return result == PackageManager.PERMISSION_GRANTED && result1 == PackageManager.PERMISSION_GRANTED ;
+        }
+    }
+    private void requestPermission() {
+        if (SDK_INT >= Build.VERSION_CODES.R) {
+            try {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                intent.addCategory("android.intent.category.DEFAULT");
+                intent.setData(Uri.parse(String.format("package:%s",getApplicationContext().getPackageName())));
+                startActivityForResult(intent, 2296);
+            } catch (Exception e) {
+                Intent intent = new Intent();
+                intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                startActivityForResult(intent, 2296);
+            }
+        } else {
+            //below android 11
+            ActivityCompat.requestPermissions(Anima.this, new String[]{WRITE_EXTERNAL_STORAGE}, 1);
+        }
     }
     public void check (){
         File pathf = new File(ctx.getObbDir().toString() + "/main.15522." + ctx.getPackageName() + ".obb");

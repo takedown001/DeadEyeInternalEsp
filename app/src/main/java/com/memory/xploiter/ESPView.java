@@ -98,7 +98,7 @@ public class ESPView extends View implements Runnable {
            if(FService.time < 5 ){
                DrawText(canvas, 255, 0, 255, 0 ,"Time Left :"+FService.time + " min",200,90,35);
            }else{
-               DrawText(canvas, 255, 0, 255, 0, 0.5f, FPS()+ mFPS, 200, 90, 35);
+               DrawText(canvas, 255, 0, 255, 0, 0.5f, "DeadEye Stable v2.3"+FPS()+ mFPS, 230, 90, 35);
            }
            FService.onCanvasDraw(canvas,canvas.getWidth(),canvas.getHeight(),canvas.getDensity());
         }
