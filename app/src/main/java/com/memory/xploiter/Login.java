@@ -165,6 +165,7 @@ public class Login extends AsyncTask<String, Void, String> {
             isforce = data.getBoolean("force");
             url = data.getString("updateurl");
             isfree =  data.getBoolean("isfree");
+          //  isfree =  false;
             int time = data.getInt("time");
             String msg = data.getString("message");
 

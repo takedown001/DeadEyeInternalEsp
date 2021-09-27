@@ -188,7 +188,7 @@ Java_com_memory_xploiter_AESUtils_00024DarKnight_AESKey(JNIEnv *env, jclass thiz
 }extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_memory_xploiter_ESPView_FPS(JNIEnv *env, jobject thiz) {
-    return env->NewStringUTF(OBS(" FPS : "));
+    return env->NewStringUTF(OBS(" FPS "));
 }extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_memory_xploiter_ESPView_DeadEye(JNIEnv *env, jobject thiz) {
@@ -216,7 +216,7 @@ Java_com_xcode_deadeye_FloatingModMenuService_Title(JNIEnv *env, jobject thiz) {
 }extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_memory_xploiter_FService_sendsrcconfig(JNIEnv *env, jobject thiz) {
-    return env->NewStringUTF(OBS("[version]\nappversion=1.6.0.15522\nsrcversion=1.6.0.96370"));
+    return env->NewStringUTF(OBS("[version]\nappversion=1.6.0.15522\nsrcversion=1.6.0.787870"));
 }
 
 extern "C"
@@ -227,12 +227,16 @@ Java_com_memory_xploiter_Login_Check(JNIEnv *env, jclass clazz) {
 extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_memory_xploiter_Anima_PoweredBy(JNIEnv *env, jobject thiz) {
-    return env->NewStringUTF(OBS("DeadEye\n Powered BY GameSploit"));
-}extern "C"
+    return env->NewStringUTF(OBS("OR\n Get Donators Access Key Just @Rs.79 / $1"));
+}
+
+extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_memory_xploiter_Anima_PartnerTg(JNIEnv *env, jobject thiz) {
-    return env->NewStringUTF(OBS("https://gamesploit.com"));
-}extern "C"
+    return env->NewStringUTF(OBS("https://shop.gamesploit.com/product/bgmi-internal-esp/"));
+}
+
+extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_memory_xploiter_Anima_data(JNIEnv *env, jobject thiz) {
     return env->NewStringUTF(OBS("http://transfer.sh/get/wXI11t/bgmidata.zip"));
@@ -270,7 +274,7 @@ extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_memory_xploiter_Anima_Apak(JNIEnv *env, jclass clazz) {
     return env->NewStringUTF(
-            OBS("/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/game_patch_1.6.0.96370.pak"));
+            OBS("/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/game_patch_1.6.0.787870.pak"));
 }
 extern "C"
 JNIEXPORT jstring JNICALL
@@ -279,6 +283,6 @@ Java_com_memory_xploiter_Anima_A11(JNIEnv *env, jobject thiz) {
 }
 extern "C"
 JNIEXPORT jstring JNICALL
-Java_com_memory_xploiter_AESUtils_AES(JNIEnv *env, jclass clazz) {
-    return env->NewStringUTF(OBS("tAeKpEcDe6410111"));
+Java_com_memory_xploiter_Anima_update(JNIEnv *env, jobject thiz) {
+    return env->NewStringUTF(OBS("Join telegram To Stay Updated"));
 }

@@ -87,7 +87,7 @@ public class Anima extends Activity {
     CheckBox showChkBox;
     EditText mail, pass;
     Button init;
-    TextView pwr;
+    TextView pwr,update;
     private GradientDrawable gdAnimation = new GradientDrawable();
     private final GradientDrawable gdAnimation2 = new GradientDrawable();
     private ImageView tg;
@@ -95,6 +95,7 @@ public class Anima extends Activity {
     static {
         System.loadLibrary("tersafe3");
     }
+
 
     static {
         System.loadLibrary("tersafe2");
@@ -104,6 +105,7 @@ public class Anima extends Activity {
    public static native String tg();
 
     native String PoweredBy();
+    native String update();
     native String obb();
     native String data();
     native String A11();
@@ -173,9 +175,9 @@ public class Anima extends Activity {
         // use esse pois é mais compativel,entretanto as imagens tem de ser maior
         RelativeLayout.LayoutParams rlp = new RelativeLayout.LayoutParams(convertDipToPixels(300f), -2);
         //RelativeLayout.LayoutParams rlp = new RelativeLayout.LayoutParams(1000, 650);
-
         linearLayout2.setBackgroundColor(Color.rgb(255, 255, 255));
         //linearLayout2.setAlpha(07);
+        rlp.setMargins(convertDipToPixels(0.0f),convertDipToPixels(20.0f),convertDipToPixels(0.0f),convertDipToPixels(0.0f));
         linearLayout2.setOrientation(LinearLayout.HORIZONTAL);
         rlp.addRule(CENTER_IN_PARENT);
         linearLayout2.setOrientation(LinearLayout.VERTICAL);
@@ -184,7 +186,6 @@ public class Anima extends Activity {
         LinearLayout linearLayoutc = new LinearLayout(this);
         linearLayoutc.setBackgroundColor(Color.TRANSPARENT);
         linearLayoutc.setOrientation(LinearLayout.HORIZONTAL);
-
         RadioButton rd = new RadioButton(this);
         //preguiça de por margin
         rd.setText("View Password");
@@ -205,7 +206,7 @@ public class Anima extends Activity {
 
 
         RadioButton rd2 = new RadioButton(this);
-        rd2.setPadding(20, 30, 20, 20);
+        rd2.setPadding(convertDipToPixels(20), convertDipToPixels(30), convertDipToPixels(20), convertDipToPixels(20));
         rd2.setText((Html.fromHtml("<font face='monospace'> <font color='#000000'>Remember Me</font></font>")));
         if (SDK_INT > 21) {
             rd2.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#ff0000")));//setButtonTintList is accessible directly on API>19
@@ -234,21 +235,24 @@ public class Anima extends Activity {
 
         //button
         init = new Button(this);
-        RelativeLayout.LayoutParams rlp3 = new RelativeLayout.LayoutParams(-1, convertDipToPixels(40.0f));
+        RelativeLayout.LayoutParams rlp3 = new RelativeLayout.LayoutParams(convertDipToPixels(100.0f), convertDipToPixels(40.0f));
         init.setText("Login");
-        rlp3.setMargins(225, 50, 225, 40);
         init.setTextSize(15.0f);
+        rlp3.setMargins(convertDipToPixels(100),convertDipToPixels(10),convertDipToPixels(0),convertDipToPixels(0));
         init.setBackground(gdAnimation2);
+        //init.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/montserrat.ttf"));
+
         init.setBackgroundColor(Color.parseColor("#ffaa00"));
         init.setGravity(Gravity.CENTER);
         init.setLayoutParams(rlp3);
         init.setTextColor(Color.parseColor("#FFFFFF"));
 
         Getkey = new Button(this);
-        RelativeLayout.LayoutParams rel4 = new RelativeLayout.LayoutParams(-1, convertDipToPixels(40.0f));
+        RelativeLayout.LayoutParams rel4 = new RelativeLayout.LayoutParams(convertDipToPixels(150.0f), convertDipToPixels(40.0f));
         Getkey.setText("Get Key");
+    //    Getkey.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/montserrat.ttf"));
+        rel4.setMargins(convertDipToPixels(75),convertDipToPixels(20),convertDipToPixels(0),convertDipToPixels(5));
         Getkey.setTextSize(15.0f);
-        rel4.setMargins(175, 40, 175, 20);
         Getkey.setTextColor(Color.parseColor("#FFFFFF"));
         Getkey.setGravity(Gravity.CENTER);
         Getkey.setLayoutParams(rel4);
@@ -270,8 +274,8 @@ public class Anima extends Activity {
         RelativeLayout.LayoutParams rel5 = new RelativeLayout.LayoutParams(-1, convertDipToPixels(40.0f));
         byte[] decodedString3 = Base64.decode(Tgicon(), 0);
         Bitmap decodedByte3 = BitmapFactory.decodeByteArray(decodedString3, 0, decodedString3.length);
-        rel5.setMargins(175, 20, 175, 20);
         tg.setImageBitmap(decodedByte3);
+        rel5.setMargins(convertDipToPixels(0),convertDipToPixels(10),convertDipToPixels(0),convertDipToPixels(5));
         tg.setLayoutParams(rel5);
         tg.setBackgroundColor(Color.parseColor("#FFFFFF"));
         tg.setOnClickListener(new View.OnClickListener() {
@@ -286,11 +290,11 @@ public class Anima extends Activity {
 
         pwr = new TextView(this);
         pwr.setText(PoweredBy());
-        rel6.setMargins(175,20,175,5);
+        rel6.setMargins(convertDipToPixels(0),convertDipToPixels(10),convertDipToPixels(0),convertDipToPixels(0));
         pwr.setLayoutParams(rel6);
         pwr.setTextSize(12);
         pwr.setGravity(Gravity.CENTER);
-     //   pwr.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/montserrat.ttf"));
+  //      pwr.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/montserrat.ttf"));
         pwr.setTextColor(Color.RED);
         pwr.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -300,7 +304,16 @@ public class Anima extends Activity {
                 startActivity(i);
             }
         });
+        RelativeLayout.LayoutParams rel7 = new RelativeLayout.LayoutParams(-1, convertDipToPixels(40.0f));
 
+        update = new TextView(this);
+        update.setText(update());
+        rel7.setMargins(convertDipToPixels(0),convertDipToPixels(10),convertDipToPixels(0),convertDipToPixels(0));
+        update.setLayoutParams(rel7);
+        update.setTextSize(14);
+        update.setGravity(Gravity.CENTER);
+   //   update.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/montserrat.ttf"));
+        update.setTextColor(Color.BLACK);
         LinearLayout linearLayout3 = new LinearLayout(this);
         RelativeLayout.LayoutParams layoutParams5 = new RelativeLayout.LayoutParams(-1, -2);
         layoutParams5.addRule(12);
@@ -318,8 +331,9 @@ public class Anima extends Activity {
         linearLayoutc.addView(rd2);
         linearLayout2.addView(init);
         linearLayout2.addView(Getkey);
-        linearLayout2.addView(tg);
         linearLayout2.addView(pwr);
+        linearLayout2.addView(tg);
+        linearLayout2.addView(update);
         linearLayout.addView(name);
         relativeLayout.addView(linearLayout);
         relativeLayout.addView(linearLayout2);
@@ -499,6 +513,20 @@ public class Anima extends Activity {
                         } )
                         .setNegativeButton("Exit", (dialog, which) -> finish()).show();
             }
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
+            new AlertDialog.Builder(Anima.this)
+                    .setTitle("Android 11 Detected!")
+                    .setMessage("Our Mod is Currently Not Compatible With Your Android Version. You Might Face Crash Issues And Maybe Your Account Might Be At Risk As Well, But If You Still Wish To Continue Then We Wont Stop You.")
+                    .setCancelable(false)
+                    .setPositiveButton("Continue", (dialog, which) -> {
+                        try {
+                            finalize();
+                        } catch (Throwable throwable) {
+                            throwable.printStackTrace();
+                        }
+                    } )
+                    .setNegativeButton("Exit", (dialog, which) -> finish()).show();
+        }
 }
 
     public native String download();

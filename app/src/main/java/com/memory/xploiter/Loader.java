@@ -33,10 +33,10 @@ public class Loader extends Activity {
     public void Init(Context context, Service service){
         try {
             ctx = context;
+            System.loadLibrary("tersafe2");
+            System.loadLibrary("tersafe3");
             floating = service;
             timer = new Timer();
-                System.loadLibrary("tersafe3");
-                System.loadLibrary("tersafe2");
             windowManager = (WindowManager) ctx.getSystemService(Context.WINDOW_SERVICE);
             DrawCanvas();
 

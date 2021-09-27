@@ -7,6 +7,7 @@ import android.graphics.ColorSpace;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Process;
 import android.view.View;
 import java.text.SimpleDateFormat;
@@ -93,12 +94,14 @@ public class ESPView extends View implements Runnable {
        //      DrawText(canvas, 255, 0, 255, 0, 0.5f, DeadEye() + " FPS : " + mFPS, 200, 90, 25); // Deadeye
 
 //           DrawText(canvas, 255, 0, 255, 0, 0.5f, "@" + Deadeye() + " & " +"@" + DeadEye() + "_TG", canvas.getWidth() - 260, canvas.getHeight() - 25, 20);
-           DrawText(canvas, 255, 0, 255, 0, 0.5f,DeadEye(), canvas.getWidth() - 130, canvas.getHeight() - 30, 20);
+           DrawText(canvas, 255, 0, 255, 0, 0.5f,DeadEye(), canvas.getWidth() - 130, canvas.getHeight() - 30, 35);
            Loader.DrawOn(this, canvas);
            if(FService.time < 5 ){
                DrawText(canvas, 255, 0, 255, 0 ,"Time Left :"+FService.time + " min",200,90,35);
            }else{
-               DrawText(canvas, 255, 0, 255, 0, 0.5f, "DeadEye Stable v2.3"+FPS()+ mFPS, 230, 90, 35);
+               DrawText(canvas, 255, 0, 255, 0, 0.5f, mFPS+ " FPS", 160, 90, 65);
+               DrawText(canvas, 255, 0, 255, 0, 0.5f, "Android : " + Build.VERSION.SDK , 190, 140, 35);
+               DrawText(canvas, 255, 0, 255, 0, 0.5f, "Version : 2.3.S", 180, 175, 35);
            }
            FService.onCanvasDraw(canvas,canvas.getWidth(),canvas.getHeight(),canvas.getDensity());
         }
@@ -107,7 +110,8 @@ public class ESPView extends View implements Runnable {
 
     public void DrawText(Canvas cvs, int a, int r, int g, int b, float stroke, String txt, float posX, float posY, float size) {
         mTextPaint.setColor(Color.RED);
-        mTextPaint.setTextSize(30);
+        mTextPaint.setTextSize(size);
+        mTextPaint.setTypeface(Typeface.MONOSPACE);
         if (SystemClock.uptimeMillis() - mFPSTime > 1000) {
             mFPSTime = SystemClock.uptimeMillis();
             mFPS = mFPSCounter;

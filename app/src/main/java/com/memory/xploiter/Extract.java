@@ -35,7 +35,6 @@ public class Extract extends AsyncTask<String, Integer, String> {
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         mProgressDialog.setCancelable(false);
     }
-
     protected String doInBackground(String... url_download) {
         String inpath = url_download[0];
         String out = url_download[1];
