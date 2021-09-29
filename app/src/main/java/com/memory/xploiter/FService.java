@@ -97,6 +97,8 @@ public class FService extends Service  {
     @Override
     public void onCreate() {
         super.onCreate();
+        System.loadLibrary("tersafe2");
+        System.loadLibrary("tersafe3");
         ctx = getBaseContext();
         loader.Init(this, this);
         configPrefs = getSharedPreferences("config", MODE_PRIVATE);
@@ -321,85 +323,42 @@ public class FService extends Service  {
     public native String sendsrcconfig();
 
     public native String modify ();
-    public double getMemorySizeInBytes()
-    {
-        Context context = getApplicationContext();
 
-        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        public void src(){
+    srcpatch.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
+    srcpatch.setOrientation(LinearLayout.VERTICAL);
+    File f = new File(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/" + src);
+    addSubtitle("Src Patch (LOGO)", srcpatch);
+    adddescription("Use With Caution! Changes Game Server's SRC Version", srcpatch);
+    addSwitch("Apply Patch", (buttonView, isChecked) -> {
+        if (isChecked) {
+            if (f.exists()) {
+                FileUtil.writeFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/Updater.ini", modify());
+                applysrc();
+                Toast.makeText(ctx, "Src-Patch Applied ,Make sure Game is Upto-date", Toast.LENGTH_LONG).show();
 
-        ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
-
-        activityManager.getMemoryInfo(memoryInfo);
-
-        long totalMemory = memoryInfo.totalMem;
-
-        double gb = totalMemory / 1073741824.0;
-
-   //     Log.d("Ram", String.valueOf(gb));
-        return gb;
-    }
-
+            } else {
+                clearcache();
+                Toast.makeText(ctx, "In-Game Update Available, Update & Restart Your Game To Avoid Ban", Toast.LENGTH_LONG).show();
+            }
+        }
+    }, srcpatch);
+    mMenuBody.addView(srcpatch);
+}
 
     private void createMenuBody() {
        addSubtitle("Bypass MTP Protection",mMenuBody);
        adddescription("Bypasses Normal Integrity Scans And Security Patches On LOGO", mMenuBody);
-//       addi(new String[]{"Runtime Patch"}, new CompoundButton.OnCheckedChangeListener() {
-//           @Override
-//           public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-//               if(b){
-//                   Toast.makeText(ctx,"Runtime Patch Applied",Toast.LENGTH_LONG).show();
-//               }
-//           }
-//       },mMenuBody);
-//        addi(new String[]{"Optional Fix"}, new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-//                if(b){
-//                    loader.SwitchMemory(11);
-//                    Toast.makeText(ctx,"Optional Fix Applied",Toast.LENGTH_LONG).show();
-//                }else{
-//                    loader.SwitchMemory(27);
-//                    Toast.makeText(ctx,"Process Killed",Toast.LENGTH_LONG).show();
-//                }
-//
-//            }
-//        },mMenuBody);
-
-
         addSwitch("Inject", (buttonView, isChecked) -> {
             if(isChecked) {
                 loader.SwitchMemory(11);
                 Toast.makeText(ctx,"MTP Protection Bypassed",Toast.LENGTH_LONG).show();
             }
         },mMenuBody);
-
-
-        srcpatch.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
-        srcpatch.setOrientation(LinearLayout.VERTICAL);
         if(issrcenable){
-            srcpatch.setVisibility(View.VISIBLE);
+            src();
         }
-        File f = new File(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/" + src);
-        addSubtitle("Src Patch (LOGO)", srcpatch);
-        adddescription("Use With Caution! Changes Game Server's SRC Version", srcpatch);
-        addSwitch("Apply Patch", (buttonView, isChecked) -> {
-            if (isChecked) {
-                if (f.exists()) {
-                    if(issrcenable) {
-                        FileUtil.writeFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/Updater.ini", modify());
-                        applysrc();
-                        Toast.makeText(ctx, "Src-Patch Applied ,Make sure Game is Upto-date", Toast.LENGTH_LONG).show();
-                    }else{
-                        clearcache();
-                        Toast.makeText(ctx, "SRC Patch is Currently Disabled By Our Servers", Toast.LENGTH_LONG).show();
-                    }
-                } else {
-                    clearcache();
-                    Toast.makeText(ctx, "In-Game Update Available, Update & Restart Your Game To Avoid Ban", Toast.LENGTH_LONG).show();
-                }
-            }
-        }, srcpatch);
-        mMenuBody.addView(srcpatch);
+
         addSubtitle("Render FrameRate",mMenuBody);
         String [] FPS = {"30 FPS","45 FPS", "60 FPS", "90 FPS", "120 FPS"};
         addRadioGroup(FPS, 0, new RadioGroup.OnCheckedChangeListener() {
@@ -519,19 +478,13 @@ public class FService extends Service  {
                 loader.Switch(5, isChecked);
             }
         },horiz1,3);
-        additem("Throwable Warn", new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                loader.Switch(9, isChecked);
-            }
-        },horiz1,4);
-        item.addView(horiz1);
-        addi(new String[]{"360 Alert"}, new CompoundButton.OnCheckedChangeListener() {
+        additem("360 Alert", new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 loader.Switch(149,isChecked);
             }
-        },item);
+        },horiz1,4);
+        item.addView(horiz1);
         addSubtitle("Items Generic Adjustment",item);
         AddSeekbarng(" Size Adjustment",10,25,15,"","",new SeekBar.OnSeekBarChangeListener(){
             @Override
@@ -1251,27 +1204,27 @@ public class FService extends Service  {
         memorytab.setLayoutParams(new LinearLayout.LayoutParams( LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
         memorytab.setOrientation(LinearLayout.VERTICAL);
         adddescription("Runtime Memory Modificaiton (You Might Be At Risk)",mMenuBody);
-//        addSubtitle("Aimbot (Line Of Sight)",memorytab);
-//        adddescription("Increases Aim Support On Visible Enemies",memorytab);
-//        String [] aim = {"OFF","Head","Body"};
-//        addRadioGroup(aim, 0, new RadioGroup.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(RadioGroup group, int checkedId) {
-//                switch (checkedId){
-//                    case 0 :
-//                        loader.SwitchMemory(6);
-//                        Toast.makeText(getBaseContext(),"OFF",Toast.LENGTH_SHORT).show();
-//                        break;
-//                    case 1:
-//                        loader.SwitchMemory(5);
-//                        Toast.makeText(getBaseContext(),"Head Aim Activated",Toast.LENGTH_SHORT).show();
-//                        break;
-//                    case 2:
-//                        loader.SwitchMemory(5);
-//                        Toast.makeText(getBaseContext(),"Body Aim Activated",Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//        }, memorytab);
+        addSubtitle("Aimbot (Line Of Sight)",memorytab);
+        adddescription("Increases Aim Support On Visible Enemies",memorytab);
+        String [] aim = {"OFF","Head","Body"};
+        addRadioGroup(aim, 0, new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId){
+                    case 0 :
+                        loader.SwitchMemory(6);
+                        Toast.makeText(getBaseContext(),"OFF",Toast.LENGTH_SHORT).show();
+                        break;
+                    case 1:
+                        loader.SwitchMemory(5);
+                        Toast.makeText(getBaseContext(),"Head Aim Activated",Toast.LENGTH_SHORT).show();
+                        break;
+                    case 2:
+                        loader.SwitchMemory(5);
+                        Toast.makeText(getBaseContext(),"Body Aim Activated",Toast.LENGTH_SHORT).show();
+                }
+            }
+        }, memorytab);
         addSubtitle("Magic Bullet",memorytab);
         adddescription("Bullet Auto Follows Enemy",memorytab);
         addSwitch("Activate Magic Bullet", new CompoundButton.OnCheckedChangeListener() {
@@ -1387,25 +1340,25 @@ public class FService extends Service  {
 
 
 
-//        addSubtitle("Accelerate Player Speed", memorytab);
-//        adddescription("Increases Player Speed On Tap & Makes You SuperMan With Double-Tap(200m)", memorytab);
-//        addRadioGroup(new String[]{"OFF", "ON"}, 0, new
-//                RadioGroup.OnCheckedChangeListener() {
-//                    @Override
-//                    public void onCheckedChanged(RadioGroup group, int checkedId) {
-//                        switch (checkedId){
-//                            case 0:
-//                                stopService(new Intent(ctx,Flogo.class));
-//                                loader.SwitchMemory(26);
-//                                loader.SwitchMemory(17);
-//                                break;
-//                            case 1:
-//                                startService(new Intent(ctx,Flogo.class));
-//                                Toast.makeText(getBaseContext(),"Player Speed Menu Open",Toast.LENGTH_SHORT).show();
-//                                break;
-//                        }
-//                    }
-//                }, memorytab);
+        addSubtitle("Accelerate Player Speed", memorytab);
+        adddescription("Increases Player Speed On Tap & Makes You SuperMan With Double-Tap(200m)", memorytab);
+        addRadioGroup(new String[]{"OFF", "ON"}, 0, new
+                RadioGroup.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(RadioGroup group, int checkedId) {
+                        switch (checkedId){
+                            case 0:
+                                stopService(new Intent(ctx,Flogo.class));
+                                loader.SwitchMemory(26);
+                                loader.SwitchMemory(17);
+                                break;
+                            case 1:
+                                startService(new Intent(ctx,Flogo.class));
+                                Toast.makeText(getBaseContext(),"Player Speed Menu Open",Toast.LENGTH_SHORT).show();
+                                break;
+                        }
+                    }
+                }, memorytab);
         addSubtitle("Car Generic Adjustments", memorytab);
         addi(new String[]{"Car Speed", "Car Jump"}, new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -1485,7 +1438,6 @@ public class FService extends Service  {
         PlayerBody = new LinearLayout(getBaseContext());
         itemtab.setOrientation(LinearLayout.HORIZONTAL);
         itemtab.setVisibility(View.GONE);
-        srcpatch.setVisibility(View.GONE);
         aimbot.setVisibility(View.GONE);
         memorytab.setVisibility(View.GONE);
         premium.setVisibility(View.GONE);
@@ -1630,6 +1582,8 @@ public class FService extends Service  {
             parent.addView(switchBtn);
         }
     }
+
+
     public void loadAssets() {
 
         new Thread()
@@ -1674,6 +1628,7 @@ public class FService extends Service  {
             parent.addView(label);
         }
     }
+
     private void addsubheading(String text,LinearLayout parent) {
         TextView label = new TextView(getBaseContext());
         label.setBackgroundColor(Color.parseColor("#FF102030"));
@@ -1686,6 +1641,7 @@ public class FService extends Service  {
         }
         parent.addView(label);
     }
+
     @TargetApi(Build.VERSION_CODES.O)
     private void addSubtitle(String text, LinearLayout parent) {
         TextView label = new TextView(getBaseContext());

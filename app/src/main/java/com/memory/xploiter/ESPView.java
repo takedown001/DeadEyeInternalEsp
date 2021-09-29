@@ -99,15 +99,13 @@ public class ESPView extends View implements Runnable {
            if(FService.time < 5 ){
                DrawText(canvas, 255, 0, 255, 0 ,"Time Left :"+FService.time + " min",200,90,35);
            }else{
-               DrawText(canvas, 255, 0, 255, 0, 0.5f, mFPS+ " FPS", 160, 90, 65);
-               DrawText(canvas, 255, 0, 255, 0, 0.5f, "Android : " + Build.VERSION.SDK , 190, 140, 35);
-               DrawText(canvas, 255, 0, 255, 0, 0.5f, "Version : 2.3.S", 180, 175, 35);
+               DrawText(canvas, 255, 0, 255, 0, 0.5f, mFPS+ " FPS", 160, 90, 45);
+               DrawText(canvas, 255, 0, 255, 0, 0.5f, "Device Sdk : " + Build.VERSION.SDK , 190, 140, 35);
+               DrawText(canvas, 255, 0, 255, 0, 0.5f, "Version : 2.5.S", 180, 175, 35);
            }
            FService.onCanvasDraw(canvas,canvas.getWidth(),canvas.getHeight(),canvas.getDensity());
         }
     }
-
-
     public void DrawText(Canvas cvs, int a, int r, int g, int b, float stroke, String txt, float posX, float posY, float size) {
         mTextPaint.setColor(Color.RED);
         mTextPaint.setTextSize(size);
@@ -121,6 +119,7 @@ public class ESPView extends View implements Runnable {
         }
         cvs.drawText(txt, posX, posY, mTextPaint);
     }
+
 
     @Override
     public void run() {

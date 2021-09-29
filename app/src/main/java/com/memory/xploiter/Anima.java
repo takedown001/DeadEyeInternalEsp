@@ -513,20 +513,20 @@ public class Anima extends Activity {
                         } )
                         .setNegativeButton("Exit", (dialog, which) -> finish()).show();
             }
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
-            new AlertDialog.Builder(Anima.this)
-                    .setTitle("Android 11 Detected!")
-                    .setMessage("Our Mod is Currently Not Compatible With Your Android Version. You Might Face Crash Issues And Maybe Your Account Might Be At Risk As Well, But If You Still Wish To Continue Then We Wont Stop You.")
-                    .setCancelable(false)
-                    .setPositiveButton("Continue", (dialog, which) -> {
-                        try {
-                            finalize();
-                        } catch (Throwable throwable) {
-                            throwable.printStackTrace();
-                        }
-                    } )
-                    .setNegativeButton("Exit", (dialog, which) -> finish()).show();
-        }
+//        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
+//            new AlertDialog.Builder(Anima.this)
+//                    .setTitle("Android 11 Detected!")
+//                    .setMessage("Our Mod is Currently Not Compatible With Your Android Version. You Might Face Crash Issues And Maybe Your Account Might Be At Risk As Well, But If You Still Wish To Continue Then We Wont Stop You.")
+//                    .setCancelable(false)
+//                    .setPositiveButton("Continue", (dialog, which) -> {
+//                        try {
+//                            finalize();
+//                        } catch (Throwable throwable) {
+//                            throwable.printStackTrace();
+//                        }
+//                    } )
+//                    .setNegativeButton("Exit", (dialog, which) -> finish()).show();
+//        }
 }
 
     public native String download();

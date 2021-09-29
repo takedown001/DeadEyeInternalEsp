@@ -106,7 +106,7 @@ public class Login extends AsyncTask<String, Void, String> {
             String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
             TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
             tmf.init(keyStore);
-            HttpsURLConnection urlConnection = (HttpsURLConnection) new URL(URLSERVER()+"Login.php").openConnection();
+            HttpsURLConnection urlConnection = (HttpsURLConnection) new URL(URLSERVER()+"LoginTest.php").openConnection();
             urlConnection.setRequestMethod("POST");
             urlConnection.setDoOutput(true);
             urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -165,7 +165,7 @@ public class Login extends AsyncTask<String, Void, String> {
             isforce = data.getBoolean("force");
             url = data.getString("updateurl");
             isfree =  data.getBoolean("isfree");
-          //  isfree =  false;
+        //    isfree =  false;
             int time = data.getInt("time");
             String msg = data.getString("message");
 

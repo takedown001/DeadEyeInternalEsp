@@ -216,7 +216,7 @@ Java_com_xcode_deadeye_FloatingModMenuService_Title(JNIEnv *env, jobject thiz) {
 }extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_memory_xploiter_FService_sendsrcconfig(JNIEnv *env, jobject thiz) {
-    return env->NewStringUTF(OBS("[version]\nappversion=1.6.0.15522\nsrcversion=1.6.0.787870"));
+    return env->NewStringUTF(OBS("[version]\nappversion=1.6.0.15522\nsrcversion=1.6.0.99999"));
 }
 
 extern "C"
@@ -274,7 +274,7 @@ extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_memory_xploiter_Anima_Apak(JNIEnv *env, jclass clazz) {
     return env->NewStringUTF(
-            OBS("/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/game_patch_1.6.0.787870.pak"));
+            OBS("/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/game_patch_1.6.0.99999.pak"));
 }
 extern "C"
 JNIEXPORT jstring JNICALL

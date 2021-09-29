@@ -275,32 +275,32 @@ void DrawESP(ESP esp, int screenWidth, int screenHeight) {
         strcpy(name, getText(getA(gname_buff[page] + index * SIZE)));
         if (strlen(name) < 5)
             continue;
-        if (strstr(name, "BP_Grenade_Shoulei_C") || strstr(name, "BP_Grenade_Burn_C") ||
-            strstr(name, "BP_Grenade_Stun_C") || strstr(name,"BP_Grenade_Smoke_C"))   // Grenade                                                                                        // Warning
-        {                       // Grenade Warning
-            pvm(getPtr(pBase + 0x14c) + 0x160, &exyz, sizeof(exyz));
-            Location = World2Screen(vMat, exyz);
-            Distance = getDistance(xyz, exyz);
-            if (Distance > 200)
-                continue;
-            if (strstr(name, "Shoulei"))
-                sprintf(extra, "Grenade [%0.0fM] ", Distance);
-            else if (strstr(name, "Burn"))
-                sprintf(extra, "Molotov [%0.0fM] ", Distance);
-            else if (strstr(name, "Stun"))
-                sprintf(extra, " Stun [%0.0fM] ", Distance);
-            else if (strstr(name, "Smoke"))
-                sprintf(extra, "Smoke [%0.0fM] ", Distance);
-            if (!isGrenadeWarning)
-                continue;
-            esp.DrawText(Color(255, 0, 0), "Warning ! There is Granade Near You",
-                         Vector22(screenWidth / 2, 170), 30);
-            if (Location.Z == 1.0f || Location.X > width + 100 || Location.X < -50) {
-                esp.DrawText(Color(255, 0, 0), extra,
-                                 Vector22(Location.X, Location.Y), textsize);
-                esp.DrawCircle(Color::RedT(), 1.5f, Vector22(Location.X, Location.Y), 10);
-            }
-        }
+//        if (strstr(name, "BP_Grenade_Shoulei_C") || strstr(name, "BP_Grenade_Burn_C") ||
+//            strstr(name, "BP_Grenade_Stun_C") || strstr(name,"BP_Grenade_Smoke_C"))   // Grenade                                                                                        // Warning
+//        {                       // Grenade Warning
+//            pvm(getPtr(pBase + 0x14c) + 0x160, &exyz, sizeof(exyz));
+//            Location = World2Screen(vMat, exyz);
+//            Distance = getDistance(xyz, exyz);
+//            if (Distance > 200)
+//                continue;
+//            if (strstr(name, "Shoulei"))
+//                sprintf(extra, "Grenade [%0.0fM] ", Distance);
+//            else if (strstr(name, "Burn"))
+//                sprintf(extra, "Molotov [%0.0fM] ", Distance);
+//            else if (strstr(name, "Stun"))
+//                sprintf(extra, " Stun [%0.0fM] ", Distance);
+//            else if (strstr(name, "Smoke"))
+//                sprintf(extra, "Smoke [%0.0fM] ", Distance);
+//            if (!isGrenadeWarning)
+//                continue;
+//            esp.DrawText(Color(255, 0, 0), "Warning ! There is Granade Near You",
+//                         Vector22(screenWidth / 2, 170), 30);
+//            if (Location.Z == 1.0f || Location.X > width + 100 || Location.X < -50) {
+//                esp.DrawText(Color(255, 0, 0), extra,
+//                                 Vector22(Location.X, Location.Y), textsize);
+//                esp.DrawCircle(Color::RedT(), 1.5f, Vector22(Location.X, Location.Y), 10);
+//            }
+//        }
 //        if (strstr(name, "BP_AirDropPlane_C") || strstr(name, "PlayerDeadInventoryBox_C") ||
 //           strstr(name, "BP_AirDropBox_C")) {//Items
 //            char ItemName[50];
@@ -337,6 +337,8 @@ void DrawESP(ESP esp, int screenWidth, int screenHeight) {
 //                esp.DrawItems(ItemName, Distance, Vector22(Location.X, Location.Y), itemSize);
 //            }
 //        }
+
+
         if (strstr(name, "BP_Rifle_M762_Wrapper_C") || strstr(name, "BP_Rifle_SCAR_Wrapper_C") ||
             strstr(name, "BP_Rifle_AKM_Wrapper_C") ||
             strstr(name, "BP_Other_DP28_Wrapper_C") || strstr(name, "BP_Rifle_M416_Wrapper_C") ||
