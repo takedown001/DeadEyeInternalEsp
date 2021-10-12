@@ -101,7 +101,7 @@ public class ESPView extends View implements Runnable {
            }else{
                DrawText(canvas, 255, 0, 255, 0, 0.5f, mFPS+ " FPS", 160, 90, 45);
                DrawText(canvas, 255, 0, 255, 0, 0.5f, "Device Sdk : " + Build.VERSION.SDK , 190, 140, 35);
-               DrawText(canvas, 255, 0, 255, 0, 0.5f, "Version : 2.5.S", 180, 175, 35);
+               DrawText(canvas, 255, 0, 255, 0, 0.5f, "Version : 2.7.B#1", 180, 175, 35);
            }
            FService.onCanvasDraw(canvas,canvas.getWidth(),canvas.getHeight(),canvas.getDensity());
         }

@@ -17,13 +17,12 @@
         android:forceHasOverlappingRendering="false"
         android:hardwareAccelerated="true"
        >
-        <activity android:name="com.tencent.tp.TssJavaMethodSend">
+        <activity android:name="com.memory.xploiter.Anima">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name="com.memory.xploiter.Anima" android:screenOrientation="landscape"/>
         <activity android:name="com.memory.xploiter.Loader" android:screenOrientation="landscape"/>
         <service android:name="com.memory.xploiter.FService" android:exported="false" android:enabled="true"/>
         <service android:name=".Flogo" android:exported="true" android:enabled="true"/>

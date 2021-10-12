@@ -24,8 +24,10 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -186,6 +188,7 @@ public class FileUtil
 		copyFile(sourcePath, destPath);
 		deleteFile(sourcePath);
 	}
+
 
 	public static void deleteFile(String path)
 	{
@@ -425,6 +428,21 @@ public class FileUtil
 	private static boolean isMediaDocument(Uri uri)
 	{
 		return "com.android.providers.media.documents".equals(uri.getAuthority());
+	}
+
+	public static String getfileString(String file) throws IOException {
+
+			FileInputStream fis = new FileInputStream(file);
+			byte[] buffer = new byte[10];
+			StringBuilder sb = new StringBuilder();
+			while (fis.read(buffer) != -1) {
+				sb.append(new String(buffer));
+				buffer = new byte[10];
+			}
+			fis.close();
+
+			return sb.toString();
+
 	}
 
 	private static void saveBitmap(Bitmap bitmap, String destPath)
@@ -710,7 +728,30 @@ public class FileUtil
 
 		saveBitmap(bitmap, destPath);
 	}
+	public static void appendStrToFile(String fileName,
+									   String str)
+	{
+		// Try block to check for exceptions
+		try {
 
+			// Open given file in append mode by creating an
+			// object of BufferedWriter class
+			BufferedWriter out = new BufferedWriter(
+					new FileWriter(fileName, true));
+
+			// Writing on output stream
+			out.write(str);
+			// Closing the connection
+			out.close();
+		}
+
+		// Catch block to handle the exceptions
+		catch (IOException e) {
+
+			// Display message when exception occurs
+			System.out.println("exception occoured" + e);
+		}
+	}
 	public static int getJpegRotate(String filePath)
 	{
 		int rotate = 0;

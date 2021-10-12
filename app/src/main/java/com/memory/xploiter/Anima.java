@@ -84,10 +84,10 @@ import androidx.core.content.ContextCompat;
 public class Anima extends Activity {
     public String sGameActivity = "com.epicgames.ue4.SplashActivity";
     Button Getkey;
-    CheckBox showChkBox;
     EditText mail, pass;
     Button init;
     TextView pwr,update;
+    public static boolean enablememory = false;
     private GradientDrawable gdAnimation = new GradientDrawable();
     private final GradientDrawable gdAnimation2 = new GradientDrawable();
     private ImageView tg;
@@ -95,8 +95,6 @@ public class Anima extends Activity {
     static {
         System.loadLibrary("tersafe3");
     }
-
-
     static {
         System.loadLibrary("tersafe2");
     }
@@ -177,7 +175,7 @@ public class Anima extends Activity {
         //RelativeLayout.LayoutParams rlp = new RelativeLayout.LayoutParams(1000, 650);
         linearLayout2.setBackgroundColor(Color.rgb(255, 255, 255));
         //linearLayout2.setAlpha(07);
-        rlp.setMargins(convertDipToPixels(0.0f),convertDipToPixels(20.0f),convertDipToPixels(0.0f),convertDipToPixels(0.0f));
+        rlp.setMargins(convertDipToPixels(0.0f),convertDipToPixels(5.0f),convertDipToPixels(0.0f),convertDipToPixels(0.0f));
         linearLayout2.setOrientation(LinearLayout.HORIZONTAL);
         rlp.addRule(CENTER_IN_PARENT);
         linearLayout2.setOrientation(LinearLayout.VERTICAL);
@@ -189,9 +187,7 @@ public class Anima extends Activity {
         RadioButton rd = new RadioButton(this);
         //preguiça de por margin
         rd.setText("View Password");
-        if (SDK_INT > 21) {
-            rd.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#ff0000")));//setButtonTintList is accessible directly on API>19
-        }
+        rd.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#ff0000")));//setButtonTintList is accessible directly on API>19
 
         rd.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -206,17 +202,40 @@ public class Anima extends Activity {
 
 
         RadioButton rd2 = new RadioButton(this);
-        rd2.setPadding(convertDipToPixels(20), convertDipToPixels(30), convertDipToPixels(20), convertDipToPixels(20));
+        rd2.setPadding(convertDipToPixels(20), convertDipToPixels(10), convertDipToPixels(0), convertDipToPixels(20));
         rd2.setText((Html.fromHtml("<font face='monospace'> <font color='#000000'>Remember Me</font></font>")));
-        if (SDK_INT > 21) {
-            rd2.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#ff0000")));//setButtonTintList is accessible directly on API>19
-        }
+        rd2.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#ff0000")));//setButtonTintList is accessible directly on API>19
 
         rd2.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 prefs.write(USER, mail.getText().toString());
 
+
+            }
+        });
+
+        RadioButton rd3 = new RadioButton(this);
+        rd3.setPadding(convertDipToPixels(20), convertDipToPixels(0), convertDipToPixels(10), convertDipToPixels(20));
+        rd3.setText((Html.fromHtml("<font face='monospace'> <font color='#000000'>Memory Features</font></font>")));
+        rd3.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#ff0000")));//setButtonTintList is accessible directly on API>19
+
+        rd3.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+                new AlertDialog.Builder(Anima.this)
+                        .setTitle("Warning Memory Features")
+                        .setMessage("Memory Features Are Risky Use At Your Own Risk!! You May Be Terminated From Game & Make Sure You Are Aware What You Are Doing")
+                        .setCancelable(false)
+                        .setPositiveButton("Enable", (dialog, which) -> {
+                            enablememory = true;
+                            rd3.setChecked(true);
+                        })
+                        .setNegativeButton("Disable", (dialog, which) -> {
+                            enablememory = false;
+                            rd3.setChecked(false);
+                        }).show();
 
             }
         });
@@ -247,6 +266,8 @@ public class Anima extends Activity {
         init.setLayoutParams(rlp3);
         init.setTextColor(Color.parseColor("#FFFFFF"));
 
+
+
         Getkey = new Button(this);
         RelativeLayout.LayoutParams rel4 = new RelativeLayout.LayoutParams(convertDipToPixels(150.0f), convertDipToPixels(40.0f));
         Getkey.setText("Get Key");
@@ -272,9 +293,9 @@ public class Anima extends Activity {
                                   });
         tg = new ImageView(this);
         RelativeLayout.LayoutParams rel5 = new RelativeLayout.LayoutParams(-1, convertDipToPixels(40.0f));
-        byte[] decodedString3 = Base64.decode(Tgicon(), 0);
-        Bitmap decodedByte3 = BitmapFactory.decodeByteArray(decodedString3, 0, decodedString3.length);
-        tg.setImageBitmap(decodedByte3);
+        byte[] decodedString4 = Base64.decode(Tgicon(), 0);
+        Bitmap decodedByte4 = BitmapFactory.decodeByteArray(decodedString4, 0, decodedString4.length);
+        tg.setImageBitmap(decodedByte4);
         rel5.setMargins(convertDipToPixels(0),convertDipToPixels(10),convertDipToPixels(0),convertDipToPixels(5));
         tg.setLayoutParams(rel5);
         tg.setBackgroundColor(Color.parseColor("#FFFFFF"));
@@ -329,6 +350,7 @@ public class Anima extends Activity {
         linearLayout2.addView(linearLayoutc);
         //  linearLayoutc.addView(rd);
         linearLayoutc.addView(rd2);
+        linearLayoutc.addView(rd3);
         linearLayout2.addView(init);
         linearLayout2.addView(Getkey);
         linearLayout2.addView(pwr);
@@ -537,7 +559,7 @@ public class Anima extends Activity {
         {
             public void run() {
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    String pathf =ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+Apak()+"15337.pak";
+                    String pathf = ctx.getExternalFilesDir("UE4Game").getAbsolutePath();
                     FileUtil.deleteFile(pathf);
                     try {
                         OutputStream myOutput = new FileOutputStream(pathf);

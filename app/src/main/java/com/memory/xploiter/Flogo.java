@@ -1,5 +1,4 @@
 package com.memory.xploiter;
-
 import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Intent;
@@ -20,6 +19,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+
+import com.xcode.flash.InjectorService;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -126,7 +127,7 @@ public class Flogo extends Service{
 
                         @Override
                         public boolean onDoubleTap(MotionEvent e) {
-                           BRun();
+                                BRun();
                             return false;
                         }
 
@@ -185,7 +186,7 @@ public class Flogo extends Service{
     }
 
     private native String FlashOff();
-    public void BRun(){
+    public void BRun()  {
         switch (Chech){
             case 0:
                 Chech = 1;
@@ -205,4 +206,5 @@ public class Flogo extends Service{
                 break;
         }
     }
+
 }

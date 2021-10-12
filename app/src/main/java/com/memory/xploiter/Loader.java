@@ -33,7 +33,6 @@ public class Loader extends Activity {
     public void Init(Context context, Service service){
         try {
             ctx = context;
-
             floating = service;
             timer = new Timer();
             windowManager = (WindowManager) ctx.getSystemService(Context.WINDOW_SERVICE);

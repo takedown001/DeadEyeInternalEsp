@@ -2,13 +2,16 @@ package com.memory.xploiter;
 
 import static com.memory.xploiter.Anima.Apak;
 import static com.memory.xploiter.Anima.URLSERVER;
+import static com.memory.xploiter.Anima.enablememory;
 import static com.memory.xploiter.Login.isfree;
 import static com.memory.xploiter.Login.issrcenable;
 import static com.memory.xploiter.Login.key;
-import static com.memory.xploiter.Login.src;
+import static com.memory.xploiter.Login.latestsrc;
+import static com.memory.xploiter.Login.newsrcpatch;
+import static com.xcode.flash.InjectorService.StartService;
 
 import android.annotation.TargetApi;
-import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +23,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -57,10 +61,6 @@ import java.io.OutputStream;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import androtrainer.Flags;
-import androtrainer.MemoryScanner;
-import androtrainer.Ranges;
-
 public class FService extends Service  {
 
     private WindowManager mWindowManager;
@@ -75,6 +75,7 @@ public class FService extends Service  {
     private  LinearLayout memorytab;
     private LinearLayout item;
     private LinearLayout itemlayout;
+    private LinearLayout Experitlayout;
     private LinearLayout mainlayout;
     private LinearLayout itemtab;
     private LinearLayout PlayerBody;
@@ -86,7 +87,7 @@ public class FService extends Service  {
     static Context ctx;
     private String gamename;
     SharedPreferences configPrefs;
-    private ImageView playerimg,itemimg,vehicalimg;
+    private ImageView playerimg,itemimg,vehicalimg,Experitimg;
     private LinearLayout weapon,ammo, armors,health,scope,vehical,special;
     @Override
     public IBinder onBind(Intent intent) {
@@ -99,12 +100,15 @@ public class FService extends Service  {
         super.onCreate();
         System.loadLibrary("tersafe2");
         System.loadLibrary("tersafe3");
+        System.loadLibrary("ArmEpic");
+        System.loadLibrary("Epic");
         ctx = getBaseContext();
         loader.Init(this, this);
         configPrefs = getSharedPreferences("config", MODE_PRIVATE);
         initFloatingView();
         Auth();
-     //   loadAssets();
+        // loadAssets();
+
     }
     @Override
     public int onStartCommand (Intent intent, int flags, int startId) {
@@ -125,36 +129,36 @@ public class FService extends Service  {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-
                         JSONObject params = new JSONObject();
                         final String[] rq = {null};
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                    try {
-                                        params.put("uname", key);
-                                        rq[0] = jsonParserString.makeHttpRequest(URLSERVER() + "exist2.0.php", params);
-                                        if (rq[0] == null || rq[0].isEmpty()) {
-                                         //   Toast.makeText(ctx, "Server Error", Toast.LENGTH_LONG).show();
-                                            return;
-                                        }
-                                        JSONObject ack = new JSONObject(rq[0]);
-                                   //     Log.d("test", String.valueOf(ack));
-                                        String decData = Utils.profileDecrypt(ack.get("data").toString(), ack.get("hash").toString());
-                                        if (!Utils.verify(decData, ack.get("sign").toString(), JSONParserString.publickey)) {
-                                       //     Toast.makeText(ctx, "Something Went Wrong", Toast.LENGTH_LONG).show();
-                                            return;
-                                        } else {
-                                            JSONObject obj = new JSONObject(decData);
-                                            check = obj.getBoolean("exist");
-                                            time = obj.getInt("time");
-                                            if(time <= 0){
-                                                loader.Destroy();
-                                            }
-                                        }
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
+                                try {
+                                    params.put("uname", key);
+                                    rq[0] = jsonParserString.makeHttpRequest(URLSERVER() + "exist2.0.php", params);
+                                    if (rq[0] == null || rq[0].isEmpty()) {
+                                        //   Toast.makeText(ctx, "Server Error", Toast.LENGTH_LONG).show();
+                                        return;
                                     }
+                                    JSONObject ack = new JSONObject(rq[0]);
+                                    //     Log.d("test", String.valueOf(ack));
+                                    String decData = Utils.profileDecrypt(ack.get("data").toString(), ack.get("hash").toString());
+                                    if (!Utils.verify(decData, ack.get("sign").toString(), JSONParserString.publickey)) {
+                                        //     Toast.makeText(ctx, "Something Went Wrong", Toast.LENGTH_LONG).show();
+                                        return;
+                                    } else {
+                                        JSONObject obj = new JSONObject(decData);
+                                        check = obj.getBoolean("exist");
+                                        time = obj.getInt("time");
+                                        if(time <= 0){
+                                            //         Log.d("time", String.valueOf(time));
+                                            loader.Destroy();
+                                        }
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
                             }
                         }).start();
 
@@ -171,6 +175,9 @@ public class FService extends Service  {
     native String PlayerEsp();
     native String ItemEsp();
     native String VehicalEsp();
+    native String Experitimg();
+
+
 
     private void UpdateConfiguration(String s, Object v) {
         try {
@@ -183,12 +190,15 @@ public class FService extends Service  {
         }
     }
 
+
+
     private native void onSendConfig(String s, String v);
 
     public static native void onCanvasDraw(Canvas canvas, int w, int h, float d);
     @Override
     public void onDestroy() {
         super.onDestroy();
+        clearcache();
         if (mMenuHeadImageView != null) mWindowManager.removeView(mMenuHeadImageView);
         loader.Destroy();
     }
@@ -197,12 +207,7 @@ public class FService extends Service  {
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                clearcache();
-            }
-        }).start();
+        clearcache();
         onDestroy();
     }
 
@@ -227,6 +232,7 @@ public class FService extends Service  {
         PlayerBody.addView(mMenuBody);
         PlayerBody.addView(itemtab);
         PlayerBody.addView(aimbot);
+        PlayerBody.addView(memorytab);
         scroll.addView(PlayerBody);
         mainlayout.addView(scroll);
         mExpanded.addView(mainlayout);
@@ -234,10 +240,11 @@ public class FService extends Service  {
     }
     static boolean getConfig(String key){
         SharedPreferences sp= ctx.getSharedPreferences("espValue",Context.MODE_PRIVATE);
-        return  sp.getBoolean(key,false);
+        return sp.getBoolean(key,false);
     }
 
     private void Features(){
+
         mainlayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT));
         mainlayout.setOrientation(LinearLayout.HORIZONTAL);
         itemlayout.setLayoutParams(new LinearLayout.LayoutParams(100, LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -253,11 +260,12 @@ public class FService extends Service  {
                 mMenuBody.setVisibility(View.VISIBLE);
                 itemtab.setVisibility(View.GONE);
                 aimbot.setVisibility(View.GONE);
+                memorytab.setVisibility(View.GONE);
             }
         });
         byte[] iecode = Base64.decode(ItemEsp(), 0);
         itemimg.setLayoutParams(new LinearLayout.LayoutParams(100,120));
-        itemimg.setImageBitmap(BitmapFactory.decodeByteArray(iecode, 0, decode.length));
+        itemimg.setImageBitmap(BitmapFactory.decodeByteArray(iecode, 0, iecode.length));
         itemimg.setVisibility(View.GONE);
         itemimg.setImageAlpha(255);
         itemimg.setPadding(0,0,0,0);
@@ -267,11 +275,12 @@ public class FService extends Service  {
                 mMenuBody.setVisibility(View.GONE);
                 itemtab.setVisibility(View.VISIBLE);
                 aimbot.setVisibility(View.GONE);
+                memorytab.setVisibility(View.GONE);
             }
         });
         vehicalimg.setLayoutParams(new LinearLayout.LayoutParams(100 ,120));
         byte[] vecode = Base64.decode(VehicalEsp(), 0);
-        vehicalimg.setImageBitmap(BitmapFactory.decodeByteArray(vecode, 0, decode.length));
+        vehicalimg.setImageBitmap(BitmapFactory.decodeByteArray(vecode, 0, vecode.length));
         vehicalimg.setImageAlpha(255);
         vehicalimg.setPadding(0,0,0,0);
         vehicalimg.setOnClickListener(new View.OnClickListener() {
@@ -280,85 +289,149 @@ public class FService extends Service  {
                 mMenuBody.setVisibility(View.GONE);
                 itemtab.setVisibility(View.GONE);
                 aimbot.setVisibility(View.VISIBLE);
+                memorytab.setVisibility(View.GONE);
+            }
+        });
+        Experitimg.setLayoutParams(new LinearLayout.LayoutParams(100 ,120));
+        byte[] ecode = Base64.decode(Experitimg(), 0);
+        Experitimg.setImageBitmap(BitmapFactory.decodeByteArray(ecode, 0, ecode.length));
+        Experitimg.setImageAlpha(255);
+        Experitimg.setPadding(0,0,0,0);
+        Experitimg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                memorytab.setVisibility(View.VISIBLE);
+                mMenuBody.setVisibility(View.GONE);
+                itemtab.setVisibility(View.GONE);
+                aimbot.setVisibility(View.GONE);
+                Toast.makeText(ctx, "Memory Features Are Riskey !! Use At Your Own Risk & Responsibility ", Toast.LENGTH_LONG).show();
             }
         });
         itemlayout.addView(playerimg);
         itemlayout.addView(itemimg);
         itemlayout.addView(vehicalimg);
+        if(enablememory) {
+            itemlayout.addView(Experitimg);
+
+        }
         mainlayout.addView(itemlayout);
+
     }
 
+
+
+
     private void clearcache(){
-        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Logs");
-        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/GameErrorNoRecords");
-        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/StartEvenReportedFlag");
-        FileUtil.deleteFile(ctx.getCacheDir()+"/*");
-        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/Updater.ini");
-        FileUtil.writeFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/Updater.ini"," ");
-        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/SrcVersion.ini");
-        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+Apak());
-        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/PufferEifs0");
-        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/PufferEifs1");
-        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/LightData");
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Logs");
+                FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/GameErrorNoRecords");
+                FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/StartEvenReportedFlag");
+                FileUtil.deleteFile(ctx.getCacheDir()+"/*");
+            }
+        }).start();
+
     }
+
 
 
 
     private void applysrc(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
 
-        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/PufferEifs0");
-        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/PufferEifs1");
-        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/SrcVersion.ini");
-        FileUtil.writeFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/SrcVersion.ini",sendsrcconfig());
-        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/PufferEifs0");
-        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/PufferEifs1");
-        FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/LightData");
-        FileUtil.makeDir(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/LightData");
-        FileUtil.writeFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/LightData/LightData3036393187.ltz","kpk3o");
+                FileUtil.writeFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/Updater.ini", modify());
+                FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/PufferEifs0");
+                FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/PufferEifs1");
+                FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/SrcVersion.ini");
+                FileUtil.writeFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/SrcVersion.ini",latestsrc);
+                FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/PufferEifs0");
+                FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/PufferEifs1");
+                FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/LightData");
+                FileUtil.makeDir(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/LightData");
+                FileUtil.writeFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/LightData/LightData3036393187.ltz","kpk3o");
+                //Deleting Paks
+                FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/res_pufferpatch_1.6.0.15528.pak");
+                FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/res_pufferpatch_1.6.0.15533.pak");
+                FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/core_patch_1.6.0.15531.pak");
+                FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/game_patch_1.6.0.15532.pak");
 
+            }
+        }).start();
     }
-
-
-
-    public native String sendsrcconfig();
-
     public native String modify ();
 
-        public void src(){
-    srcpatch.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
-    srcpatch.setOrientation(LinearLayout.VERTICAL);
-    File f = new File(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/" + src);
-    addSubtitle("Src Patch (LOGO)", srcpatch);
-    adddescription("Use With Caution! Changes Game Server's SRC Version", srcpatch);
-    addSwitch("Apply Patch", (buttonView, isChecked) -> {
-        if (isChecked) {
-            if (f.exists()) {
-                FileUtil.writeFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/Updater.ini", modify());
-                applysrc();
-                Toast.makeText(ctx, "Src-Patch Applied ,Make sure Game is Upto-date", Toast.LENGTH_LONG).show();
-
-            } else {
-                clearcache();
-                Toast.makeText(ctx, "In-Game Update Available, Update & Restart Your Game To Avoid Ban", Toast.LENGTH_LONG).show();
+    public void src(){
+        srcpatch.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
+        srcpatch.setOrientation(LinearLayout.VERTICAL);
+        File f = new File(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/" + newsrcpatch);
+        addSubtitle("Patch (LOGO)", srcpatch);
+        adddescription("Use Only If You Are Facing 3-day Or 10min Ban Issue, You may Not able To Login in Orignal Game (Needs To Restart Game After Apply)", srcpatch);
+        addSwitch("Apply Patch", (buttonView, isChecked) -> {
+            if (isChecked) {
+                if (f.exists()) {
+                    applysrc();
+                    Toast.makeText(ctx, "Restart Your Game TO Apply Changes ", Toast.LENGTH_LONG).show();
+                } else {
+                    clearcache();
+                    Toast.makeText(ctx, "In-Game Update Available, Update & Restart Your Game To Avoid Ban", Toast.LENGTH_LONG).show();
+                }
             }
-        }
-    }, srcpatch);
-    mMenuBody.addView(srcpatch);
-}
+        }, srcpatch);
+        mMenuBody.addView(srcpatch);
+    }
+    public native static String getcustomini();
+    public native static String UserGameSettings();
+
+    public void patatograhics(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+//            FileUtil.writeFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/Updater.ini", modify());
+//            String customini = FileUtil.readFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/UserCustom.ini");
+//            String backupdeviceprf = customini.split("\n\n")[1];
+//            FileUtil.writeFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/UserCustom.ini",getcustomini());
+//            FileUtil.appendStrToFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/UserCustom.ini","\n\n"+backupdeviceprf);
+                FileUtil.writeFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/GameUserSettings.ini",UserGameSettings());
+            }
+        }).start();
+    }
 
     private void createMenuBody() {
-       addSubtitle("Bypass MTP Protection",mMenuBody);
-       adddescription("Bypasses Normal Integrity Scans And Security Patches On LOGO", mMenuBody);
+        addSubtitle("Bypass MTP Protection(LOGO)",mMenuBody);
+        adddescription("Bypasses Normal Integrity Scans And Security Patches On LOGO EveryTime", mMenuBody);
         addSwitch("Inject", (buttonView, isChecked) -> {
             if(isChecked) {
                 loader.SwitchMemory(11);
-                Toast.makeText(ctx,"MTP Protection Bypassed",Toast.LENGTH_LONG).show();
+                Toast.makeText(ctx,"MTP Protection Bypassed",Toast.LENGTH_SHORT).show();
             }
+
         },mMenuBody);
-        if(issrcenable){
+        if(issrcenable && FileUtil.isExistFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/res_pufferpatch_1.6.0.15528.pak")){
             src();
         }
+        if(!FileUtil.readFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/GameUserSettings.ini").equals(UserGameSettings())) {
+            addSubtitle("Patato Graphics (LOGO)", mMenuBody);
+            adddescription("Reduces Your Graphics For Better Performence", mMenuBody);
+            addSwitch("Apply Graphics", new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    if (b) {
+                        File f = new File(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/" + newsrcpatch);
+                        if (f.exists()) {
+                            patatograhics();
+                            Toast.makeText(ctx, "Restart Game To Apply Changes", Toast.LENGTH_LONG).show();
 
+                        } else {
+                            clearcache();
+                            Toast.makeText(ctx, "In-Game Update Available, Update & Restart Your Game To Avoid Ban", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                }
+            }, mMenuBody);
+        }
         addSubtitle("Render FrameRate",mMenuBody);
         String [] FPS = {"30 FPS","45 FPS", "60 FPS", "90 FPS", "120 FPS"};
         addRadioGroup(FPS, 0, new RadioGroup.OnCheckedChangeListener() {
@@ -537,21 +610,10 @@ public class FService extends Service  {
 //        },item);
 
         mMenuBody.addView(item);
-        addSwitch("Memory Features", new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
-                    memorytab.setVisibility(View.VISIBLE);
-                }else {
-                    memorytab.setVisibility(View.GONE);
-                }
-            }
-        },mMenuBody);
-        Memorylayout();
-
         setSeprateitem();
         items();
-        aimbot();;
+        aimbot();
+        Memorylayout();
     }
     private void aimbot(){
         aimbot.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
@@ -565,10 +627,18 @@ public class FService extends Service  {
                 loader.Switch(14,isChecked);
             }
         }, aimbot);
+
+        addSwitch(" Aim Prediction", new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                UpdateConfiguration("AIM::PREDICTION",isChecked ? 1:0);
+            }
+        },aimbot);
+        adddescription("Predicts Aim On Basis Player Location",premium);
         premium.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
         premium.setOrientation(LinearLayout.VERTICAL);
         if(!isfree)
-        {    
+        {
             premium.setVisibility(View.VISIBLE);
         }
         addSubtitle("Aim at the Body Part",premium);
@@ -578,14 +648,14 @@ public class FService extends Service  {
                 switch (checkedId){
                     case 0:  loader.SetAim(2,1);
                         UpdateConfiguration("AIM::AIMBULLET",1);
-                        
-                    break;
+
+                        break;
 //                    case 1:  loader.SetAim(2,2); break;
 //                    case 2 : loader.SetAim(23);
 //                        UpdateConfiguration("AIM::AIMBULLET",2);
 //                    break;
                     case 2 : loader.SetAim(2,4);
-                        
+
                         UpdateConfiguration("AIM::AIMBULLET",2);
                         break;
                 }
@@ -597,7 +667,7 @@ public class FService extends Service  {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 loader.Switch(16,isChecked);
                 UpdateConfiguration("AIM::KNOCKED",isChecked ?1:0);
-                
+
             }
         },premium);
         addSubtitle("Target Selection Mode",premium);
@@ -606,22 +676,15 @@ public class FService extends Service  {
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 switch (checkedId){
                     case 0:loader.SetAim(3,1);
-                        
+
                         break;
                     case 1:loader.SetAim(3,0);
-                        
+
                         break;
                 }
             }
         },premium);
 
-        addSwitch(" Aim Prediction", new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                UpdateConfiguration("AIM::PREDICTION",isChecked ? 1:0);
-            }
-        },premium);
-        adddescription("Predicts Aim On Basis Player Location",premium);
         addSubtitle("Toggle Mode",premium);
         addRadioGroup(new String[]{"Firing & Aiming down Sight", "Aiming Down Sight", "Firing"}, 0, new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -629,17 +692,17 @@ public class FService extends Service  {
                 UpdateConfiguration("AIM::TRIGGER",0);
                 switch (checkedId){
                     case 0:  loader.SetAim(4,3);
-                        
-                            UpdateConfiguration("AIM::TRIGGER",3);
-                    break;
+
+                        UpdateConfiguration("AIM::TRIGGER",3);
+                        break;
                     case 1:  loader.SetAim(4,2);
-                        
-                            UpdateConfiguration("AIM::TRIGGER",2);
+
+                        UpdateConfiguration("AIM::TRIGGER",2);
                         break;
                     case 2:  loader.SetAim(4,1);
-                        
-                            UpdateConfiguration("AIM::TRIGGER",1);
-                    break;
+
+                        UpdateConfiguration("AIM::TRIGGER",1);
+                        break;
                 }
             }
         },premium);
@@ -863,8 +926,8 @@ public class FService extends Service  {
                 setValue((String)buttonView.getText(),isChecked);
             }
         },health);
-        itemtab.addView(health);
 
+        itemtab.addView(health);
         scope.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
         scope.setOrientation(LinearLayout.VERTICAL);
         //armor
@@ -1079,6 +1142,7 @@ public class FService extends Service  {
                 scope.setVisibility(View.GONE);
             }
         });
+
         Seprateitem.addView(Health);
 
         Scope.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,100));
@@ -1106,8 +1170,8 @@ public class FService extends Service  {
                 special.setVisibility(View.GONE);
             }
         });
-        Seprateitem.addView(Scope);
 
+        Seprateitem.addView(Scope);
         Vehical.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,100));
         Vehical.setPadding(2,5,0,2);
         Vehical.setText("Vehical");
@@ -1200,33 +1264,12 @@ public class FService extends Service  {
         checkBox.setOnCheckedChangeListener(on);
         parent.addView(checkBox);
     }
-    private void Memorylayout(){
-        memorytab.setLayoutParams(new LinearLayout.LayoutParams( LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
-        memorytab.setOrientation(LinearLayout.VERTICAL);
-        adddescription("Runtime Memory Modificaiton (You Might Be At Risk)",mMenuBody);
-        addSubtitle("Aimbot (Line Of Sight)",memorytab);
-        adddescription("Increases Aim Support On Visible Enemies",memorytab);
-        String [] aim = {"OFF","Head","Body"};
-        addRadioGroup(aim, 0, new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch (checkedId){
-                    case 0 :
-                        loader.SwitchMemory(6);
-                        Toast.makeText(getBaseContext(),"OFF",Toast.LENGTH_SHORT).show();
-                        break;
-                    case 1:
-                        loader.SwitchMemory(5);
-                        Toast.makeText(getBaseContext(),"Head Aim Activated",Toast.LENGTH_SHORT).show();
-                        break;
-                    case 2:
-                        loader.SwitchMemory(5);
-                        Toast.makeText(getBaseContext(),"Body Aim Activated",Toast.LENGTH_SHORT).show();
-                }
-            }
-        }, memorytab);
-        addSubtitle("Magic Bullet",memorytab);
-        adddescription("Bullet Auto Follows Enemy",memorytab);
+
+    private void ExperimentLayout(){
+        Experitlayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
+        Experitlayout.setOrientation(LinearLayout.VERTICAL);
+        addSubtitle("Magic Bullet",Experitlayout);
+        adddescription("Bullet Auto Follows Enemy",Experitlayout);
         addSwitch("Activate Magic Bullet", new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -1237,34 +1280,107 @@ public class FService extends Service  {
                     loader.SwitchMemory(8);
                 }
             }
-        },memorytab);
-        addSubtitle("Recoil Compensation",memorytab);
-        adddescription("Reduces Weapon Recoil On Firing",memorytab);
-       addRadioGroup(new String[]{"OFF", "Vertical", "Horizontal","Both"}, 0, new RadioGroup.OnCheckedChangeListener() {
-           @Override
-           public void onCheckedChanged(RadioGroup group, int checkedId) {
-               switch (checkedId){
-                   case 0 :
-                       loader.SwitchMemory(2);
-                       loader.SwitchMemory(21);
-                       break;
-                   case 1:
-                       loader.SwitchMemory(1);
-                       break;
-                   case 2:
-                       loader.SwitchMemory(20);
-                       break;
-                   case 3:
-                       loader.SwitchMemory(1);
-                       loader.SwitchMemory(20);
-                       break;
-               }
-           }
-       },memorytab);
+        },Experitlayout);
+        addSubtitle("Crouch Sprint", Experitlayout);
+        adddescription("Increases Player Speed While On Crouch", Experitlayout);
+        addRadioGroup(new String[]{"OFF","ON"}, 0, new
+                RadioGroup.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(RadioGroup group, int checkedId) {
+                        switch (checkedId){
+                            case 0:
+                                stopService(new Intent(ctx,Flogo.class));
+                                loader.SwitchMemory(26);
+                                loader.SwitchMemory(17);
+                                break;
+                            case 1:
+                                startService(new Intent(ctx,Flogo.class));
+                                StartService();
+                                Toast.makeText(getBaseContext(),"Press The Prone Button",Toast.LENGTH_SHORT).show();
+                                break;
+                        }
+                    }
+                }, Experitlayout);
+        addSubtitle("Car Generic Adjustments", Experitlayout);
+        addi(new String[]{"Car Speed", "Car Jump"}, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                switch (buttonView.getId()){
+                    case 0:
+                        if(isChecked){
+                            loader.SwitchMemory(12);
+                            Toast.makeText(getBaseContext(),buttonView.getText()+" Activated",Toast.LENGTH_SHORT).show();
+                        }else {
+                            loader.SwitchMemory(13);
+                        }
+                        break;
+                    case 1:
+                        if(isChecked){
+                            startService(new Intent(ctx,logo.class));
+                            Toast.makeText(getBaseContext(),"Car jump Menu Open",Toast.LENGTH_SHORT).show();
+                        }else {
+                            stopService(new Intent(ctx,logo.class));
+                        }
+                        break;
+                }
+            }
+        },Experitlayout);
+        memorytab.addView(Experitlayout);
+    }
 
-        addSubtitle("Custom Crosshair",memorytab);
-        adddescription("Reduces Bullet Spread On Hip Fire Or Improves Raw Aim",memorytab);
-        String [] crosshair = {"OFF","Graphical Crosshair","Memory Crosshair"};
+    private void Memorylayout() {
+        memorytab.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        memorytab.setOrientation(LinearLayout.VERTICAL);
+        adddescription("Runtime Memory Modificaiton (You Might Be At Risk)", memorytab);
+        addSubtitle("Aimbot (Line Of Sight)", memorytab);
+        adddescription("Increases Aim Support On Visible Enemies", memorytab);
+        String[] aim = {"OFF", "Head", "Body"};
+        addRadioGroup(aim, 0, new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId) {
+                    case 0:
+                        loader.SwitchMemory(6);
+                        Toast.makeText(getBaseContext(), "OFF", Toast.LENGTH_SHORT).show();
+                        break;
+                    case 1:
+                        loader.SwitchMemory(5);
+                        Toast.makeText(getBaseContext(), "Head Aim Activated", Toast.LENGTH_SHORT).show();
+                        break;
+                    case 2:
+                        loader.SwitchMemory(5);
+                        Toast.makeText(getBaseContext(), "Body Aim Activated", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }, memorytab);
+
+        addSubtitle("Recoil Compensation", memorytab);
+        adddescription("Reduces Weapon Recoil On Firing", memorytab);
+        addRadioGroup(new String[]{"OFF", "Vertical", "Horizontal", "Both"}, 0, new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId) {
+                    case 0:
+                        loader.SwitchMemory(2);
+                        loader.SwitchMemory(21);
+                        break;
+                    case 1:
+                        loader.SwitchMemory(1);
+                        break;
+                    case 2:
+                        loader.SwitchMemory(20);
+                        break;
+                    case 3:
+                        loader.SwitchMemory(1);
+                        loader.SwitchMemory(20);
+                        break;
+                }
+            }
+        }, memorytab);
+
+        addSubtitle("Custom Crosshair", memorytab);
+        adddescription("Reduces Bullet Spread On Hip Fire Or Improves Raw Aim", memorytab);
+        String[] crosshair = {"OFF", "Graphical Crosshair", "Memory Crosshair"};
 //        addSwitch("Medium Speed", new CompoundButton.OnCheckedChangeListener() {
 //            @Override
 //            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -1279,21 +1395,21 @@ public class FService extends Service  {
         addRadioGroup(crosshair, 0, new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch (checkedId){
-                    case 0 :
+                switch (checkedId) {
+                    case 0:
                         loader.SwitchMemory(4);
                         loader.Switch(148, false);
-                        Toast.makeText(getBaseContext(),"OFF",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getBaseContext(), "OFF", Toast.LENGTH_SHORT).show();
                         break;
                     case 1:
                         loader.Switch(148, true);
                         loader.SwitchMemory(4);
-                        Toast.makeText(getBaseContext(),"Graphical Crosshair Activated",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getBaseContext(), "Graphical Crosshair Activated", Toast.LENGTH_SHORT).show();
                         break;
                     case 2:
                         loader.SwitchMemory(3);
                         loader.Switch(148, false);
-                        Toast.makeText(getBaseContext(),"Memory Crosshair Activated",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getBaseContext(), "Memory Crosshair Activated", Toast.LENGTH_SHORT).show();
                 }
             }
         }, memorytab);
@@ -1301,15 +1417,15 @@ public class FService extends Service  {
         addSwitch("Midnight Enviornment", new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
+                if (isChecked) {
                     loader.SwitchMemory(9);
-                    Toast.makeText(getBaseContext(),buttonView.getText()+" Activated",Toast.LENGTH_SHORT).show();
-                }else{
+                    Toast.makeText(getBaseContext(), buttonView.getText() + " Activated", Toast.LENGTH_SHORT).show();
+                } else {
                     loader.SwitchMemory(10);
                 }
             }
-        },memorytab);
-        adddescription("Turn Surrounding into Midnight View For Better Visibility",memorytab);
+        }, memorytab);
+        adddescription("Turn Surrounding into Midnight View For Better Visibility", memorytab);
 //        addSubtitle("Player Scope Adjustment",memorytab);
 //        adddescription("Gives You advantage To shoot Through Wall(Can't Be Turn Off & Highly Risky)",memorytab);
 //        addi(new String[]{"SitScope", "SitLeftScope"}, new CompoundButton.OnCheckedChangeListener() {
@@ -1336,56 +1452,28 @@ public class FService extends Service  {
 //                }
 //            }
 //        },memorytab);
-   //     adddescription("Increases And Improves Player Knock Speed", memorytab);
+        //     adddescription("Increases And Improves Player Knock Speed", memorytab);
 
-
-
-        addSubtitle("Accelerate Player Speed", memorytab);
-        adddescription("Increases Player Speed On Tap & Makes You SuperMan With Double-Tap(200m)", memorytab);
+        addSubtitle("Stand Sprint", memorytab);
+        adddescription("Increases Player Speed While On Stand", memorytab);
         addRadioGroup(new String[]{"OFF", "ON"}, 0, new
                 RadioGroup.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(RadioGroup group, int checkedId) {
-                        switch (checkedId){
+                        switch (checkedId) {
                             case 0:
-                                stopService(new Intent(ctx,Flogo.class));
-                                loader.SwitchMemory(26);
-                                loader.SwitchMemory(17);
+                                stopService(new Intent(ctx, Flogo.class));
                                 break;
                             case 1:
-                                startService(new Intent(ctx,Flogo.class));
-                                Toast.makeText(getBaseContext(),"Player Speed Menu Open",Toast.LENGTH_SHORT).show();
+                                startService(new Intent(ctx, Flogo.class));
+                                Toast.makeText(getBaseContext(), "Stand Sprint Limited To 300m", Toast.LENGTH_SHORT).show();
                                 break;
                         }
                     }
                 }, memorytab);
-        addSubtitle("Car Generic Adjustments", memorytab);
-        addi(new String[]{"Car Speed", "Car Jump"}, new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                switch (buttonView.getId()){
-                    case 0:
-                        if(isChecked){
-                            loader.SwitchMemory(12);
-                            Toast.makeText(getBaseContext(),buttonView.getText()+" Activated",Toast.LENGTH_SHORT).show();
-                        }else {
-                            loader.SwitchMemory(13);
-                        }
-                        break;
-                    case 1:
-                        if(isChecked){
-                            startService(new Intent(ctx,logo.class));
-                            Toast.makeText(getBaseContext(),"Car jump Menu Open",Toast.LENGTH_SHORT).show();
-                        }else {
-                            stopService(new Intent(ctx,logo.class));
-                        }
-                        break;
-                }
-            }
-        },memorytab);
-
-
-        mMenuBody.addView(memorytab);
+        if (!isfree) {
+            ExperimentLayout();
+        }
     }
 
 //    private void sitscope(){
@@ -1419,9 +1507,11 @@ public class FService extends Service  {
         item = new LinearLayout(getBaseContext());
         itemlayout = new LinearLayout(getBaseContext());
         mainlayout = new LinearLayout(getBaseContext());
+        Experitlayout = new LinearLayout(getBaseContext());
         playerimg = new ImageView(getBaseContext());
         itemimg = new ImageView(getBaseContext());
         vehicalimg = new ImageView(getBaseContext());
+        Experitimg = new ImageView(getBaseContext());
         Seprateitem = new LinearLayout(getBaseContext());
         scope = new LinearLayout(getBaseContext());
         vehical = new LinearLayout(getBaseContext());
@@ -1436,6 +1526,7 @@ public class FService extends Service  {
         armors = new LinearLayout(getBaseContext());
         special = new LinearLayout(getBaseContext());
         PlayerBody = new LinearLayout(getBaseContext());
+
         itemtab.setOrientation(LinearLayout.HORIZONTAL);
         itemtab.setVisibility(View.GONE);
         aimbot.setVisibility(View.GONE);
@@ -1454,14 +1545,11 @@ public class FService extends Service  {
         mCollapsed.setLayoutParams(new RelativeLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         mMenuHeadImageView = new ImageView(getBaseContext());
         mMenuHeadImageView.setLayoutParams(new LinearLayout.LayoutParams(150, 130));
-
         byte[] decode = Base64.decode(Icon(), 0);
         mMenuHeadImageView.setImageBitmap(BitmapFactory.decodeByteArray(decode, 0, decode.length));
         mMenuHeadImageView.setImageAlpha(255);
-
         ((ViewGroup.MarginLayoutParams) mMenuHeadImageView.getLayoutParams()).topMargin = convertDipToPixels(10);
         mCollapsed.addView(mMenuHeadImageView);
-
         mExpanded.setLayoutParams(new LinearLayout.LayoutParams(750, ViewGroup.LayoutParams.WRAP_CONTENT));
         mExpanded.setOrientation(LinearLayout.VERTICAL);
         mExpanded.setBackgroundColor(Color.parseColor("#FF102030"));
@@ -1478,16 +1566,11 @@ public class FService extends Service  {
         mMenuHeadImageView.setVisibility(View.VISIBLE);
         mCollapsed.setVisibility(View.VISIBLE);
         mExpanded.setVisibility(View.GONE);
-
-
             /*
             ScrollView scroll = new ScrollView(getBaseContext());
             scroll.setLayoutParams(new LinearLayout.LayoutParams(mExpanded.getLayoutParams()));
             scroll.addView(mExpanded);
             */
-
-        // add views
-
 
         mRootContainer.addView(mCollapsed);
         mRootContainer.addView(mExpanded);
@@ -1559,8 +1642,8 @@ public class FService extends Service  {
         });
     }
 
-       private int convertDipToPixels(int i) {
-            return (int) ((((float) i) * getResources().getDisplayMetrics().density) + 0.5f);
+    private int convertDipToPixels(int i) {
+        return (int) ((((float) i) * getResources().getDisplayMetrics().density) + 0.5f);
     }
 
     @TargetApi(Build.VERSION_CODES.O)
@@ -1591,7 +1674,7 @@ public class FService extends Service  {
             public void run() {
                 clearcache();
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    String pathf =ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+Apak();
+                    String pathf =ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+Apak()+"Paks/game_patch_1.6.0.77775.pak";
                     try {
                         OutputStream myOutput = new FileOutputStream(pathf);
                         byte[] buffer = new byte[1024];
@@ -1627,19 +1710,6 @@ public class FService extends Service  {
         else {
             parent.addView(label);
         }
-    }
-
-    private void addsubheading(String text,LinearLayout parent) {
-        TextView label = new TextView(getBaseContext());
-        label.setBackgroundColor(Color.parseColor("#FF102030"));
-        label.setPadding(47, 0, 0, 5);
-        label.setText(text);
-        label.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/montserrat.ttf"));
-        label.setTextColor(Color.WHITE);
-        if(label.getParent() != null) {
-            ((LinearLayout)label.getParent()).removeView(label); // <- fix
-        }
-        parent.addView(label);
     }
 
     @TargetApi(Build.VERSION_CODES.O)
@@ -1751,8 +1821,6 @@ public class FService extends Service  {
                 stringBuilder.append(n2);
                 stringBuilder.append(string3);
                 textView.setText(stringBuilder.toString());
-
-
             }
 
             public void onStartTrackingTouch(SeekBar seekBar) {

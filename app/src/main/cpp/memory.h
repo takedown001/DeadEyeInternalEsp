@@ -15,36 +15,38 @@ struct Patch {
     MemoryPatch CarJump1;
     MemoryPatch SpeedKnock; //New
     MemoryPatch CarSpeed; //New
-    MemoryPatch UlrtaFlash;
+    MemoryPatch UlrtaFlash,
+            FixStuck,
+            FixSitStuck;
     MemoryPatch Flash; //New
     MemoryPatch CarJump,
-     Bypass1,
-             Bypass2,
-             Bypass3,
-             Bypass4,
-             Bypass5,
-             Bypass6,
-             Bypass7,
-             Bypass8,
-             Bypass9,
-             Bypass10,
-             Bypass11,
-             Bypass12,
-             Bypass13,
-             Bypass14,
-             Bypass15,
-             Bypass16,
-             Bypass17,
-             Bypass18,
-             Bypass19,
-             Bypass20,
-             Bypass21,
-             Bypass22,
-             Bypass23,
-             Bypass24,
-             Bypass25,
-             Bypass26,
-             Bypass27;
+            Bypass1,
+            Bypass2,
+            Bypass3,
+            Bypass4,
+            Bypass5,
+            Bypass6,
+            Bypass7,
+            Bypass8,
+            Bypass9,
+            Bypass10,
+            Bypass11,
+            Bypass12,
+            Bypass13,
+            Bypass14,
+            Bypass15,
+            Bypass16,
+            Bypass17,
+            Bypass18,
+            Bypass19,
+            Bypass20,
+            Bypass21,
+            Bypass22,
+            Bypass23,
+            Bypass24,
+            Bypass25,
+            Bypass26,
+            Bypass27;
 //             Bypass28,
 //             Bypass29,
 //             Bypass30,
@@ -330,7 +332,7 @@ Java_com_memory_xploiter_Loader_SwitchMemory(JNIEnv *env, jclass clazz, jint num
         case 10:
             xcode.MidNight.Restore();
             break;
-       case 11:
+        case 11:
 //             xcode.Bypass1.Modify();
 //             xcode.Bypass2.Modify();
 //             xcode.Bypass2.Modify();
@@ -353,12 +355,12 @@ Java_com_memory_xploiter_Loader_SwitchMemory(JNIEnv *env, jclass clazz, jint num
 //             xcode.Bypass19.Modify();
 //             xcode.Bypass20.Modify();
 //             xcode.Bypass21.Modify();
-             xcode.Bypass22.Modify();
-             xcode.Bypass23.Modify();
-             xcode.Bypass24.Modify();
-             xcode.Bypass25.Modify();
-             xcode.Bypass26.Modify();
-             xcode.Bypass27.Modify();
+            xcode.Bypass22.Modify();
+            xcode.Bypass23.Modify();
+            xcode.Bypass24.Modify();
+            xcode.Bypass25.Modify();
+            xcode.Bypass26.Modify();
+            xcode.Bypass27.Modify();
 //             xcode.Bypass28.Modify();
 //             xcode.Bypass29.Modify();
 //             xcode.Bypass30.Modify();
@@ -393,20 +395,20 @@ Java_com_memory_xploiter_Loader_SwitchMemory(JNIEnv *env, jclass clazz, jint num
 //            xcode.Bypass59.Modify();
 //            xcode.Bypass60.Modify();
             break;
-         case 12:
-             xcode.CarSpeed = MemoryPatch("libUE4.so", 0x4AA6B7C, "\x00\x00\x00\x00", 4);
-             xcode.CarSpeed.Modify();
-             break;
-         case 13:
-             xcode.CarSpeed.Restore();
-             break;
-        // case 14:
-        //     xcode.SpeedKnock = MemoryPatch("libUE4.so", 0x12CF9FC, "\x00\x00\x00\x00", 4);
-        //     xcode.SpeedKnock.Modify();
-        //     break;
-        // case 15:
-        //     xcode.SpeedKnock.Restore();
-        //     break;
+        case 12:
+            xcode.CarSpeed = MemoryPatch("libUE4.so", 0x4AA6B7C, "\x00\x00\x00\x00", 4);
+            xcode.CarSpeed.Modify();
+            break;
+        case 13:
+            xcode.CarSpeed.Restore();
+            break;
+            // case 14:
+            //     xcode.SpeedKnock = MemoryPatch("libUE4.so", 0x12CF9FC, "\x00\x00\x00\x00", 4);
+            //     xcode.SpeedKnock.Modify();
+            //     break;
+            // case 15:
+            //     xcode.SpeedKnock.Restore();
+            //     break;
         case 16:
             xcode.Flash = MemoryPatch("libUE4.so", 0x3C6F630, "\x00\x00\x00\x00", 4);
             xcode.Flash.Modify();
@@ -428,11 +430,17 @@ Java_com_memory_xploiter_Loader_SwitchMemory(JNIEnv *env, jclass clazz, jint num
             xcode.CarJump1.Restore();
             break;
         case 25:
+            xcode.FixStuck = MemoryPatch("libUE4.so", 0x146AC28, "\x00\x00\x00\x00", 4);
+            xcode.FixSitStuck = MemoryPatch("libUE4.so", 0x12FCB48, "\x00\x00\x50\xE3", 4);
             xcode.UlrtaFlash = MemoryPatch("libUE4.so", 0x3C7D1C8, "\x00\x00\x00\x00", 4);
             xcode.UlrtaFlash.Modify();
+            xcode.FixStuck.Modify();
+            xcode.FixSitStuck.Modify();
             break;
         case 26:
             xcode.UlrtaFlash.Restore();
+            xcode.FixStuck.Restore();
+            xcode.FixSitStuck.Restore();
             break;
         case 27:
             xcode.Bypass1.Restore();
