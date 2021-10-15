@@ -86,7 +86,7 @@ public class Anima extends Activity {
     Button Getkey;
     EditText mail, pass;
     Button init;
-    TextView pwr,update;
+    TextView update;
     public static boolean enablememory = false;
     private GradientDrawable gdAnimation = new GradientDrawable();
     private final GradientDrawable gdAnimation2 = new GradientDrawable();
@@ -171,7 +171,7 @@ public class Anima extends Activity {
         //add view form
         LinearLayout linearLayout2 = new LinearLayout(this);
         // use esse pois é mais compativel,entretanto as imagens tem de ser maior
-        RelativeLayout.LayoutParams rlp = new RelativeLayout.LayoutParams(convertDipToPixels(300f), -2);
+        RelativeLayout.LayoutParams rlp = new RelativeLayout.LayoutParams(convertDipToPixels(350f), -2);
         //RelativeLayout.LayoutParams rlp = new RelativeLayout.LayoutParams(1000, 650);
         linearLayout2.setBackgroundColor(Color.rgb(255, 255, 255));
         //linearLayout2.setAlpha(07);
@@ -180,7 +180,6 @@ public class Anima extends Activity {
         rlp.addRule(CENTER_IN_PARENT);
         linearLayout2.setOrientation(LinearLayout.VERTICAL);
         linearLayout2.setLayoutParams(rlp);
-
         LinearLayout linearLayoutc = new LinearLayout(this);
         linearLayoutc.setBackgroundColor(Color.TRANSPARENT);
         linearLayoutc.setOrientation(LinearLayout.HORIZONTAL);
@@ -210,14 +209,12 @@ public class Anima extends Activity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 prefs.write(USER, mail.getText().toString());
-
-
             }
         });
 
         RadioButton rd3 = new RadioButton(this);
-        rd3.setPadding(convertDipToPixels(20), convertDipToPixels(0), convertDipToPixels(10), convertDipToPixels(20));
-        rd3.setText((Html.fromHtml("<font face='monospace'> <font color='#000000'>Memory Features</font></font>")));
+        rd3.setPadding(convertDipToPixels(20), convertDipToPixels(0), convertDipToPixels(10), convertDipToPixels(0));
+        rd3.setText((Html.fromHtml("<font face='monospace'> <font color='#ff0000'>Memory Features</font></font>")));
         rd3.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#ff0000")));//setButtonTintList is accessible directly on API>19
 
         rd3.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -225,14 +222,14 @@ public class Anima extends Activity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
                 new AlertDialog.Builder(Anima.this)
-                        .setTitle("Warning Memory Features")
-                        .setMessage("Memory Features Are Risky Use At Your Own Risk!! You May Be Terminated From Game & Make Sure You Are Aware What You Are Doing")
+                        .setTitle(Html.fromHtml( "<font face='monospace'> <font color='#000000'>Alert</font></font>"))
+                        .setMessage(Html.fromHtml("<font face='monospace'> <font color='#000000'> Enabling And Using Memory Feature May Get Your Account Terminated. You're Yourself Responsible For Your Actions. </font></font>"))
                         .setCancelable(false)
-                        .setPositiveButton("Enable", (dialog, which) -> {
+                        .setPositiveButton(Html.fromHtml("<font face='monospace'><font color='#FF0000'> I Agree </font></font>"), (dialog, which) -> {
                             enablememory = true;
                             rd3.setChecked(true);
                         })
-                        .setNegativeButton("Disable", (dialog, which) -> {
+                        .setNegativeButton(Html.fromHtml("<font face='monospace'><font color='#D3D3D3'> Deny </font></font>"), (dialog, which) -> {
                             enablememory = false;
                             rd3.setChecked(false);
                         }).show();
@@ -307,24 +304,7 @@ public class Anima extends Activity {
                 startActivity(i);
             }
         });
-        RelativeLayout.LayoutParams rel6 = new RelativeLayout.LayoutParams(-1, convertDipToPixels(40.0f));
 
-        pwr = new TextView(this);
-        pwr.setText(PoweredBy());
-        rel6.setMargins(convertDipToPixels(0),convertDipToPixels(10),convertDipToPixels(0),convertDipToPixels(0));
-        pwr.setLayoutParams(rel6);
-        pwr.setTextSize(12);
-        pwr.setGravity(Gravity.CENTER);
-  //      pwr.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/montserrat.ttf"));
-        pwr.setTextColor(Color.RED);
-        pwr.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setData(Uri.parse(PartnerTg()));
-                startActivity(i);
-            }
-        });
         RelativeLayout.LayoutParams rel7 = new RelativeLayout.LayoutParams(-1, convertDipToPixels(40.0f));
 
         update = new TextView(this);
@@ -353,7 +333,7 @@ public class Anima extends Activity {
         linearLayoutc.addView(rd3);
         linearLayout2.addView(init);
         linearLayout2.addView(Getkey);
-        linearLayout2.addView(pwr);
+
         linearLayout2.addView(tg);
         linearLayout2.addView(update);
         linearLayout.addView(name);
@@ -535,6 +515,22 @@ public class Anima extends Activity {
                         } )
                         .setNegativeButton("Exit", (dialog, which) -> finish()).show();
             }
+        new AlertDialog.Builder(Anima.this)
+                .setTitle(Html.fromHtml( "<font face='monospace'> <font color='#000000'>Alert</font></font>"))
+                .setMessage(Html.fromHtml("<font face='monospace'> <font color='#000000'>"+ PoweredBy()+"</font></font>"))
+                .setCancelable(false)
+                .setPositiveButton(Html.fromHtml("<font face='monospace'><font color='#1E90FF'> Get Key </font></font>"), (dialog, which) -> {
+                    startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(PartnerTg())));
+                })
+                .setNegativeButton(Html.fromHtml("<font face='monospace'><font color='#ff0000'> Already Purchased, </font></font>"), (dialog, which) -> {
+                    try {
+                        finalize();
+                    } catch (Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+
+                }).show();
+
 //        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
 //            new AlertDialog.Builder(Anima.this)
 //                    .setTitle("Android 11 Detected!")

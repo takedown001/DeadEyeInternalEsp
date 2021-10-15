@@ -223,7 +223,7 @@ Java_com_memory_xploiter_Login_Check(JNIEnv *env, jclass clazz) {
 extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_memory_xploiter_Anima_PoweredBy(JNIEnv *env, jobject thiz) {
-    return env->NewStringUTF(OBS("OR\n Get Donators Access Key Just @Rs.79 / $1"));
+    return env->NewStringUTF(OBS("Get Your Own Donators Access Key And Enjoy Full Potential Of Our Applications As Well As Support Our Upcoming Work At A Price Of Just ₹99 / 1$ Per Week"));
 }
 
 extern "C"
@@ -279,7 +279,7 @@ Java_com_memory_xploiter_Anima_A11(JNIEnv *env, jobject thiz) {
 extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_memory_xploiter_Anima_update(JNIEnv *env, jobject thiz) {
-    return env->NewStringUTF(OBS("Join telegram To Stay Updated"));
+    return env->NewStringUTF(OBS("Join Telegram For Updates"));
 }
 extern "C"
 JNIEXPORT jstring JNICALL

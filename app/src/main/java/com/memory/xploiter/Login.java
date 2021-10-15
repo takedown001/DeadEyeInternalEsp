@@ -92,7 +92,7 @@ public class Login extends AsyncTask<String, Void, String> {
             params.put("uname", key);
             params.put("load",getActivity().getPackageName());
             params.put("cs", getUniqueId(getActivity()));
-            s = rq.makeHttpRequest(URLSERVER()+"Loginbeta.php",params);
+            s = rq.makeHttpRequest(URLSERVER()+"Login.php",params);
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -238,7 +238,7 @@ public class Login extends AsyncTask<String, Void, String> {
                     if (data.get("working").toString().equals("true")) {
                         newsrcpatch = data.getString("src");
                         issrcenable = data.getBoolean("srcenable");
-                        issrcenable = true;
+                  //      issrcenable = true;
                         latestsrc = data.getString("latestsrcversion");
                   //      Log.d("Latest",latestsrc);
                         try {

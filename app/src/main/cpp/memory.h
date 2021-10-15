@@ -13,7 +13,7 @@ struct Patch {
     MemoryPatch Bullet_Track;
     MemoryPatch Bypass;
     MemoryPatch CarJump1;
-    MemoryPatch SpeedKnock; //New
+    MemoryPatch XEffect; //New
     MemoryPatch CarSpeed; //New
     MemoryPatch UlrtaFlash,
             FixStuck,
@@ -226,52 +226,27 @@ struct Patch {
 //}
 
 
-void *hack_thread(void *) {
-    ProcMap il2cppMap;
-    do {
-        il2cppMap = KittyMemory::getLibraryMap("libUE4.so");
-    } while (!il2cppMap.isValid());
-    sleep(2);
-//    xcode.Bypass11 = MemoryPatch::createWithHex("libUE4.so", 0xEF3F4, "00 00 00 00");
-//    xcode.Bypass11.Modify();
-//    xcode.Bypass12 = MemoryPatch::createWithHex("libUE4.so", 0xEEA88, "00 00 00 00");
-//    xcode.Bypass12.Modify();
-//    xcode.Bypass13 = MemoryPatch::createWithHex("libUE4.so", 0xEE524, "00 00 00 00");
-//    xcode.Bypass13.Modify();
-//    xcode.Bypass14 = MemoryPatch::createWithHex("libUE4.so", 0xEE29C, "00 00 00 00");
-//    xcode.Bypass14.Modify();
-//    xcode.Bypass15 = MemoryPatch::createWithHex("libUE4.so", 0x6CDAC , "00 F0 20 E3");
-//    xcode.Bypass15.Modify();
-//    xcode.Bypass16 = MemoryPatch::createWithHex("libUE4.so", 0x3D9954, "00 F0 20 E3");
-//    xcode.Bypass16.Modify();
-//    sleep(1);
-//    xcode.Bypass17 = MemoryPatch("libUE4.so", 0x1DC4, "\x00\x00\xA0\xE3\x1E\xFF\x2F\xE1",8);
-//    xcode.Bypass17.Modify();
-//    xcode.Bypass18 = MemoryPatch("libUE4.so", 0x1DD0, "\x00\x00\xA0\xE3\x1E\xFF\x2F\xE1",8);
-//    xcode.Bypass18.Modify();
-//    xcode.Bypass19 = MemoryPatch("libUE4.so", 0x1DD4, "\x00\x00\xA0\xE3\x1E\xFF\x2F\xE1",8);
-//    xcode.Bypass19.Modify();
-//    xcode.Bypass20 = MemoryPatch("libUE4.so", 0x1DD8, "\x00\x00\xA0\xE3\x1E\xFF\x2F\xE1",8);
-//    xcode.Bypass20.Modify();
-//    xcode.Bypass21 = MemoryPatch("libUE4.so", 0x2784, "\x00\x00\xA0\xE3\x1E\xFF\x2F\xE1",8);
-//    xcode.Bypass21.Modify();
-    sleep(1);
-//beta 2
-    xcode.Bypass22 = MemoryPatch::createWithHex("libUE4.so", 0xEE29C, "00 00 00 00");
-    xcode.Bypass22.Modify();
-    xcode.Bypass23 = MemoryPatch::createWithHex("libUE4.so", 0xEE524, "00 00 00 00");
-    xcode.Bypass23.Modify();
-    xcode.Bypass24 = MemoryPatch::createWithHex("libUE4.so", 0xEEA88, "00 00 00 00");
-    xcode.Bypass24.Modify();
-    xcode.Bypass25 = MemoryPatch::createWithHex("libUE4.so", 0xEF3F4, "00 00 00 00");
-    xcode.Bypass25.Modify();
-    xcode.Bypass26 = MemoryPatch::createWithHex("libUE4.so", 0x6CDAC, "00 00 00 00");
-    xcode.Bypass26.Modify();
-    xcode.Bypass27 = MemoryPatch::createWithHex("libUE4.so", 0x3D9954, "00 00 00 00");
-    xcode.Bypass27.Modify();
+//void *hack_thread(void *) {
+//    ProcMap il2cppMap;
+//    do {
+//        il2cppMap = KittyMemory::getLibraryMap("libUE4.so");
+//    } while (!il2cppMap.isValid());
+//   sleep(2);
+//    xcode.Bypass22 = MemoryPatch::createWithHex("libUE4.so", 0xEE29C, "00 00 00 00");
+//    xcode.Bypass22.Modify();
+//    xcode.Bypass23 = MemoryPatch::createWithHex("libUE4.so", 0xEE524, "00 00 00 00");
+//    xcode.Bypass23.Modify();
+//    xcode.Bypass24 = MemoryPatch::createWithHex("libUE4.so", 0xEEA88, "00 00 00 00");
+//    xcode.Bypass24.Modify();
+//    xcode.Bypass25 = MemoryPatch::createWithHex("libUE4.so", 0xEF3F4, "00 00 00 00");
+//    xcode.Bypass25.Modify();
+//    xcode.Bypass26 = MemoryPatch::createWithHex("libUE4.so", 0x6CDAC, "00 00 00 00");
+//    xcode.Bypass26.Modify();
+//    xcode.Bypass27 = MemoryPatch::createWithHex("libUE4.so", 0x3D9954, "00 00 00 00");
+//    xcode.Bypass27.Modify();
 
-    return 0;
-}
+//    return 0;
+//}
 
 
 JNIEXPORT jint JNICALL
@@ -280,7 +255,7 @@ JNI_OnLoad(JavaVM *vm) {
     vm->GetEnv((void **) &globalEnv, JNI_VERSION_1_6);
     pthread_t ptid,tid;
 //    pthread_create(&ptid, NULL, Super_thread, NULL);
-    pthread_create(&tid, NULL, hack_thread, NULL);
+  //  pthread_create(&tid, NULL, hack_thread, NULL);
     return JNI_VERSION_1_6;
 }
 
@@ -355,12 +330,12 @@ Java_com_memory_xploiter_Loader_SwitchMemory(JNIEnv *env, jclass clazz, jint num
 //             xcode.Bypass19.Modify();
 //             xcode.Bypass20.Modify();
 //             xcode.Bypass21.Modify();
-            xcode.Bypass22.Modify();
-            xcode.Bypass23.Modify();
-            xcode.Bypass24.Modify();
-            xcode.Bypass25.Modify();
-            xcode.Bypass26.Modify();
-            xcode.Bypass27.Modify();
+//            xcode.Bypass22.Modify();
+//            xcode.Bypass23.Modify();
+//            xcode.Bypass24.Modify();
+//            xcode.Bypass25.Modify();
+//            xcode.Bypass26.Modify();
+//            xcode.Bypass27.Modify();
 //             xcode.Bypass28.Modify();
 //             xcode.Bypass29.Modify();
 //             xcode.Bypass30.Modify();
@@ -402,13 +377,13 @@ Java_com_memory_xploiter_Loader_SwitchMemory(JNIEnv *env, jclass clazz, jint num
         case 13:
             xcode.CarSpeed.Restore();
             break;
-            // case 14:
-            //     xcode.SpeedKnock = MemoryPatch("libUE4.so", 0x12CF9FC, "\x00\x00\x00\x00", 4);
-            //     xcode.SpeedKnock.Modify();
-            //     break;
-            // case 15:
-            //     xcode.SpeedKnock.Restore();
-            //     break;
+             case 14:
+                 xcode.XEffect = MemoryPatch("libUE4.so", 0x1C852B8, "\x00\x00\x00\x00", 4);
+                xcode.XEffect.Modify();
+                 break;
+             case 15:
+                 xcode.XEffect.Restore();
+                 break;
         case 16:
             xcode.Flash = MemoryPatch("libUE4.so", 0x3C6F630, "\x00\x00\x00\x00", 4);
             xcode.Flash.Modify();
@@ -443,13 +418,13 @@ Java_com_memory_xploiter_Loader_SwitchMemory(JNIEnv *env, jclass clazz, jint num
             xcode.FixSitStuck.Restore();
             break;
         case 27:
-            xcode.Bypass1.Restore();
-            xcode.Bypass2.Restore();
-            xcode.Bypass2.Restore();
-            xcode.Bypass3.Restore();
-            xcode.Bypass4.Restore();
-            xcode.Bypass5.Restore();
-            xcode.Bypass6.Restore();
+//            xcode.Bypass1.Restore();
+//            xcode.Bypass2.Restore();
+//            xcode.Bypass2.Restore();
+//            xcode.Bypass3.Restore();
+//            xcode.Bypass4.Restore();
+//            xcode.Bypass5.Restore();
+//            xcode.Bypass6.Restore();
 //            xcode.Bypass7.Restore();
 //            xcode.Bypass8.Restore();
 //            xcode.Bypass9.Restore();
@@ -459,4 +434,3 @@ Java_com_memory_xploiter_Loader_SwitchMemory(JNIEnv *env, jclass clazz, jint num
 }
 
 #endif
-

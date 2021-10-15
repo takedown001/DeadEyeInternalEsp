@@ -8,10 +8,13 @@ import static com.memory.xploiter.Login.issrcenable;
 import static com.memory.xploiter.Login.key;
 import static com.memory.xploiter.Login.latestsrc;
 import static com.memory.xploiter.Login.newsrcpatch;
-import static com.xcode.flash.InjectorService.StartService;
+import static com.xcode.donators.InjectorService.AntiGravity;
+import static com.xcode.donators.InjectorService.HeadShot;
+import static com.xcode.donators.InjectorService.Hook;
+import static com.xcode.donators.InjectorService.StartService;
+import static com.xcode.donators.InjectorService.magicbullet;
 
 import android.annotation.TargetApi;
-import android.app.AlertDialog;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -23,7 +26,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Typeface;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -61,6 +63,10 @@ import java.io.OutputStream;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import androtrainer.Flags;
+import androtrainer.MemoryScanner;
+import androtrainer.Ranges;
+
 public class FService extends Service  {
 
     private WindowManager mWindowManager;
@@ -86,6 +92,7 @@ public class FService extends Service  {
     public static int time;
     static Context ctx;
     private String gamename;
+    MemoryScanner xploit = new MemoryScanner();
     SharedPreferences configPrefs;
     private ImageView playerimg,itemimg,vehicalimg,Experitimg;
     private LinearLayout weapon,ammo, armors,health,scope,vehical,special;
@@ -317,11 +324,8 @@ public class FService extends Service  {
         mainlayout.addView(itemlayout);
 
     }
-
-
-
-
     private void clearcache(){
+
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -334,14 +338,10 @@ public class FService extends Service  {
 
     }
 
-
-
-
     private void applysrc(){
         new Thread(new Runnable() {
             @Override
             public void run() {
-
                 FileUtil.writeFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/Updater.ini", modify());
                 FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/PufferEifs0");
                 FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/PufferEifs1");
@@ -361,6 +361,7 @@ public class FService extends Service  {
             }
         }).start();
     }
+
     public native String modify ();
 
     public void src(){
@@ -382,6 +383,7 @@ public class FService extends Service  {
         }, srcpatch);
         mMenuBody.addView(srcpatch);
     }
+
     public native static String getcustomini();
     public native static String UserGameSettings();
 
@@ -396,6 +398,7 @@ public class FService extends Service  {
 //            FileUtil.appendStrToFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/UserCustom.ini","\n\n"+backupdeviceprf);
                 FileUtil.writeFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/GameUserSettings.ini",UserGameSettings());
             }
+
         }).start();
     }
 
@@ -404,7 +407,8 @@ public class FService extends Service  {
         adddescription("Bypasses Normal Integrity Scans And Security Patches On LOGO EveryTime", mMenuBody);
         addSwitch("Inject", (buttonView, isChecked) -> {
             if(isChecked) {
-                loader.SwitchMemory(11);
+                Hook(404);
+          //      loader.SwitchMemory(11);
                 Toast.makeText(ctx,"MTP Protection Bypassed",Toast.LENGTH_SHORT).show();
             }
 
@@ -602,12 +606,6 @@ public class FService extends Service  {
                 setValue((String)buttonView.getText(),isChecked);
             }
         },item);
-//        addi(new String[]{"3x", "6x","FlareGun"}, new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                setValue((String)buttonView.getText(),isChecked);
-//            }
-//        },item);
 
         mMenuBody.addView(item);
         setSeprateitem();
@@ -624,7 +622,6 @@ public class FService extends Service  {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 UpdateConfiguration("AIM::AIMBULLET", isChecked ? 1 : 0);
-                loader.Switch(14,isChecked);
             }
         }, aimbot);
 
@@ -648,14 +645,8 @@ public class FService extends Service  {
                 switch (checkedId){
                     case 0:  loader.SetAim(2,1);
                         UpdateConfiguration("AIM::AIMBULLET",1);
-
                         break;
-//                    case 1:  loader.SetAim(2,2); break;
-//                    case 2 : loader.SetAim(23);
-//                        UpdateConfiguration("AIM::AIMBULLET",2);
-//                    break;
-                    case 2 : loader.SetAim(2,4);
-
+                    case 1:  loader.SetAim(2,2);
                         UpdateConfiguration("AIM::AIMBULLET",2);
                         break;
                 }
@@ -676,7 +667,6 @@ public class FService extends Service  {
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 switch (checkedId){
                     case 0:loader.SetAim(3,1);
-
                         break;
                     case 1:loader.SetAim(3,0);
 
@@ -692,7 +682,6 @@ public class FService extends Service  {
                 UpdateConfiguration("AIM::TRIGGER",0);
                 switch (checkedId){
                     case 0:  loader.SetAim(4,3);
-
                         UpdateConfiguration("AIM::TRIGGER",3);
                         break;
                     case 1:  loader.SetAim(4,2);
@@ -708,7 +697,7 @@ public class FService extends Service  {
         },premium);
         addSubtitle("FOV",premium);
         int range =100;
-        AddSeekbarng( "Bullet aim with in the range", 50, 200, range, "", "", new SeekBar.OnSeekBarChangeListener(){
+        AddSeekbarng( "Bullet aim with in the range", 50, 250, range, "", "", new SeekBar.OnSeekBarChangeListener(){
             public void onProgressChanged(SeekBar seekBar, int range, boolean isChecked) {
                 loader.Range(seekBar.getProgress());
                 UpdateConfiguration("AIM::SIZE",seekBar.getProgress());
@@ -1268,39 +1257,8 @@ public class FService extends Service  {
     private void ExperimentLayout(){
         Experitlayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
         Experitlayout.setOrientation(LinearLayout.VERTICAL);
-        addSubtitle("Magic Bullet",Experitlayout);
-        adddescription("Bullet Auto Follows Enemy",Experitlayout);
-        addSwitch("Activate Magic Bullet", new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
-                    loader.SwitchMemory(7);
-                }
-                else{
-                    loader.SwitchMemory(8);
-                }
-            }
-        },Experitlayout);
-        addSubtitle("Crouch Sprint", Experitlayout);
-        adddescription("Increases Player Speed While On Crouch", Experitlayout);
-        addRadioGroup(new String[]{"OFF","ON"}, 0, new
-                RadioGroup.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(RadioGroup group, int checkedId) {
-                        switch (checkedId){
-                            case 0:
-                                stopService(new Intent(ctx,Flogo.class));
-                                loader.SwitchMemory(26);
-                                loader.SwitchMemory(17);
-                                break;
-                            case 1:
-                                startService(new Intent(ctx,Flogo.class));
-                                StartService();
-                                Toast.makeText(getBaseContext(),"Press The Prone Button",Toast.LENGTH_SHORT).show();
-                                break;
-                        }
-                    }
-                }, Experitlayout);
+
+
         addSubtitle("Car Generic Adjustments", Experitlayout);
         addi(new String[]{"Car Speed", "Car Jump"}, new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -1325,8 +1283,75 @@ public class FService extends Service  {
                 }
             }
         },Experitlayout);
+
+        addSwitch("Hit Marker Effect", new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    loader.SwitchMemory(14);
+                }else {
+                    loader.SwitchMemory(15);
+                }
+            }
+        },Experitlayout);
+        adddescription("Increases Hit Mark Giving A Visually Satisfying Feel While Shooting",Experitlayout);
+        addSubtitle("Experimental Feautres ", Experitlayout);
+        adddescription("Unstable Cheats You May Face Crash Sometimes & Only For Experiment Purpose (Features Can Not Be Disabled )",Experitlayout);
+
+        addSubtitle("Crouch Sprint", Experitlayout);
+        adddescription("Increases Player Speed While On Crouch", Experitlayout);
+        addRadioGroup(new String[]{"OFF","ON"}, 0, new
+                RadioGroup.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(RadioGroup group, int checkedId) {
+                        switch (checkedId){
+                            case 0:
+                                stopService(new Intent(ctx,Flogo.class));
+                                loader.SwitchMemory(26);
+                                loader.SwitchMemory(17);
+                                break;
+                            case 1:
+                                startService(new Intent(ctx,Flogo.class));
+                                StartService();
+                                Toast.makeText(getBaseContext(),"Press The Prone Button",Toast.LENGTH_SHORT).show();
+                                break;
+                        }
+                    }
+                }, Experitlayout);
+
+        addSwitch("Sit-Up Hand Scope (In Game)", new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    sitscope();
+                }else{
+                    Toast.makeText(ctx, "Feature Can't Be Disable", Toast.LENGTH_SHORT).show();
+                }
+            }
+        },Experitlayout);
+        adddescription("Makes Your Hand In Long To Give Advantage To Shoot Through Walls( In_Game)",Experitlayout);
+
+
+//        addi(new String[]{"HeadShot", "Magic Bullet"}, new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+//                switch (compoundButton.getId()){
+//                    case 0:
+//                        HeadShot();
+//                        compoundButton.setEnabled(false);
+//                        break;
+//                    case 1:
+//                        magicbullet();
+//                        compoundButton.setEnabled(false);
+//                        break;
+//
+//                }
+//            }
+//        },Experitlayout);
+
         memorytab.addView(Experitlayout);
     }
+
 
     private void Memorylayout() {
         memorytab.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -1353,7 +1378,19 @@ public class FService extends Service  {
                 }
             }
         }, memorytab);
-
+        addSubtitle("Magic Bullet",memorytab);
+        adddescription("Bullet Auto Follows Enemy",memorytab);
+        addSwitch("Activate Magic Bullet", new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    loader.SwitchMemory(7);
+                }
+                else{
+                    loader.SwitchMemory(8);
+                }
+            }
+        },memorytab);
         addSubtitle("Recoil Compensation", memorytab);
         adddescription("Reduces Weapon Recoil On Firing", memorytab);
         addRadioGroup(new String[]{"OFF", "Vertical", "Horizontal", "Both"}, 0, new RadioGroup.OnCheckedChangeListener() {
@@ -1381,17 +1418,6 @@ public class FService extends Service  {
         addSubtitle("Custom Crosshair", memorytab);
         adddescription("Reduces Bullet Spread On Hip Fire Or Improves Raw Aim", memorytab);
         String[] crosshair = {"OFF", "Graphical Crosshair", "Memory Crosshair"};
-//        addSwitch("Medium Speed", new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                if(isChecked){
-//                    loader.SwitchMemory(9);
-//                }
-//                else{
-//                    loader.SwitchMemory(10);
-//                }
-//            }
-//        },memorytab);
         addRadioGroup(crosshair, 0, new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -1454,6 +1480,7 @@ public class FService extends Service  {
 //        },memorytab);
         //     adddescription("Increases And Improves Player Knock Speed", memorytab);
 
+
         addSubtitle("Stand Sprint", memorytab);
         adddescription("Increases Player Speed While On Stand", memorytab);
         addRadioGroup(new String[]{"OFF", "ON"}, 0, new
@@ -1474,16 +1501,17 @@ public class FService extends Service  {
         if (!isfree) {
             ExperimentLayout();
         }
+
     }
 
-//    private void sitscope(){
-//            xploit.clearResults();
-//            xploit.setRanges(new int[]{Ranges.ANONYMOUS});
-//            xploit.searchNumber("18.38787841797", Flags.FLOAT);
-//            xploit.getResultsCount(1);
-//            xploit.editAll("130.5419921875", Flags.FLOAT, 0x0);
-//            xploit.clearResults();
-//    }
+    private void sitscope(){
+            xploit.clearResults();
+            xploit.setRanges(new int[]{Ranges.ANONYMOUS});
+            xploit.searchNumber("18.38787841797", Flags.FLOAT);
+            xploit.getResultsCount(1);
+            xploit.editAll("130.5419921875", Flags.FLOAT, 0x0);
+            xploit.clearResults();
+    }
 //    private void sitleft(){
 //            xploit.clearResults();
 //            xploit.setRanges(new int[]{Ranges.ANONYMOUS});
@@ -1493,7 +1521,14 @@ public class FService extends Service  {
 //            xploit.clearResults();
 //    }
 
-
+    public void magicbullet(){
+        xploit.clearResults();
+        xploit.setRanges(new int[]{Ranges.ANONYMOUS});
+        xploit.searchNumber("25;23;30.5", Flags.FLOAT);
+        xploit.getResultsCount(3);
+        xploit.editAll("120",Flags.FLOAT,0x0);
+        xploit.clearResults();
+    }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void initFloatingView() {
