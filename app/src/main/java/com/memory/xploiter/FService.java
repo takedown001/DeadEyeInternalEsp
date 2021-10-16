@@ -357,7 +357,8 @@ public class FService extends Service  {
                 FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/res_pufferpatch_1.6.0.15533.pak");
                 FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/core_patch_1.6.0.15531.pak");
                 FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/game_patch_1.6.0.15532.pak");
-
+                FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/game_patch_1.6.0.15536.pak");
+                FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/game_patch_1.6.0.15538.pak");
             }
         }).start();
     }
@@ -408,12 +409,12 @@ public class FService extends Service  {
         addSwitch("Inject", (buttonView, isChecked) -> {
             if(isChecked) {
                 Hook(404);
-          //      loader.SwitchMemory(11);
+                loader.SwitchMemory(11);
                 Toast.makeText(ctx,"MTP Protection Bypassed",Toast.LENGTH_SHORT).show();
             }
 
         },mMenuBody);
-        if(issrcenable && FileUtil.isExistFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/res_pufferpatch_1.6.0.15528.pak")){
+        if(issrcenable && !FileUtil.readFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/Updater.ini").equals(modify())){
             src();
         }
         if(!FileUtil.readFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/GameUserSettings.ini").equals(UserGameSettings())) {

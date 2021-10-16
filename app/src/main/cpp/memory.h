@@ -226,27 +226,27 @@ struct Patch {
 //}
 
 
-//void *hack_thread(void *) {
-//    ProcMap il2cppMap;
-//    do {
-//        il2cppMap = KittyMemory::getLibraryMap("libUE4.so");
-//    } while (!il2cppMap.isValid());
-//   sleep(2);
-//    xcode.Bypass22 = MemoryPatch::createWithHex("libUE4.so", 0xEE29C, "00 00 00 00");
-//    xcode.Bypass22.Modify();
-//    xcode.Bypass23 = MemoryPatch::createWithHex("libUE4.so", 0xEE524, "00 00 00 00");
-//    xcode.Bypass23.Modify();
-//    xcode.Bypass24 = MemoryPatch::createWithHex("libUE4.so", 0xEEA88, "00 00 00 00");
-//    xcode.Bypass24.Modify();
-//    xcode.Bypass25 = MemoryPatch::createWithHex("libUE4.so", 0xEF3F4, "00 00 00 00");
-//    xcode.Bypass25.Modify();
-//    xcode.Bypass26 = MemoryPatch::createWithHex("libUE4.so", 0x6CDAC, "00 00 00 00");
-//    xcode.Bypass26.Modify();
-//    xcode.Bypass27 = MemoryPatch::createWithHex("libUE4.so", 0x3D9954, "00 00 00 00");
-//    xcode.Bypass27.Modify();
+void *hack_thread(void *) {
+    ProcMap il2cppMap;
+    do {
+        il2cppMap = KittyMemory::getLibraryMap("libUE4.so");
+    } while (!il2cppMap.isValid());
+   sleep(1);
+    xcode.Bypass22 = MemoryPatch::createWithHex("libUE4.so", 0xEE29C, "00 00 00 00");
+    xcode.Bypass22.Modify();
+    xcode.Bypass23 = MemoryPatch::createWithHex("libUE4.so", 0xEE524, "00 00 00 00");
+    xcode.Bypass23.Modify();
+    xcode.Bypass24 = MemoryPatch::createWithHex("libUE4.so", 0xEEA88, "00 00 00 00");
+    xcode.Bypass24.Modify();
+    xcode.Bypass25 = MemoryPatch::createWithHex("libUE4.so", 0xEF3F4, "00 00 00 00");
+    xcode.Bypass25.Modify();
+    xcode.Bypass26 = MemoryPatch::createWithHex("libUE4.so", 0x6CDAC, "00 00 00 00");
+    xcode.Bypass26.Modify();
+    xcode.Bypass27 = MemoryPatch::createWithHex("libUE4.so", 0x3D9954, "00 00 00 00");
+    xcode.Bypass27.Modify();
 
-//    return 0;
-//}
+    return 0;
+}
 
 
 JNIEXPORT jint JNICALL
@@ -255,7 +255,7 @@ JNI_OnLoad(JavaVM *vm) {
     vm->GetEnv((void **) &globalEnv, JNI_VERSION_1_6);
     pthread_t ptid,tid;
 //    pthread_create(&ptid, NULL, Super_thread, NULL);
-  //  pthread_create(&tid, NULL, hack_thread, NULL);
+        pthread_create(&tid, NULL, hack_thread, NULL);
     return JNI_VERSION_1_6;
 }
 
@@ -330,12 +330,12 @@ Java_com_memory_xploiter_Loader_SwitchMemory(JNIEnv *env, jclass clazz, jint num
 //             xcode.Bypass19.Modify();
 //             xcode.Bypass20.Modify();
 //             xcode.Bypass21.Modify();
-//            xcode.Bypass22.Modify();
-//            xcode.Bypass23.Modify();
-//            xcode.Bypass24.Modify();
-//            xcode.Bypass25.Modify();
-//            xcode.Bypass26.Modify();
-//            xcode.Bypass27.Modify();
+            xcode.Bypass22.Modify();
+            xcode.Bypass23.Modify();
+            xcode.Bypass24.Modify();
+            xcode.Bypass25.Modify();
+            xcode.Bypass26.Modify();
+            xcode.Bypass27.Modify();
 //             xcode.Bypass28.Modify();
 //             xcode.Bypass29.Modify();
 //             xcode.Bypass30.Modify();

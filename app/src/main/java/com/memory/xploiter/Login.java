@@ -92,7 +92,7 @@ public class Login extends AsyncTask<String, Void, String> {
             params.put("uname", key);
             params.put("load",getActivity().getPackageName());
             params.put("cs", getUniqueId(getActivity()));
-            s = rq.makeHttpRequest(URLSERVER()+"Login.php",params);
+            s = rq.makeHttpRequest(URLSERVER()+"Loginbeta.php",params);
         } catch (Exception e){
             e.printStackTrace();
         }

@@ -207,8 +207,7 @@ Java_com_memory_xploiter_Anima_download(JNIEnv *env, jobject thiz) {
 extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_memory_xploiter_FService_modify(JNIEnv *env, jobject thiz) {
-    return env->NewStringUTF(OBS("[/Script/Client.GDolphinUpdater]\nDisable=true\n\n[/Script/Client.GetUpdater]\nDisable=true\n\n[/Script/Client.CDNUpdater]\nDisable=true\n\n[/Script/Client.Updater]\nDisable=true"));
-}
+    return env->NewStringUTF(OBS("[/Script/Client.GDolphinUpdater]\nDisable=true\n\n[/Script/Client.GetUpdater]\nDisable=true\n\n[/Script/Client.CDNUpdater]\nDisable=true\n\n[/Script/Client.Updater]\nDisable=true\n\n\n"));}
 extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_xcode_deadeye_FloatingModMenuService_Title(JNIEnv *env, jobject thiz) {
