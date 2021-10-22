@@ -103,7 +103,7 @@ public class ESPView extends View implements Runnable {
                 } else {
                     DrawText(canvas, 255, 0, 255, 0, 0.5f, mFPS + FPS(), 160, 90, 45);
                     DrawText(canvas, 255, 0, 255, 0, 0.5f, "Device Sdk : " + Build.VERSION.SDK, 190, 140, 35);
-                    DrawText(canvas, 255, 0, 255, 0, 0.5f, "Version : 2.9.B", 180, 175, 35);
+                    DrawText(canvas, 255, 0, 255, 0, 0.5f, "Version : 2.9.B#1", 180, 175, 35);
                 }
                 if(FService.time <= 0 && deviceid.getInt("time",0)<= 0){
                     ClearCanvas(canvas);

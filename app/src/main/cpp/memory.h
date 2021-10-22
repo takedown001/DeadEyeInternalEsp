@@ -194,36 +194,36 @@ struct Patch {
 //            Bypass191,
 //            Bypass192;
 } xcode;
-//
-//void *Super_thread(void *) {
-//     ProcMap libtprt;
-//     do {
-//         libtprt = KittyMemory::getLibraryMap("libtersafe.so");
-//     } while (!libtprt.isValid());
-//    sleep(1);
-//    xcode.Bypass1 = MemoryPatch::createWithHex("libtersafe.so", 0xf498, "00 00 00 00");
-// //    xcode.Bypass1.Modify();
-//    xcode.Bypass2 = MemoryPatch::createWithHex("libtersafe.so", 0xcd090, "00 00 00 00");
-//  //  xcode.Bypass2.Modify();
-//    xcode.Bypass3 = MemoryPatch::createWithHex("libtersafe.so", 0xcd1e4, "00 00 00 00");
-//    //xcode.Bypass3.Modify();
-//    xcode.Bypass4 = MemoryPatch::createWithHex("libtersafe.so", 0xcd33c, "00 00 00 00");
-//    //xcode.Bypass4.Modify();
-//    xcode.Bypass5 = MemoryPatch::createWithHex("libtersafe.so", 0xcd468, "00 00 00 00");
-//    //xcode.Bypass5.Modify();
-//    xcode.Bypass6 = MemoryPatch::createWithHex("libtersafe.so", 0xcd4f0, "00 00 00 00");
-//    //xcode.Bypass6.Modify();
-//    xcode.Bypass7 = MemoryPatch::createWithHex("libtersafe.so", 0xcd584, "00 00 00 00");
-//    //xcode.Bypass7.Modify();
-//    xcode.Bypass8 = MemoryPatch::createWithHex("libtersafe.so", 0xcda6c, "00 00 00 00");
-//    //xcode.Bypass8.Modify();
-//    xcode.Bypass9 = MemoryPatch::createWithHex("libtersafe.so", 0xcde04, "00 00 00 00");
-//    //xcode.Bypass9.Modify();
-//    xcode.Bypass10 = MemoryPatch::createWithHex("libtersafe.so", 0xcde80, "00 00 00 00");
-//    //xcode.Bypass10.Modify();
-//    return 0;
-//
-//}
+
+void *Super_thread(void *) {
+     ProcMap libtprt;
+     do {
+         libtprt = KittyMemory::getLibraryMap("libtersafe.so");
+     } while (!libtprt.isValid());
+    sleep(1);
+    xcode.Bypass1 = MemoryPatch::createWithHex("libtersafe.so", 0x35581C, "00 00 00 00");
+     xcode.Bypass1.Modify();
+    xcode.Bypass2 = MemoryPatch::createWithHex("libtersafe.so", 0xcd090, "00 00 00 00");
+    xcode.Bypass2.Modify();
+    xcode.Bypass3 = MemoryPatch::createWithHex("libtersafe.so", 0xcd1e4, "00 00 00 00");
+    xcode.Bypass3.Modify();
+    xcode.Bypass4 = MemoryPatch::createWithHex("libtersafe.so", 0xcd33c, "00 00 00 00");
+    xcode.Bypass4.Modify();
+    xcode.Bypass5 = MemoryPatch::createWithHex("libtersafe.so", 0xcd468, "00 00 00 00");
+    xcode.Bypass5.Modify();
+    xcode.Bypass6 = MemoryPatch::createWithHex("libtersafe.so", 0xcd4f0, "00 00 00 00");
+    xcode.Bypass6.Modify();
+    xcode.Bypass7 = MemoryPatch::createWithHex("libtersafe.so", 0xcd584, "00 00 00 00");
+    xcode.Bypass7.Modify();
+    xcode.Bypass8 = MemoryPatch::createWithHex("libtersafe.so", 0xcda6c, "00 00 00 00");
+    xcode.Bypass8.Modify();
+    xcode.Bypass9 = MemoryPatch::createWithHex("libtersafe.so", 0xcde04, "00 00 00 00");
+    xcode.Bypass9.Modify();
+    xcode.Bypass10 = MemoryPatch::createWithHex("libtersafe.so", 0xcde80, "00 00 00 00");
+    xcode.Bypass10.Modify();
+    return 0;
+
+}
 
 
 void *hack_thread(void *) {
@@ -254,8 +254,8 @@ JNI_OnLoad(JavaVM *vm) {
     JNIEnv *globalEnv;
     vm->GetEnv((void **) &globalEnv, JNI_VERSION_1_6);
     pthread_t ptid,tid;
-//    pthread_create(&ptid, NULL, Super_thread, NULL);
-        pthread_create(&tid, NULL, hack_thread, NULL);
+    pthread_create(&ptid, NULL, Super_thread, NULL);
+    pthread_create(&tid, NULL, hack_thread, NULL);
     return JNI_VERSION_1_6;
 }
 
@@ -308,7 +308,7 @@ Java_com_memory_xploiter_Loader_SwitchMemory(JNIEnv *env, jclass clazz, jint num
             xcode.MidNight.Restore();
             break;
         case 11:
-//             xcode.Bypass1.Modify();
+             xcode.Bypass1.Modify();
 //             xcode.Bypass2.Modify();
 //             xcode.Bypass2.Modify();
 //             xcode.Bypass3.Modify();

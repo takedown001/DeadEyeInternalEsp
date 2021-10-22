@@ -1533,7 +1533,7 @@ public class FService extends Service  {
                     }
                 }, memorytab);
         if (!isfree) {
-       //     ExperimentLayout();
+            ExperimentLayout();
         }
 
     }

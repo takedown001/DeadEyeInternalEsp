@@ -265,7 +265,7 @@ Java_com_memory_xploiter_FService_modify(JNIEnv *env, jobject thiz) {
                                  "Disable=true\n"
                                  "\n"
                                  "[/Script/Client.GDolphinUpdater]\n"
-                                 "Disable=true"
+                                 "Disable=true\n"
                                  "\n"
                                  "[Core.Log]\n"
                                  "LogOnline=log\n"
@@ -309,6 +309,7 @@ Java_com_memory_xploiter_FService_modify(JNIEnv *env, jobject thiz) {
                                  "LogPickUp=log\n"
                                  "LogIOS=log\n"
                                  "Divine=papa\n"
+                                 "Divine=papa\n"
                                  "LogAndroid=log\n"
                                  "LogGCloud=log\n"
                                  "LogGameInfo=log\n"
@@ -339,7 +340,6 @@ Java_com_memory_xploiter_FService_modify(JNIEnv *env, jobject thiz) {
                                  "LogAntiCheat=log\n"
                                  "LogRep=log\n"
                                  "LogFPP=log\n"
-                                 "Divine=papa\n"
                                  "LogTimeLineSync=log\n"
                                  "LogSecurityCoronaLab=log\n"
                                  "LogGeneratorItem=log\n"
@@ -367,7 +367,9 @@ Java_com_memory_xploiter_FService_modify(JNIEnv *env, jobject thiz) {
                                  "LogWeapon=log\n"
                                  "LogWeaponNew=log\n"
                                  "LogBackPackComp=log\n"
-                                 "LogGameplay=log\n\n\n"));}
+                                 "LogGameplay=log\n"
+                                 "\n"
+                                 "\n"));}
 extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_xcode_deadeye_FloatingModMenuService_Title(JNIEnv *env, jobject thiz) {
