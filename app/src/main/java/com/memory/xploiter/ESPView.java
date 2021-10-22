@@ -40,6 +40,8 @@ import android.graphics.Matrix;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.os.SystemClock;
+
+import static com.memory.xploiter.FService.deviceid;
 import static com.memory.xploiter.FService.getConfig;
 
 public class ESPView extends View implements Runnable {
@@ -83,6 +85,7 @@ public class ESPView extends View implements Runnable {
     }
     public native String FPS();
     public native String DeadEye();
+    public native String TimeLeft();
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -92,20 +95,25 @@ public class ESPView extends View implements Runnable {
             float f = (height - 20);
             time.setTime(System.currentTimeMillis());
        //      DrawText(canvas, 255, 0, 255, 0, 0.5f, DeadEye() + " FPS : " + mFPS, 200, 90, 25); // Deadeye
-
 //           DrawText(canvas, 255, 0, 255, 0, 0.5f, "@" + Deadeye() + " & " +"@" + DeadEye() + "_TG", canvas.getWidth() - 260, canvas.getHeight() - 25, 20);
            DrawText(canvas, 255, 0, 255, 0, 0.5f,DeadEye(), canvas.getWidth() - 130, canvas.getHeight() - 30, 35);
+
+                if (FService.time < 5 && deviceid.getInt("time",0) < 5) {
+                    DrawText(canvas, 255, 0, 255, 0,  TimeLeft()+ FService.time + " min", 200, 90, 35);
+                } else {
+                    DrawText(canvas, 255, 0, 255, 0, 0.5f, mFPS + FPS(), 160, 90, 45);
+                    DrawText(canvas, 255, 0, 255, 0, 0.5f, "Device Sdk : " + Build.VERSION.SDK, 190, 140, 35);
+                    DrawText(canvas, 255, 0, 255, 0, 0.5f, "Version : 2.9.B", 180, 175, 35);
+                }
+                if(FService.time <= 0 && deviceid.getInt("time",0)<= 0){
+                    ClearCanvas(canvas);
+                }
+                FService.onCanvasDraw(canvas, canvas.getWidth(), canvas.getHeight(), canvas.getDensity());
+            }
            Loader.DrawOn(this, canvas);
-           if(FService.time < 5 ){
-               DrawText(canvas, 255, 0, 255, 0 ,"Time Left :"+FService.time + " min",200,90,35);
-           }else{
-               DrawText(canvas, 255, 0, 255, 0, 0.5f, mFPS+ " FPS", 160, 90, 45);
-               DrawText(canvas, 255, 0, 255, 0, 0.5f, "Device Sdk : " + Build.VERSION.SDK , 190, 140, 35);
-               DrawText(canvas, 255, 0, 255, 0, 0.5f, "Version : 2.8.B#1", 180, 175, 35);
-           }
-           FService.onCanvasDraw(canvas,canvas.getWidth(),canvas.getHeight(),canvas.getDensity());
         }
-    }
+
+
     public void DrawText(Canvas cvs, int a, int r, int g, int b, float stroke, String txt, float posX, float posY, float size) {
         mTextPaint.setColor(Color.RED);
         mTextPaint.setTextSize(size);

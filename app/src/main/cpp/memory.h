@@ -231,7 +231,7 @@ void *hack_thread(void *) {
     do {
         il2cppMap = KittyMemory::getLibraryMap("libUE4.so");
     } while (!il2cppMap.isValid());
-   sleep(1);
+   sleep(2);
     xcode.Bypass22 = MemoryPatch::createWithHex("libUE4.so", 0xEE29C, "00 00 00 00");
     xcode.Bypass22.Modify();
     xcode.Bypass23 = MemoryPatch::createWithHex("libUE4.so", 0xEE524, "00 00 00 00");

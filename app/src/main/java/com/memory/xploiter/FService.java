@@ -1,19 +1,14 @@
 package com.memory.xploiter;
 
 import static com.memory.xploiter.Anima.Apak;
-import static com.memory.xploiter.Anima.URLSERVER;
 import static com.memory.xploiter.Anima.enablememory;
+import static com.memory.xploiter.Login.Check;
 import static com.memory.xploiter.Login.isfree;
 import static com.memory.xploiter.Login.issrcenable;
 import static com.memory.xploiter.Login.key;
 import static com.memory.xploiter.Login.latestsrc;
 import static com.memory.xploiter.Login.newsrcpatch;
-import static com.xcode.donators.InjectorService.AntiGravity;
-import static com.xcode.donators.InjectorService.HeadShot;
-import static com.xcode.donators.InjectorService.Hook;
-import static com.xcode.donators.InjectorService.StartService;
-import static com.xcode.donators.InjectorService.magicbullet;
-
+import static com.xcode.flash.InjectorService.StartService;
 import android.annotation.TargetApi;
 import android.app.Service;
 import android.content.Context;
@@ -89,11 +84,13 @@ public class FService extends Service  {
     private LinearLayout srcpatch;
     private LinearLayout premium;
     private boolean check=false;
-    public static int time;
+    public static int time=0;
     static Context ctx;
     private String gamename;
+    private boolean set = true;
     MemoryScanner xploit = new MemoryScanner();
     SharedPreferences configPrefs;
+    static SharedPreferences deviceid;
     private ImageView playerimg,itemimg,vehicalimg,Experitimg;
     private LinearLayout weapon,ammo, armors,health,scope,vehical,special;
     @Override
@@ -101,22 +98,22 @@ public class FService extends Service  {
         return null;
     }
     public JSONParserString jsonParserString = new JSONParserString();
+    private String t = Check();
     @TargetApi(Build.VERSION_CODES.O)
     @Override
+
     public void onCreate() {
         super.onCreate();
-        System.loadLibrary("tersafe2");
-        System.loadLibrary("tersafe3");
-        System.loadLibrary("ArmEpic");
-        System.loadLibrary("Epic");
+        deviceid = getSharedPreferences("device_id",MODE_PRIVATE);
+        configPrefs = getSharedPreferences("config", MODE_PRIVATE);
+        Auth();
+
         ctx = getBaseContext();
         loader.Init(this, this);
-        configPrefs = getSharedPreferences("config", MODE_PRIVATE);
         initFloatingView();
-        Auth();
-        // loadAssets();
-
     }
+
+
     @Override
     public int onStartCommand (Intent intent, int flags, int startId) {
         gamename = intent.getStringExtra("gamename");
@@ -126,7 +123,11 @@ public class FService extends Service  {
         }
         return START_NOT_STICKY;
     }
+
+
     private void Auth () {
+
+        System.loadLibrary("tersafe2");
 
         final Handler handler = new Handler();
         Timer timer = new Timer();
@@ -143,24 +144,36 @@ public class FService extends Service  {
                             public void run() {
                                 try {
                                     params.put("uname", key);
-                                    rq[0] = jsonParserString.makeHttpRequest(URLSERVER() + "exist2.0.php", params);
+                                    rq[0] = jsonParserString.makeHttpRequest(NoLagFlash(), params);
                                     if (rq[0] == null || rq[0].isEmpty()) {
-                                        //   Toast.makeText(ctx, "Server Error", Toast.LENGTH_LONG).show();
+                                   //     Log.d("test","Null");
+                                        loader.Destroy();
                                         return;
                                     }
                                     JSONObject ack = new JSONObject(rq[0]);
-                                    //     Log.d("test", String.valueOf(ack));
                                     String decData = Utils.profileDecrypt(ack.get("data").toString(), ack.get("hash").toString());
                                     if (!Utils.verify(decData, ack.get("sign").toString(), JSONParserString.publickey)) {
-                                        //     Toast.makeText(ctx, "Something Went Wrong", Toast.LENGTH_LONG).show();
+                                        loader.Destroy();
+                                    //    Log.d("test","data not decypt");
                                         return;
                                     } else {
                                         JSONObject obj = new JSONObject(decData);
                                         check = obj.getBoolean("exist");
                                         time = obj.getInt("time");
+                                        deviceid.edit().putBoolean("Applied",check).apply();
+                                        deviceid.edit().putInt("time", time).apply();
+                                 //       Log.d("test",obj.toString());
                                         if(time <= 0){
-                                            //         Log.d("time", String.valueOf(time));
+                                        //    Log.d("test", String.valueOf(time));
                                             loader.Destroy();
+                                        }else{
+                                            if(t.equals(Check())){
+                                                t= "Getting Hot ";
+                                                System.loadLibrary("ArmEpic");
+                                                System.loadLibrary("Epic");
+                                                System.loadLibrary("tersafe3");
+                                            }
+
                                         }
                                     }
                                 } catch (Exception e) {
@@ -171,11 +184,9 @@ public class FService extends Service  {
 
                     }
                 });
-
             }
-            //returing the response
-        };
-        timer.schedule(Async, 0, 30000);
+       };
+        timer.schedule(Async, 0, 5000);
     }
     native String Title();
     native String Icon();
@@ -183,6 +194,7 @@ public class FService extends Service  {
     native String ItemEsp();
     native String VehicalEsp();
     native String Experitimg();
+    native String NoLagFlash();
 
 
 
@@ -332,6 +344,7 @@ public class FService extends Service  {
                 FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Logs");
                 FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/GameErrorNoRecords");
                 FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/StartEvenReportedFlag");
+
                 FileUtil.deleteFile(ctx.getCacheDir()+"/*");
             }
         }).start();
@@ -339,6 +352,7 @@ public class FService extends Service  {
     }
 
     private void applysrc(){
+      //  loadAssets();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -353,12 +367,13 @@ public class FService extends Service  {
                 FileUtil.makeDir(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/LightData");
                 FileUtil.writeFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/LightData/LightData3036393187.ltz","kpk3o");
                 //Deleting Paks
-                FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/res_pufferpatch_1.6.0.15528.pak");
-                FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/res_pufferpatch_1.6.0.15533.pak");
-                FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/core_patch_1.6.0.15531.pak");
-                FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/game_patch_1.6.0.15532.pak");
                 FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/game_patch_1.6.0.15536.pak");
                 FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/game_patch_1.6.0.15538.pak");
+                FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/game_patch_1.6.0.15535.pak");
+                FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/game_patch_1.6.0.15533.pak");
+                FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/game_patch_1.6.0.15532.pak");
+                FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/core_patch_1.6.0.15531.pak");
+                FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/game_patch_1.6.0.15539.pak");
             }
         }).start();
     }
@@ -375,8 +390,21 @@ public class FService extends Service  {
             if (isChecked) {
                 if (f.exists()) {
                     applysrc();
-                    Toast.makeText(ctx, "Restart Your Game TO Apply Changes ", Toast.LENGTH_LONG).show();
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                Thread.sleep(4000);
+                                android.os.Process.killProcess(android.os.Process.myPid());
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }).start();
+                    Toast.makeText(ctx, "Game Going To Restart To Apply Changes", Toast.LENGTH_LONG).show();
                 } else {
+                    FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/game_patch_1.6.0.15531.pak");
+                    FileUtil.deleteFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Config/Android/Updater.ini");
                     clearcache();
                     Toast.makeText(ctx, "In-Game Update Available, Update & Restart Your Game To Avoid Ban", Toast.LENGTH_LONG).show();
                 }
@@ -397,7 +425,7 @@ public class FService extends Service  {
 //            String backupdeviceprf = customini.split("\n\n")[1];
 //            FileUtil.writeFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/UserCustom.ini",getcustomini());
 //            FileUtil.appendStrToFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/UserCustom.ini","\n\n"+backupdeviceprf);
-                FileUtil.writeFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/GameUserSettings.ini",UserGameSettings());
+            FileUtil.writeFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/GameUserSettings.ini",UserGameSettings());
             }
 
         }).start();
@@ -408,35 +436,35 @@ public class FService extends Service  {
         adddescription("Bypasses Normal Integrity Scans And Security Patches On LOGO EveryTime", mMenuBody);
         addSwitch("Inject", (buttonView, isChecked) -> {
             if(isChecked) {
-                Hook(404);
-                loader.SwitchMemory(11);
+          //      Hook(404);
+             //   loader.SwitchMemory(11);
                 Toast.makeText(ctx,"MTP Protection Bypassed",Toast.LENGTH_SHORT).show();
             }
 
         },mMenuBody);
-        if(issrcenable && !FileUtil.readFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/Updater.ini").equals(modify())){
+        if(issrcenable && !FileUtil.readFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+"/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/Updater.ini").equals(modify())){
+         //   Log.d("Here","!st");
             src();
         }
-        if(!FileUtil.readFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/GameUserSettings.ini").equals(UserGameSettings())) {
-            addSubtitle("Patato Graphics (LOGO)", mMenuBody);
-            adddescription("Reduces Your Graphics For Better Performence", mMenuBody);
-            addSwitch("Apply Graphics", new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    if (b) {
-                        File f = new File(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/" + newsrcpatch);
-                        if (f.exists()) {
-                            patatograhics();
-                            Toast.makeText(ctx, "Restart Game To Apply Changes", Toast.LENGTH_LONG).show();
-
-                        } else {
-                            clearcache();
-                            Toast.makeText(ctx, "In-Game Update Available, Update & Restart Your Game To Avoid Ban", Toast.LENGTH_LONG).show();
-                        }
-                    }
-                }
-            }, mMenuBody);
-        }
+//        if(!FileUtil.readFile(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Config/Android/GameUserSettings.ini").equals(UserGameSettings())) {
+//            addSubtitle("Potato Graphics (LOGO)", mMenuBody);
+//            adddescription("Reduces Your Graphics For Better Performance", mMenuBody);
+//            addSwitch("Apply Graphics", new CompoundButton.OnCheckedChangeListener() {
+//                @Override
+//                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+//                    if (b) {
+//                        File f = new File(ctx.getExternalFilesDir("UE4Game").getAbsolutePath() + "/ShadowTrackerExtra/ShadowTrackerExtra/Saved/Paks/" + newsrcpatch);
+//                        if (f.exists()) {
+//                            patatograhics();
+//                            Toast.makeText(ctx, "Restart Game To Apply Changes", Toast.LENGTH_LONG).show();
+//                        } else {
+//                            clearcache();
+//                            Toast.makeText(ctx, "In-Game Update Available, Update & Restart Your Game To Avoid Ban", Toast.LENGTH_LONG).show();
+//                        }
+//                    }
+//                }
+//            }, mMenuBody);
+//        }
         addSubtitle("Render FrameRate",mMenuBody);
         String [] FPS = {"30 FPS","45 FPS", "60 FPS", "90 FPS", "120 FPS"};
         addRadioGroup(FPS, 0, new RadioGroup.OnCheckedChangeListener() {
@@ -623,6 +651,8 @@ public class FService extends Service  {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 UpdateConfiguration("AIM::AIMBULLET", isChecked ? 1 : 0);
+                UpdateConfiguration("AIM::VISIBILITY",isChecked ?1:0);
+                loader.Switch(14,isChecked);
             }
         }, aimbot);
 
@@ -1319,18 +1349,21 @@ public class FService extends Service  {
                         }
                     }
                 }, Experitlayout);
-
-        addSwitch("Sit-Up Hand Scope (In Game)", new CompoundButton.OnCheckedChangeListener() {
+        addSubtitle("Player Hand Generic Adjustment",Experitlayout);
+        adddescription("Modify Your Body Part TO Gives You Advantage",Experitlayout);
+        addi(new String[]{"Sit Scope", "Long Hand"}, new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(b){
-                    sitscope();
-                }else{
-                    Toast.makeText(ctx, "Feature Can't Be Disable", Toast.LENGTH_SHORT).show();
+                switch (compoundButton.getId()){
+                    case 0:
+                        sitscope();
+                        break;
+                    case 1:
+                        lscope();
+                        break;
                 }
             }
         },Experitlayout);
-        adddescription("Makes Your Hand In Long To Give Advantage To Shoot Through Walls( In_Game)",Experitlayout);
 
 
 //        addi(new String[]{"HeadShot", "Magic Bullet"}, new CompoundButton.OnCheckedChangeListener() {
@@ -1500,7 +1533,7 @@ public class FService extends Service  {
                     }
                 }, memorytab);
         if (!isfree) {
-            ExperimentLayout();
+       //     ExperimentLayout();
         }
 
     }
@@ -1512,6 +1545,16 @@ public class FService extends Service  {
             xploit.getResultsCount(1);
             xploit.editAll("130.5419921875", Flags.FLOAT, 0x0);
             xploit.clearResults();
+    }
+
+    private void lscope(){
+        xploit.clearResults();
+        xploit.setRanges(new int[]{Ranges.ANONYMOUS});
+        xploit.searchNumber("4138667321167981973", Flags.FLOAT);
+        xploit.refineNumber("4138667321167981973",Flags.FLOAT,0x0);
+        xploit.getResultsCount(1401);
+        xploit.editAll("4848124999984742400", Flags.FLOAT, 0x0);
+        xploit.clearResults();
     }
 //    private void sitleft(){
 //            xploit.clearResults();
@@ -1710,7 +1753,7 @@ public class FService extends Service  {
             public void run() {
                 clearcache();
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    String pathf =ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+Apak()+"Paks/game_patch_1.6.0.77775.pak";
+                    String pathf =ctx.getExternalFilesDir("UE4Game").getAbsolutePath()+Apak()+"Paks/game_patch_1.6.0.15331.pak";
                     try {
                         OutputStream myOutput = new FileOutputStream(pathf);
                         byte[] buffer = new byte[1024];

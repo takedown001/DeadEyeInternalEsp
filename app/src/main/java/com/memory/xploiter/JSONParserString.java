@@ -27,9 +27,8 @@ public class JSONParserString {
     // by making HTTP POST or GET mehtod
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public String makeHttpRequest(String url,JSONObject params) throws Exception {
-
-
         JSONObject token = new JSONObject();
+        
         token.put("data", Utils.encrypt(params.toString(), publickey));
         token.put("hash", Utils.SHA256(params.toString()));
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
@@ -38,7 +37,6 @@ public class JSONParserString {
         KeyStore keyStore = KeyStore.getInstance(keyStoreType);
         keyStore.load(null, null);
         keyStore.setCertificateEntry("ca", ca);
-
         String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
         TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
         tmf.init(keyStore);
@@ -54,6 +52,7 @@ public class JSONParserString {
     //    Log.d("auth",postParameters);
         out.print(postParameters);
         out.close();
+
         return Utils.fromBase64String(Utils.readStream(urlConnection.getInputStream()));
     }
 }

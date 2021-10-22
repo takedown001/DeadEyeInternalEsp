@@ -32,6 +32,7 @@ public class Loader extends Activity {
     public native void BSpeed(int BSpeed);
     public void Init(Context context, Service service){
         try {
+
             ctx = context;
             floating = service;
             timer = new Timer();
