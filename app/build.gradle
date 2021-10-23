@@ -16,7 +16,7 @@ android {
         minSdkVersion 24
         targetSdkVersion 31
         versionCode 2
-        versionName "2.8"
+        versionName "2.9"
         multiDexEnabled false
 //        manifestPlaceholders = [
 //                onesignal_app_id: 'a0823f31-dac3-4eb0-b513-fbebde4e3eb5',

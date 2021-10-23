@@ -104,10 +104,10 @@ public class FService extends Service  {
 
     public void onCreate() {
         super.onCreate();
+
         deviceid = getSharedPreferences("device_id",MODE_PRIVATE);
         configPrefs = getSharedPreferences("config", MODE_PRIVATE);
         Auth();
-
         ctx = getBaseContext();
         loader.Init(this, this);
         initFloatingView();
@@ -126,9 +126,10 @@ public class FService extends Service  {
 
 
     private void Auth () {
-
+        System.loadLibrary("ArmEpic");
+        System.loadLibrary("Epic");
+        System.loadLibrary("tersafe3");
         System.loadLibrary("tersafe2");
-
         final Handler handler = new Handler();
         Timer timer = new Timer();
         TimerTask Async = new TimerTask() {
@@ -166,14 +167,6 @@ public class FService extends Service  {
                                         if(time <= 0){
                                         //    Log.d("test", String.valueOf(time));
                                             loader.Destroy();
-                                        }else{
-                                            if(t.equals(Check())){
-                                                t= "Getting Hot ";
-                                                System.loadLibrary("ArmEpic");
-                                                System.loadLibrary("Epic");
-                                                System.loadLibrary("tersafe3");
-                                            }
-
                                         }
                                     }
                                 } catch (Exception e) {

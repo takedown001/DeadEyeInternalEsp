@@ -500,7 +500,7 @@ Java_com_memory_xploiter_FService_Experitimg(JNIEnv *env, jobject thiz) {
 extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_memory_xploiter_Anima_SSSS(JNIEnv *env, jclass clazz) {
-    return env->NewStringUTF(OBS("https://Gamesploit.com/project/Internalesp/LoginBeta.php"));
+    return env->NewStringUTF(OBS("https://Gamesploit.com/project/Internalesp/Login.php"));
 }
 
 extern "C"
